@@ -3,7 +3,7 @@ from .views import *
 
 urlpatterns=[
     path('',test,name='test'),
-    path('api/sava-accounts/',AccountList.as_view()),
+    path('api/save-accounts/',AccountList.as_view()),
     path('api/save-contacts/',ContactList.as_view()),
     path('api/save-interests/',InterestList.as_view()),
     path('api/save-interestjunctions/',InterestJunctionList.as_view()),
