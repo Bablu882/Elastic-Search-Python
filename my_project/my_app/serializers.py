@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Account,Contact,Interest,Product,InterestJunction
+from .models import Account,Contact,Interest,Product,Interest_Junction_c
 
 
 
@@ -26,7 +26,7 @@ class ProductSerializers(serializers.ModelSerializer):
 
 class InterestJunctionSerializers(serializers.ModelSerializer):
     class Meta:
-        model=InterestJunction
+        model=Interest_Junction_c
         fields='__all__'
 
 
@@ -37,4 +37,13 @@ class AccountSearchSerializer(serializers.Serializer):
     searchaccount=serializers.CharField(max_length=100)    
 
 class ProductSearchSerializer(serializers.Serializer):
-    searchproduct=serializers.CharField(max_length=100)    
+    searchproduct=serializers.CharField(max_length=100)
+
+class ClientInterestSearchSerializer(serializers.Serializer):
+    searchinterestjunction=serializers.CharField(max_length=100)    
+    ExactMatch=serializers.CharField(max_length=10,required=False)
+
+# class ClientInterestSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model=Interest_Junction_c
+#         fields='__all__'

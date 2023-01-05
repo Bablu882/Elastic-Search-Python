@@ -47,7 +47,13 @@ class Product(models.Model):
 
 
 
-class InterestJunction(models.Model):
+class Interest_Junction_c(models.Model):
     InterestJunctionID=models.CharField(max_length=100)
+    Category_of_Interest_c=models.CharField(max_length=100,null=False,blank=False)
+    Maker_Artist_Interest_c=models.CharField(max_length=100,null=True,blank=True)
+    Period_of_Interest_c=models.CharField(max_length=100,null=True,blank=True)
+    Material_Theme_c=models.CharField(max_length=100,null=True,blank=True)
     Account=models.ForeignKey(Account,on_delete=models.SET_NULL,null=True)
     Interest=models.ForeignKey(Interest,on_delete=models.SET_NULL,null=True)
+    Contact=models.ForeignKey(Contact,on_delete=models.SET_NULL,null=True)
+    Product=models.ForeignKey(Product,on_delete=models.SET_NULL,null=True)

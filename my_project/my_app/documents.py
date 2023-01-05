@@ -1,6 +1,6 @@
-from django_elasticsearch_dsl import Document
+from django_elasticsearch_dsl import Document,fields
 from django_elasticsearch_dsl.registries import registry
-from my_app.models import Interest,Account,Product
+from my_app.models import Interest,Account,Product,Interest_Junction_c
 
 @registry.register_document
 class InterestDocument(Document):
@@ -53,3 +53,48 @@ class ProductDocument(Document):
              'Productid',
              'ProductName',
          ]
+
+
+@registry.register_document
+class Interest_Junction_cDocument(Document):
+    Account=fields.ObjectField(properties={
+        'id':fields.IntegerField(),
+        'Accountid':fields.TextField(),
+        'AccountName':fields.TextField(),
+    })
+    Contact=fields.ObjectField(properties={
+        'id':fields.IntegerField(),
+        'Contactid':fields.TextField(),
+        'ContactName':fields.TextField(),
+    })
+    Product=fields.ObjectField(properties={
+        'id':fields.IntegerField(),
+        'Productid':fields.TextField(),
+        'ProductName':fields.TextField(),
+    })
+    Interest=fields.ObjectField(properties={
+        'id':fields.IntegerField(),
+        'InterestID':fields.TextField(),
+        'InterestName':fields.TextField(),
+        'InterestType':fields.TextField(),
+    })
+    type = fields.TextField(attr='type_to_string')
+
+    class Index:
+        name = 'interest_junction_cs'
+    settings = {
+        'number_of_shards': 1,
+        'number_of_replicas': 0
+    }
+    class Django:
+         model = Interest_Junction_c
+         fields = [
+             'id',
+             'InterestJunctionID',
+             'Category_of_Interest_c',
+             'Maker_Artist_Interest_c',
+             'Period_of_Interest_c',
+             'Material_Theme_c',
+
+
+         ]         

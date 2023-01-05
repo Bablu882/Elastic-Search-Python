@@ -12,4 +12,5 @@ urlpatterns=[
     path('api/search_interest/',SearchListInterest.as_view()),
     path('api/search_account/',SearchListAccount.as_view()),
     path('api/search_product/',SearchListProduct.as_view()),
+    path('api/search_interest_junctions',SearchClientInterest.as_view())
 ]

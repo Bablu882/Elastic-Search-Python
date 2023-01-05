@@ -5,7 +5,7 @@ from rest_framework import generics
 from .models import *
 from .serializers import *
 from rest_framework.response import Response
-from my_app.documents import InterestDocument,AccountDocument,ProductDocument
+from my_app.documents import InterestDocument,AccountDocument,ProductDocument,Interest_Junction_cDocument
 from elasticsearch_dsl import Q
 from django.http import JsonResponse
 
@@ -73,7 +73,7 @@ class InterestList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.Generi
 ###-----------------------------save and get interest junction api-------------------------------###
 
 class InterestJunctionList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAPIView):
-    queryset=InterestJunction.objects.all()
+    queryset=Interest_Junction_c.objects.all()
     serializer_class=InterestJunctionSerializers
 
     def get(self,request,*args,**kwargs):
@@ -218,3 +218,70 @@ class SearchListProduct(APIView):
             print([result for result in search])
             serial=ProductSerializers(search,many=True)
         return Response(serial.data)
+
+###----------------------------------client search interest----------------------------------------###
+class SearchClientInterest(APIView):
+    def get(self,request,format=None):
+        data=Interest_Junction_c.objects.all()
+        serializers=InterestJunctionSerializers(data,many=True)
+        return Response(serializers.data)
+    def post(self,request,format=None):
+        serializers= ClientInterestSearchSerializer(data=request.data)
+        if serializers.is_valid(raise_exception=True):
+            datas=serializers.data.get('searchinterestjunction')
+            exact=serializers.data.get('ExactMatch')
+            query=datas
+            if exact is None and exact=='No':
+                q = Q(
+                'multi_match',
+                query=query,
+                fields=[
+                    'id',
+                    'InterestJunctionID',
+                    'Category_of_Interest_c',
+                    'Maker_Artist_Interest_c',
+                    'Period_of_Interest_c',
+                    'Material_Theme_c',
+                    'Interest',
+                    'Account',
+                    'Product',
+                    'Contact'
+                ],
+                fuzziness='auto')
+                search=Interest_Junction_cDocument.search().query(q)
+                serial=InterestJunctionSerializers(search,many=True)
+                return Response(serial.data)
+            elif exact == 'Yes':
+                print(exact)
+                print(query)
+                p = Q(
+                    'multi_match',
+                    
+                    query=query,
+                    fields=[
+                        'id',
+                        'InterestJunctionID',
+                        'Category_of_Interest_c',
+                        'Maker_Artist_Interest_c',
+                        'Period_of_Interest_c',
+                        'Material_Theme_c',
+                        'Interest',
+                        'Account',
+                        'Product',
+                        'Contact'
+                    ],
+                    )
+                search=Interest_Junction_cDocument.search().query(p)
+                for x in search:
+                    print(x.InterestJunctionID)
+                serial=InterestJunctionSerializers(search,many=True)
+                return Response(serial.data)
+
+                
+
+
+
+
+
+
+###----------------------------------client search account-----------------------------------------###
