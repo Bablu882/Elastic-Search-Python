@@ -151,7 +151,9 @@ class SearchListInterest(APIView,LimitOffsetPagination):
                 'multi_match',
                 query=query,
                 fields=[
-                    'InterestName'
+                    'InterestName',
+                    'InterestID',
+                    'InterestType'
                 ],
                 fuzziness='auto')
             # search=InterestDocument.search().filter(Q('fuzzy',InterestID=datas)|Q('fuzzy',InterestType=datas)|Q('fuzzy',InterestName=datas)|Q('term',InterestID=datas)|Q('term',InterestName=datas))
@@ -173,8 +175,18 @@ class SearchListAccount(APIView):
         serializers=AccountSearchSerializer(data=request.data)
         if serializers.is_valid(raise_exception=True):
             datas=serializers.data.get('searchaccount')
-            print(datas)
-            search=AccountDocument.search().filter(Q('fuzzy',Accountid=datas)|Q('fuzzy',AccountName=datas))
+            query=datas
+            q = Q(
+                'multi_match',
+                query=query,
+                fields=[
+                    'AccountName',
+                    'Accountid'
+                ],
+                fuzziness='auto')
+            search=AccountDocument().search().query(q)
+    
+            # search=AccountDocument.search().filter(Q('fuzzy',Accountid=datas)|Q('fuzzy',AccountName=datas))
             print([result for result in search])
             serial=AccountSerializers(search,many=True)
         return Response(serial.data)
@@ -192,9 +204,17 @@ class SearchListProduct(APIView):
         serializers=ProductSearchSerializer(data=request.data)
         if serializers.is_valid(raise_exception=True):
             datas=serializers.data.get('searchproduct')
-            print(datas)    
-            search=ProductDocument.search().filter(Q('fuzzy',Productid=datas)|Q('fuzzy',ProductName=datas))
+            query=datas
+            q = Q(
+                'multi_match',
+                query=query,
+                fields=[
+                    'ProductName',
+                    'Productid'
+                ],
+                fuzziness='auto')
+            search=ProductDocument().search().query(q)
+            # search=ProductDocument.search().filter(Q('fuzzy',Productid=datas)|Q('fuzzy',ProductName=datas))
             print([result for result in search])
             serial=ProductSerializers(search,many=True)
-            return Response(serial.data)
-        return Response({'message':'No Results Found !'})    
+        return Response(serial.data)
