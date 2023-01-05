@@ -26,7 +26,13 @@ class AccountList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.Generic
         return self.list(request,*args,**kwargs)
 
     def post(self,request,*args,**kwargs):
-        return self.create(request,*args,**kwargs) 
+        serializer=AccountSerializers(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            q=serializer.data.get('Accountid')
+            if Account.objects.filter(Accountid=q).exists():
+                return Response({'error':'Accountid already exist !'})
+            else:    
+                return self.create(request,*args,**kwargs) 
 
 ###----------------------------save and get contact api------------------------------------###
 
@@ -38,7 +44,13 @@ class ContactList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.Generic
         return self.list(request,*args,**kwargs)
 
     def post(self,request,*args,**kwargs):
-        return self.create(request,*args,**kwargs)         
+        serializers=ContactSerializers(data=request.data)
+        if serializers.is_valid(raise_exception=True):
+            q=serializers.data.get('Contactid')
+            if Contact.objects.filter(Contactid=q).exists():
+                return Response({'error':'Contactid already exist !'})
+            else:    
+                return self.create(request,*args,**kwargs)         
 
 ###--------------------------save and get interest api------------------------------------###
 
@@ -50,7 +62,13 @@ class InterestList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.Generi
         return self.list(request,*args,**kwargs)
 
     def post(self,request,*args,**kwargs):
-        return self.create(request,*args,**kwargs) 
+        serializers=InterestSerializers(data=request.data)
+        if serializers.is_valid(raise_exception=True):
+            q=serializers.data.get('InterestID')
+            if Interest.objects.filter(InterestID=q).exists():
+                return Response({'error':'InterestID already exist !'})
+            else:    
+                return self.create(request,*args,**kwargs) 
 
 ###-----------------------------save and get interest junction api-------------------------------###
 
@@ -74,7 +92,13 @@ class ProductList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.Generic
         return self.list(request,*args,**kwargs)
 
     def post(self,request,*args,**kwargs):
-        return self.create(request,*args,**kwargs) 
+        serializers=ProductSerializers(data=request.data)
+        if serializers.is_valid(raise_exception=True):
+            q=serializers.data.get('Productid')
+            if Product.objects.filter(Productid=q).exists():
+                return Response({'error':'Productid already exist !'})
+            else:    
+                return self.create(request,*args,**kwargs) 
 
 
 
@@ -110,8 +134,9 @@ class SearchInterest(APIView):
                         }])
 
 ####----------------------------------search_interest api---------------------------------------###
+from rest_framework.pagination import LimitOffsetPagination
 
-class SearchListInterest(APIView):
+class SearchListInterest(APIView,LimitOffsetPagination):
     def get(self,request,format=None):
         interest=Interest.objects.all()
         serializer=InterestSerializers(interest,many=True)
@@ -121,8 +146,16 @@ class SearchListInterest(APIView):
         serializer=InterestSearchSerialiizers(data=request.data)
         if serializer.is_valid(raise_exception=True):
             datas=serializer.data.get('searchinterest')
-            print(datas)
-            search=InterestDocument.search().filter(Q('fuzzy',InterestID=datas)|Q('fuzzy',InterestType=datas)|Q('fuzzy',InterestName=datas))
+            query=datas
+            q = Q(
+                'multi_match',
+                query=query,
+                fields=[
+                    'InterestName'
+                ],
+                fuzziness='auto')
+            # search=InterestDocument.search().filter(Q('fuzzy',InterestID=datas)|Q('fuzzy',InterestType=datas)|Q('fuzzy',InterestName=datas)|Q('term',InterestID=datas)|Q('term',InterestName=datas))
+            search=InterestDocument().search().query(q)
             print([data for data in search])
             serial=InterestSerializers(search,many=True)
         return  Response(serial.data)
