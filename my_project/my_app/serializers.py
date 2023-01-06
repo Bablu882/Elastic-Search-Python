@@ -55,7 +55,7 @@ class ProductSearchSerializer(serializers.Serializer):
     searchproduct=serializers.CharField(max_length=100)
 
 class ClientInterestSearchSerializer(serializers.Serializer):
-    searchinterestjunction=serializers.CharField(max_length=100)    
+    findclient=serializers.CharField(max_length=100)    
     ExactMatch=serializers.CharField(max_length=10,required=False)
 
 # class ClientInterestSerializer(serializers.ModelSerializer):

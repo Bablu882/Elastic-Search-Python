@@ -228,7 +228,7 @@ class SearchClientInterest(APIView):
     def post(self,request,format=None):
         serializers= ClientInterestSearchSerializer(data=request.data)
         if serializers.is_valid(raise_exception=True):
-            datas=serializers.data.get('searchinterestjunction')
+            datas=serializers.data.get('findclient')
             exact=serializers.data.get('ExactMatch')
             query=datas
             if exact=='No' or exact == 'no':
