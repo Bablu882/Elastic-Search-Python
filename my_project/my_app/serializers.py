@@ -25,9 +25,24 @@ class ProductSerializers(serializers.ModelSerializer):
         fields=['id','Productid','ProductName','EmailStatus']        
 
 class InterestJunctionSerializers(serializers.ModelSerializer):
+    Product=ProductSerializers(many=False,read_only=True)
+    Interest=InterestSerializers(many=False,read_only=True)
+    Account=AccountSerializers(many=False,read_only=True)
+    Contact=ContactSerializers(many=False,read_only=True)
     class Meta:
         model=Interest_Junction_c
-        fields='__all__'
+        fields=[
+            "id",
+            "Category_of_Interest_c",
+            'InterestJunctionID',
+            'Maker_Artist_Interest_c',
+            'Period_of_Interest_c',
+            'Material_Theme_c',
+            "Product",
+            "Interest",
+            "Account",
+            "Contact",
+        ]
 
 
 class InterestSearchSerialiizers(serializers.Serializer):

@@ -231,52 +231,57 @@ class SearchClientInterest(APIView):
             datas=serializers.data.get('searchinterestjunction')
             exact=serializers.data.get('ExactMatch')
             query=datas
-            if exact is None and exact=='No':
+            if exact=='No' or exact == 'no':
                 q = Q(
                 'multi_match',
                 query=query,
                 fields=[
-                    'id',
-                    'InterestJunctionID',
-                    'Category_of_Interest_c',
-                    'Maker_Artist_Interest_c',
-                    'Period_of_Interest_c',
-                    'Material_Theme_c',
-                    'Interest',
-                    'Account',
-                    'Product',
-                    'Contact'
+                   'InterestJunctionID',
+                        'Category_of_Interest_c',
+                        'Maker_Artist_Interest_c',
+                        'Period_of_Interest_c',
+                        'Material_Theme_c',
+                       'Interest.InterestName',
+                       'Interest.InterestID',
+                       'Interest.InterestType',
+                        'Account.AccountName',
+                        'Account.Accountid',
+                        'Product.ProductName',
+                        'Product.Productid',
+                        'Contact.ContactName',
+                        'Contact.Contactid'
                 ],
                 fuzziness='auto')
                 search=Interest_Junction_cDocument.search().query(q)
                 serial=InterestJunctionSerializers(search,many=True)
                 return Response(serial.data)
-            elif exact == 'Yes':
-                print(exact)
-                print(query)
+            elif exact == 'Yes' or exact == 'yes':
                 p = Q(
                     'multi_match',
                     
                     query=query,
                     fields=[
-                        'id',
                         'InterestJunctionID',
                         'Category_of_Interest_c',
                         'Maker_Artist_Interest_c',
                         'Period_of_Interest_c',
                         'Material_Theme_c',
-                        'Interest',
-                        'Account',
-                        'Product',
-                        'Contact'
+                       'Interest.InterestName',
+                       'Interest.InterestID',
+                       'Interest.InterestType',
+                        'Account.AccountName',
+                        'Account.Accountid',
+                        'Product.ProductName',
+                        'Product.Productid',
+                        'Contact.ContactName',
+                        'Contact.Contactid'
                     ],
                     )
                 search=Interest_Junction_cDocument.search().query(p)
-                for x in search:
-                    print(x.InterestJunctionID)
                 serial=InterestJunctionSerializers(search,many=True)
                 return Response(serial.data)
-
+            else:
+                return Response({'Error':'Please choose Yes or No only !'})
                 
 
 

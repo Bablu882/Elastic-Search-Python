@@ -69,16 +69,18 @@ class Interest_Junction_cDocument(Document):
     })
     Product=fields.ObjectField(properties={
         'id':fields.IntegerField(),
-        'Productid':fields.TextField(),
-        'ProductName':fields.TextField(),
+        # 'Productid':fields.TextField(),
+        "ProductName":fields.TextField(),
+        "Productid":fields.TextField()
     })
     Interest=fields.ObjectField(properties={
         'id':fields.IntegerField(),
         'InterestID':fields.TextField(),
         'InterestName':fields.TextField(),
         'InterestType':fields.TextField(),
+        'ApprovalStatus':fields.TextField(),
     })
-    type = fields.TextField(attr='type_to_string')
+    # type = fields.TextField(attr='type_to_string')
 
     class Index:
         name = 'interest_junction_cs'
