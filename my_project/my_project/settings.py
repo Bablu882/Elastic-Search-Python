@@ -97,7 +97,7 @@ WSGI_APPLICATION = 'my_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'salesforce',
+        'NAME': 'elastic',
         'USER': 'root',
         'PASSWORD': 'webnyxamysqldb',
         'HOST':'localhost',
