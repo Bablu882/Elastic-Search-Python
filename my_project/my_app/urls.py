@@ -11,7 +11,7 @@ router.register(r'api/opportunity_allmethod',OpportunityView)
 
 urlpatterns=[
     path('',include(router.urls)),
-    path('api-auth',include('rest_framework.urls')),
+    # path('api-auth',include('rest_framework.urls')),
     path('',test,name='test'),
     path('api/save-accounts/',AccountList.as_view()),
     path('api/save-opportunity/',OpportunityList.as_view()),
@@ -27,7 +27,7 @@ urlpatterns=[
     path('api/save-get-update-bulk-product/',ProductApiVIew.as_view()),
     path('api/save-get-update-bulk-account/',AccountApiVIew.as_view()),
     path('api/save-get-update-bulk-interest/',InterestApiVIew.as_view()),
-    # path('opportunity/',OpportunityApiVIew.as_view()),
+    path('api/save-get-update-bulk-opportunity/',OpportunityApiVIew.as_view()),
 ]
 
 

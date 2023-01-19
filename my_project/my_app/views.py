@@ -463,8 +463,6 @@ class ProductApiVIew(APIView):
         print(data)  
         for dicts in data:
             print(dicts)
-            if not dicts.get('Productid') or not dicts.get('ProductName'):
-                return Response({'error':'some fields are missing'})
             productid=dicts['Productid']
             print(productid)
             productname=dicts['ProductName']
@@ -491,15 +489,6 @@ class AccountApiVIew(APIView):
         print(data)  
         for dicts in data:
             print(dicts)
-            if (not dicts.get('Accountid') or not dicts.get('AccountName') or not dicts.get('AccountName') or 
-            not dicts.get('LastPurchasedDtae') or not dicts.get('TotalPurchase') or not dicts.get('PersonHasOptedOutOfEmail')
-            or not dicts.get('CategoryOfInterest') or not dicts.get('PeriodOfInterest') or not dicts.get('TypeOfInterest')
-            or not dicts.get('YoungerAudience') or not dicts.get('Star5') or not dicts.get('AccountLastPurchaseDate')
-            or not dicts.get('HolidayCelebrated') or not dicts.get('Email') or not dicts.get('ShippingCity')
-            or not dicts.get('FindClients_visible')):
-              return Response({'error':'some fields are missing !'})
-            # if not dicts.get('Productid') or dicts.get('ProductName'):
-            #     return Response({'error':'error'})
             accountid=dicts['Accountid']
             accountname=dicts['AccountName']
             state=dicts['State']
@@ -586,33 +575,65 @@ class InterestApiVIew(APIView):
         return Response({'msg':'interest created or updated success !'})        
 
 
-# class OpportunityApiVIew(APIView):
-#     def get(self,request,format=None):
-#         opp=Opportunity.objects.all()
-#         serializers=OpportunitySerializers(opp,many=True)
-#         return Response(serializers.data)
+class OpportunityApiVIew(APIView):
+    def get(self,request,format=None):
+        opp=Opportunity.objects.all()
+        serializers=OpportunitySerializers(opp,many=True)
+        return Response(serializers.data)
 
-#     def post(self,request,format=None):
-#         data=request.data.get('data')
-#         print(data)  
-#         for dicts in data:
-#             print(dicts)
-#             # if not dicts.get('Productid') or dicts.get('ProductName'):
-#             #     return Response({'error':'error'})
-#             opportunityid=dicts['OpportunityId']
-#             opportunityname=dicts['OpportunityName']
-#             stagename=dicts['StageName']
-#             billingcity=dicts['Billing_City']
-#             avarageitemsold=dicts['AverageitemSold']
-#             print(avarageitemsold)
-#             # accountid=dicts['Accountid']
-#             print(Account.objects.get(pk=dicts['Accountid']))
-#             if Product.objects.filter(Productid=productid).exists():
-#                 print('existerror')
-#                 gets=Product.objects.get(Productid=productid)
-#                 gets.ProductName=productname
-#                 gets.save()
-#             else:
-#                 prod=Product.objects.create(Productid=productid,ProductName=productname)    
-#         return Response({'msg':'product created or updated success !'})        
+    def post(self,request,format=None):
+        data=request.data.get('data')
+        print(data)  
+        for dicts in data:
+            print(dicts)
+            opportunityid=dicts['OpportunityId']
+            opportunityname=dicts['OpportunityName']
+            stagename=dicts['StageName']
+            billingcity=dicts['Billing_City']
+            avarageitemsold=dicts['AverageitemSold']
+            accountid=dicts['AccountId']
+
+            if Opportunity.objects.filter(OpportunityId=opportunityid).exists():
+                if not accountid:
+                    gets=Opportunity.objects.get(OpportunityId=opportunityid)
+                    gets.OpportunityName=opportunityname
+                    gets.StageName=stagename
+                    gets.Billing_City=billingcity
+                    gets.AverageitemSold=avarageitemsold
+                    gets.AccountId=None
+                    gets.save()
+                else:
+                    if not Account.objects.filter(Accountid=accountid).exists():
+                        return Response({"error":"Accountid does not exists in Account table ",'Accountid':accountid,'Opportunityid':opportunityid})
+                    insta=Account.objects.get(Accountid=accountid)
+                    gets=Opportunity.objects.get(OpportunityId=opportunityid)
+                    gets.OpportunityName=opportunityname
+                    gets.StageName=stagename
+                    gets.Billing_City=billingcity
+                    gets.AverageitemSold=avarageitemsold
+                    gets.AccountId=insta
+                    gets.save()   
+            else:
+                if not accountid:
+                    prod=Opportunity.objects.create(
+                        OpportunityId=opportunityid,
+                        OpportunityName=opportunityname,
+                        StageName=stagename,
+                        Billing_City=billingcity,
+                        AverageitemSold=avarageitemsold,
+                    )   
+                else:
+                    if not Account.objects.filter(Accountid=accountid).exists():     
+                        return Response({"error":"Accountid does not exists in Account table ",'Accountid':accountid,'Opportunityid':opportunityid})
+                    else:
+                        accou=Account.objects.get(Accountid=accountid)
+                        prod=Opportunity.objects.create(
+                        OpportunityId=opportunityid,
+                        OpportunityName=opportunityname,
+                        StageName=stagename,
+                        Billing_City=billingcity,
+                        AverageitemSold=avarageitemsold,
+                        AccountId=accou
+                    ) 
+        return Response({'msg':'product created or updated success !'})        
 
