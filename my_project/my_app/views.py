@@ -557,8 +557,6 @@ class InterestApiVIew(APIView):
         print(data)  
         for dicts in data:
             print(dicts)
-            if not dicts.get('InterestID') or not dicts.get('InterestName') or not dicts.get('ApprovalStatus'):
-                return Response({'error':'some fields are missing !'})
             Interestid=dicts['InterestID']
             interestname=dicts['InterestName']
             approvalstatus=dicts['ApprovalStatus']
@@ -636,4 +634,6 @@ class OpportunityApiVIew(APIView):
                         AccountId=accou
                     ) 
         return Response({'msg':'product created or updated success !'})        
+
+
 
