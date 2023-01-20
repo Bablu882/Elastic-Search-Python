@@ -19,7 +19,6 @@ class ProductSerializers(serializers.ModelSerializer):
     class Meta:
         model=Product
         fields=[
-            'id',
             'Productid',
             'ProductName',
         ]    
@@ -30,7 +29,7 @@ class OpportunitySerializers(serializers.ModelSerializer):
         fields='__all__'
         
 class OpportunitySerializersPost(serializers.ModelSerializer):
-    account=AccountSerializers(many=False,write_only=True)
+    account=AccountSerializers(many=False,read_only=True)
     class Meta:
         model=Opportunity
         fields=[
@@ -43,15 +42,27 @@ class OpportunitySerializersPost(serializers.ModelSerializer):
         ]
                 
 
+# class InterestJunctionSerializers(serializers.ModelSerializer):
+#     Product=ProductSerializers(many=False,read_only=True)
+#     Interest=InterestSerializers(many=False,read_only=True)
+#     Account=AccountSerializers(many=False,read_only=True)
+#     # Contact=ContactSerializers(many=False,read_only=True)
+#     class Meta:
+#         model=Interest_Junction_c
+#         fields=[
+#             "InterestNameJunction",
+#             "InterestName",
+#             "InterestJunctionID",
+#             "link_With",
+#             "Product",
+#             "Interest",
+#             "Account",
+#         ]
+
 class InterestJunctionSerializers(serializers.ModelSerializer):
-    Product=ProductSerializers(many=False,read_only=True)
-    Interest=InterestSerializers(many=False,read_only=True)
-    Account=AccountSerializers(many=False,read_only=True)
-    # Contact=ContactSerializers(many=False,read_only=True)
     class Meta:
         model=Interest_Junction_c
-        fields=[
-            "id",
+        fields=[   
             "InterestNameJunction",
             "InterestName",
             "InterestJunctionID",
@@ -60,7 +71,6 @@ class InterestJunctionSerializers(serializers.ModelSerializer):
             "Interest",
             "Account",
         ]
-
 
 class InterestSearchSerialiizers(serializers.Serializer):
     searchinterest=serializers.CharField(max_length=100)
@@ -87,16 +97,18 @@ class JunctionSerializers(serializers.ModelSerializer):
         fields='__all__'
 
 
-class BulkProductserializers(serializers.ListSerializer):
-    def create(self, validated_data):
-        foo=[Product(**item) for item in validated_data]
-        return Product.objects.bulk_create(foo)
+# class BulkProductserializers(serializers.ListSerializer):
+#     def create(self, validated_data):
+#         foo=[Product(**item) for item in validated_data]
+#         return Product.objects.bulk_create(foo)
 
-    class Meta:
-        model=Product
-        fields=[
-            'Productid',
-            'ProductName',
-        ]    
+#     class Meta:
+#         model=Product
+#         fields=[
+#             'Productid',
+#             'ProductName',
+#         ]    
 
 
+class OpportunitySearchSerializers(serializers.Serializer):
+    searchopportunity=serializers.CharField(max_length=100)

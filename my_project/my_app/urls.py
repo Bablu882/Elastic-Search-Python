@@ -19,15 +19,23 @@ urlpatterns=[
     path('api/save-interestjunctions/',InterestJunctionList.as_view()),
     path('api/save-products/',ProductList.as_view()),
     # path('api/search-search/',SearchInterest.as_view()),
-    # path('api/search_interest/',SearchListInterest.as_view()),
-    # path('api/search_account/',SearchListAccount.as_view()),
-    # path('api/search_product/',SearchListProduct.as_view()),
-    # path('api/find_client/',SearchClientInterest.as_view()),
+    path('api/search_interest/',SearchListInterest.as_view()),
+    path('api/search_account/',SearchListAccount.as_view()),
+    path('api/search_product/',SearchListProduct.as_view()),
+    path('api/search_opportunity/',SearchListOpportunity.as_view()),
+    # path('api/find_client/',SearchInterestJunction.as_view()),
     # path('api/search_all/',SearchAllApi.as_view()),
     path('api/save-get-update-bulk-product/',ProductApiVIew.as_view()),
     path('api/save-get-update-bulk-account/',AccountApiVIew.as_view()),
     path('api/save-get-update-bulk-interest/',InterestApiVIew.as_view()),
     path('api/save-get-update-bulk-opportunity/',OpportunityApiVIew.as_view()),
+    path('api/save-get-update-bulk-interestjunction/',InterstJunctionApiVIew.as_view()),
+    path('api/get-delete-account/',AccountDelete.as_view()),
+    path('api/get-delete-interest/',InterestDelete.as_view()),
+    path('api/get-delete-product/',ProductDelete.as_view()),
+    path('api/get-delete-opportunity/',OpportunityDelete.as_view()),
+    path('api/get-delete-interestjunction/',InterestJunctionDelete.as_view())
+
 ]
 
 
