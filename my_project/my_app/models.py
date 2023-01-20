@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 
 class Account(models.Model):
-    Accountid=models.CharField(max_length=100,null=False,blank=False,unique=True)
+    Accountid=models.CharField(primary_key=True,max_length=100)
     AccountName=models.CharField(max_length=100,null=False,blank=False)
     State=models.CharField(max_length=100,null=False,blank=False)
     LastPurchasedDtae=models.CharField(max_length=50,null=False,blank=False)
@@ -26,13 +26,13 @@ class Account(models.Model):
 
 
 
-class Contact(models.Model):
-    Contactid=models.CharField(max_length=100,null=True,blank=True)
-    ContactName=models.CharField(max_length=100,null=True,blank=True)
+# class Contact(models.Model):
+#     Contactid=models.CharField(max_length=100,null=True,blank=True)
+#     ContactName=models.CharField(max_length=100,null=True,blank=True)
 
 
 class Interest(models.Model):
-    InterestID=models.CharField(max_length=100,null=False,blank=False,unique=True)    
+    InterestID=models.CharField(primary_key=True,max_length=100)    
     InterestName=models.CharField(max_length=100,null=False,blank=False)
 
     Approvel_choices=(
@@ -46,7 +46,7 @@ class Interest(models.Model):
 
 
 class Product(models.Model):
-    Productid=models.CharField(max_length=100,null=False,blank=False,unique=True)
+    Productid=models.CharField(primary_key=True,max_length=100)
     ProductName=models.CharField(max_length=100,null=False,blank=False)
     
 
@@ -79,7 +79,7 @@ class Interest_Junction_c(models.Model):
 
 
 class Opportunity(models.Model):
-    OpportunityId=models.CharField(max_length=100,null=False,blank=False,unique=True)
+    OpportunityId=models.CharField(primary_key=True,max_length=100)
     OpportunityName=models.CharField(max_length=100,null=False,blank=False)
     AccountId=models.ForeignKey(Account,to_field='Accountid',on_delete=models.SET_NULL,null=True)
     StageName=models.CharField(max_length=100,null=False,blank=False)

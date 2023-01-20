@@ -19,7 +19,6 @@ class ProductSerializers(serializers.ModelSerializer):
     class Meta:
         model=Product
         fields=[
-            'id',
             'Productid',
             'ProductName',
         ]    
@@ -43,15 +42,28 @@ class OpportunitySerializersPost(serializers.ModelSerializer):
         ]
                 
 
+# class InterestJunctionSerializers(serializers.ModelSerializer):
+#     Product=ProductSerializers(many=False,read_only=True)
+#     Interest=InterestSerializers(many=False,read_only=True)
+#     Account=AccountSerializers(many=False,read_only=True)
+#     # Contact=ContactSerializers(many=False,read_only=True)
+#     class Meta:
+#         model=Interest_Junction_c
+#         fields=[
+#             "InterestNameJunction",
+#             "InterestName",
+#             "InterestJunctionID",
+#             "link_With",
+#             "Product",
+#             "Interest",
+#             "Account",
+#         ]
+
 class InterestJunctionSerializers(serializers.ModelSerializer):
-    Product=ProductSerializers(many=False,read_only=True)
-    Interest=InterestSerializers(many=False,read_only=True)
-    Account=AccountSerializers(many=False,read_only=True)
-    # Contact=ContactSerializers(many=False,read_only=True)
     class Meta:
         model=Interest_Junction_c
         fields=[
-            "id",
+            
             "InterestNameJunction",
             "InterestName",
             "InterestJunctionID",
@@ -60,7 +72,6 @@ class InterestJunctionSerializers(serializers.ModelSerializer):
             "Interest",
             "Account",
         ]
-
 
 class InterestSearchSerialiizers(serializers.Serializer):
     searchinterest=serializers.CharField(max_length=100)

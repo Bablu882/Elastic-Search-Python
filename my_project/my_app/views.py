@@ -634,5 +634,249 @@ class OpportunityApiVIew(APIView):
                         AverageitemSold=avarageitemsold,
                         AccountId=accou
                     ) 
-        return Response({'msg':'product created or updated success !'})        
+        return Response({'msg':'product created or updated success !'}) 
 
+
+class InterstJunctionApiVIew(APIView):
+    def get(self,request,format=None):
+        opp=Interest_Junction_c.objects.all()
+        serializers=InterestJunctionSerializers(opp,many=True)
+        return Response(serializers.data)
+
+    def post(self,request,format=None):
+        data=request.data.get('data')
+        print(data)  
+        for dicts in data:
+            print(dicts)
+            interestjunctionid=dicts['InterestJunctionID']
+            linkwith=dicts['link_With']
+            account=dicts['Account']
+            interest=dicts['Interest']
+            product=dicts['Product']
+            interestnamejunction=dicts['InterestNameJunction']
+            interestname=dicts['InterestName']
+
+            if Interest_Junction_c.objects.filter(InterestJunctionID=interestjunctionid).exists():
+                if not account and not product and not interest:
+                    gets=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
+                    gets.link_With=linkwith
+                    gets.InterestNameJunction=interestnamejunction
+                    gets.InterestName=interestname
+                    gets.Account=None
+                    gets.Product=None
+                    gets.Interest=None
+                    gets.save()
+                else:
+                    if not Account.objects.filter(Accountid=account).exists():
+                        return Response({"error":"Accountid does not exists in Account table ",'Accountid':account,'InterestJunctionID':interest})
+                    
+                    if not Product.objects.filter(Productid=product).exists():     
+                        return Response({"error":"Product does not exists in InterstJunction table ",'Productid':product,'InterestJunctionid':interestjunctionid})    
+                    
+                    if not Interest.objects.filter(InterestID=interest).exists():     
+                        return Response({"error":"Interst does not exists in InterestJunction table ",'Interestid':interest,'InterestJunctionID':interestjunctionid})   
+                    prod=Product.objects.get(Productid=product)    
+                    acc=Account.objects.get(Accountid=account)
+                    intr=Interest.objects.get(InterestID=interest)
+
+                    gets1=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
+                    gets1.link_With=linkwith
+                    gets1.InterestNameJunction=interestnamejunction
+                    gets1.InterestName=interestname
+                    gets1.Account=acc
+                    gets1.Product=prod
+                    gets1.Interest=intr  
+                    gets1.save() 
+            else:
+                if not account and not product and not interest:
+                    produc=Interest_Junction_c.objects.create(
+                        InterestJunctionID=interestjunctionid,
+                        link_With=linkwith,
+                        InterestNameJunction=interestnamejunction,
+                        InterestName=interestname
+                    )   
+                else:
+                    if not Account.objects.filter(Accountid=account).exists():
+                        return Response({"error":"Accountid does not exists in Account table ",'Accountid':account,'InterestJunctionID':interest})
+                    
+                    if not Product.objects.filter(Productid=product).exists():     
+                        return Response({"error":"Product does not exists in InterstJunction table ",'Productid':product,'InterestJunctionid':interestjunctionid})    
+                    
+                    if not Interest.objects.filter(InterestID=interest).exists():     
+                        return Response({"error":"Interst does not exists in InterestJunction table ",'Interestid':interest,'InterestJunctionID':interestjunctionid})    
+                        
+                    prod1=Product.objects.get(Productid=product)    
+                    acc1=Account.objects.get(Accountid=account)
+                    intr1=Interest.objects.get(InterestID=interest)    
+                    produce=Interest_Junction_c.objects.create(
+                    InterestJunctionID=interestjunctionid,
+                    link_With=linkwith,
+                    InterestNameJunction=interestnamejunction,
+                    InterestName=interestname,
+                    Account=acc1,
+                    Product=prod1,
+                    Interest=intr1
+                    ) 
+        return Response({'msg':'InterestJunction created or updated success !'}) 
+
+
+
+        
+
+
+# class InterestJunctionApiVIew(APIView):
+#     def get(self,request,format=None):
+#         interest=Interest_Junction_c.objects.all()
+#         serializers=InterestJunctionSerializers(interest,many=True)
+#         return Response(serializers.data)
+
+#     def post(self,request,format=None):
+#         data=request.data.get('data')
+#         print(data)  
+#         for dicts in data:
+#             print(dicts)
+            # interestjunctionid=dicts['InterestJunctionID']
+            # print(interestjunctionid)
+            # linkwith=dicts['link_With']
+            # account=dicts['Account']
+            # interest=dicts['Interest']
+            # product=dicts['Product']
+            # interestnamejunction=dicts['InterestNameJunction']
+            # interestname=dicts['InterestName']
+#             if Interest_Junction_c.objects.filter(InterestJunctionID=interestjunctionid).exists():
+#                 if not product:
+#                     if not Account.objects.filter(Accountid=account).exists():
+#                         return Response({"error":"accpunt not exists"})
+#                     if not Interest.objects.filter(InterestID=interest).exists():
+#                         return Response({'error':'interst not exists'})    
+#                     acc=Account.objects.get(Accountid=account)
+#                     print(acc)    
+#                     intrst=Interest.objects.get(InterestID=interest)
+#                     gets=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
+                    # gets.link_With=linkwith
+                    # gets.InterestNameJunction=interestnamejunction
+                    # gets.InterestName=interestname
+                    # gets.Account=acc
+                    # gets.Product=None
+                    # gets.Interest=intrst
+                    # gets.save()
+#                 if not account:
+#                     if not Product.objects.filter(Productid=product).exists():
+#                         return Response({"error":"product not exists"})
+#                     if not Interest.objects.filter(InterestID=interest).exists():
+#                         return Response({'error':'interst not exists'})
+#                     interest1=Interest.objects.get(InterestID=interest)
+#                     product1=Product.objects.get(Productid=product)
+#                     gets1=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
+#                     gets1.link_With=linkwith
+#                     gets1.InterestNameJunction=interestnamejunction
+#                     gets1.InterestName=interestname
+#                     gets1.Account=None
+#                     gets1.Product=product1
+#                     gets1.Interest=interest1
+#                     gets1.save()  
+#                 if not interest:
+#                     if not Product.objects.filter(Productid=product).exists():
+#                         return Response({"error":"product not exists"})
+#                     if not Account.objects.filter(Accountid=account).exists():
+#                         return Response({'error':'account not exists'})
+#                     account2=Account.objects.get(Accountid=account)
+#                     product2=Product.objects.get(Productid=product)
+#                     gets2=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
+#                     gets2.link_With=linkwith
+#                     gets2.InterestNameJunction=interestnamejunction
+#                     gets2.InterestName=interestname
+#                     gets2.Account=account2
+#                     gets2.Product=product2
+#                     gets2.Interest=None
+#                     gets2.save()  
+#                 if not account and not product:  
+#                     if not Interest.objects.filter(InterestID=interest).exists():
+#                         return Response({'error':'interest not exists'})
+#                     interest3=Interest.objects.get(InterestID=interest)
+#                     gets3=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
+#                     gets3.link_With=linkwith
+#                     gets3.InterestNameJunction=interestnamejunction
+#                     gets3.InterestName=interestname
+#                     gets3.Account=None
+#                     gets3.Product=None
+#                     gets3.Interest=interest3
+#                     gets3.save() 
+#                 if not account and not interest:
+#                     if not Product.objects.filter(Productid=product).exists():
+#                         return Response({'error':'product not exists'})
+#                     product4=Product.objects.get(Productid=product)
+#                     gets4=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
+#                     gets4.link_With=linkwith
+#                     gets4.InterestNameJunction=interestnamejunction
+#                     gets4.InterestName=interestname
+#                     gets4.Account=None
+#                     gets4.Product=product4
+#                     gets4.Interest=None
+#                     gets4.save() 
+
+#                 if not interest and not product:
+#                     if not Account.objects.filter(Accountid=account).exists():
+#                         return Response({'error':'account not exists'})
+#                     account5=Account.objects.get(Accountid=account)
+#                     gets5=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
+#                     gets5.link_With=linkwith
+#                     gets5.InterestNameJunction=interestnamejunction
+#                     gets5.InterestName=interestname
+#                     gets5.Account=account5
+#                     gets5.Product=None
+#                     gets5.Interest=None
+#                     gets5.save() 
+#                 if not account and not product and not interest:
+#                     gets6=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
+#                     gets6.link_With=linkwith
+#                     gets6.InterestNameJunction=interestnamejunction
+#                     gets6.InterestName=interestname
+#                     gets6.Account=None
+#                     gets6.Product=None
+#                     gets6.Interest=None
+#                     gets6.save() 
+#                 if account and product and interest is not None:
+#                     if not Product.objects.filter(Productid=product).exists():
+#                         return Response({"error":"product not exists"})
+#                     if not Account.objects.filter(Accountid=account).exists():
+#                         return Response({'error':'account not exists'})
+#                     if not Interest.objects.filter(InterestID=interest):
+#                         return Response({"error":"account not exist"})    
+#                     interest6=Interest.objects.get(InterestID=interest)    
+#                     account6=Account.objects.get(Accountid=account)
+#                     product6=Product.objects.get(Productid=product)
+#                     gets7=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
+#                     gets7.link_With=linkwith
+#                     gets7.InterestNameJunction=interestnamejunction
+#                     gets7.InterestName=interestname
+#                     gets7.Account=account6
+#                     gets7.Product=product6
+#                     gets7.Interest=interest6
+#                     gets7.save()  
+
+
+#             else:
+#                 pass
+#                 # if not accountid:
+#                 #     prod=Opportunity.objects.create(
+#                 #         OpportunityId=opportunityid,
+#                 #         OpportunityName=opportunityname,
+#                 #         StageName=stagename,
+#                 #         Billing_City=billingcity,
+#                 #         AverageitemSold=avarageitemsold,
+#                 #     )   
+#                 # else:
+#                 #     if not Account.objects.filter(Accountid=accountid).exists():     
+#                 #         return Response({"error":"Accountid does not exists in Account table ",'Accountid':accountid,'Opportunityid':opportunityid})
+#                 #     else:
+#                 #         accou=Account.objects.get(Accountid=accountid)
+#                 #         prod=Opportunity.objects.create(
+#                 #         OpportunityId=opportunityid,
+#                 #         OpportunityName=opportunityname,
+#                 #         StageName=stagename,
+#                 #         Billing_City=billingcity,
+#                 #         AverageitemSold=avarageitemsold,
+#                 #         AccountId=accou
+#                 #     )     
+#         return Response({'msg':'interest created or updated success !'})        

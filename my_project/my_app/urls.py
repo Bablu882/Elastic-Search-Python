@@ -28,6 +28,7 @@ urlpatterns=[
     path('api/save-get-update-bulk-account/',AccountApiVIew.as_view()),
     path('api/save-get-update-bulk-interest/',InterestApiVIew.as_view()),
     path('api/save-get-update-bulk-opportunity/',OpportunityApiVIew.as_view()),
+    path('api/save-get-update-bulk-interestjunction/',InterstJunctionApiVIew.as_view())
 ]
 
 
