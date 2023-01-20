@@ -542,7 +542,6 @@ class InterestApiVIew(APIView):
         print(data)  
         for dicts in data:
             print(dicts)
-
             Interestid=dicts['InterestID']
             interestname=dicts['InterestName']
             approvalstatus=dicts['ApprovalStatus']
@@ -940,5 +939,7 @@ class InterestJunctionDelete(APIView):
         junc.delete()
         return Response({'message':'InterstJunction deleted successfully'})
        
+
+
 
 
