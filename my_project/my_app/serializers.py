@@ -42,22 +42,23 @@ class OpportunitySerializersPost(serializers.ModelSerializer):
         ]
                 
 
-# class InterestJunctionSerializers(serializers.ModelSerializer):
-#     Product=ProductSerializers(many=False,read_only=True)
-#     Interest=InterestSerializers(many=False,read_only=True)
-#     Account=AccountSerializers(many=False,read_only=True)
-#     # Contact=ContactSerializers(many=False,read_only=True)
-#     class Meta:
-#         model=Interest_Junction_c
-#         fields=[
-#             "InterestNameJunction",
-#             "InterestName",
-#             "InterestJunctionID",
-#             "link_With",
-#             "Product",
-#             "Interest",
-#             "Account",
-#         ]
+class InterestJunctionFindClientSerializers(serializers.ModelSerializer):
+    Product=ProductSerializers(many=False,read_only=True)
+    Interest=InterestSerializers(many=False,read_only=True)
+    Account=AccountSerializers(many=False,read_only=True)
+    # opportunityid=serializers.ReadOnlyField(Opportunity.objects.all().filter(AccountId=Account))
+    # Contact=ContactSerializers(many=False,read_only=True)
+    class Meta:
+        model=Interest_Junction_c
+        fields=[
+            "InterestNameJunction",
+            "InterestName",
+            "InterestJunctionID",
+            "link_With",
+            "Product",
+            "Interest",
+            "Account",
+        ]
 
 class InterestJunctionSerializers(serializers.ModelSerializer):
     class Meta:
@@ -112,3 +113,9 @@ class JunctionSerializers(serializers.ModelSerializer):
 
 class OpportunitySearchSerializers(serializers.Serializer):
     searchopportunity=serializers.CharField(max_length=100)
+
+
+class FindClientSearchSerializers(serializers.Serializer):
+    FieldName=serializers.CharField(max_length=100)    
+    FieldValue=serializers.CharField(max_length=100)
+    FilterLogic=serializers.CharField(max_length=100)

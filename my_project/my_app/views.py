@@ -943,3 +943,354 @@ class InterestJunctionDelete(APIView):
 
 
 
+class AccountBulkDelete(APIView):
+    def get(self,request,format=None):
+        get=Account.objects.all()
+        serial=AccountSerializers(get,many=True)
+        return Response(serial.data)
+
+    def post(self,request,format=None):
+        data=request.data.get('data')
+        for obj in data:
+            accountid=obj['Accountid']
+            print(accountid)
+            if not Account.objects.filter(Accountid=accountid).exists():
+                return Response({'error':'Account not exist with this id ','id':accountid})
+            account=Account.objects.get(Accountid=accountid)
+            account.delete()
+        return Response({'message':'Account deleted successfully'})
+
+
+
+class SearchFindClientApi(APIView):
+    def get(self,request,format=None):
+        data=Interest_Junction_c.objects.all()
+        serializers=InterestJunctionSerializers(data,many=True)
+        return Response(serializers.data)
+    def post(self,request,format=None):
+        serializers=FindClientSearchSerializers(data=request.data)
+        if serializers.is_valid(raise_exception=True):
+            fieldname=serializers.data.get('FieldName')
+            fieldvalue=serializers.data.get('FieldValue')
+            filterlogic=serializers.data.get('FilterLogic')
+            query=fieldvalue
+            #account search for fields
+            if fieldname == 'CategoryOfInterest':
+                if filterlogic=='Includes' or filterlogic == 'includes':
+
+
+                    q = Q(
+                    'multi_match',
+                    query=query,
+                    fields=[
+                        'Account.CategoryOfInterest',
+                    ],
+                    fuzziness='auto')
+                    search=Interest_Junction_cDocument.search().query(q)
+                    serial=InterestJunctionFindClientSerializers(search,many=True)
+                    return Response(serial.data)
+                elif filterlogic=='Excludes' or filterlogic == 'excludes':  
+                    q = Q(
+                    'multi_match',
+                    query=query,
+                    fields=[
+                        'Account.CategoryOfInterest',
+                    ],
+                    fuzziness='auto')
+                    search=Interest_Junction_cDocument.search().query(q)
+                    serial=InterestJunctionFindClientSerializers(search,many=True)
+                    return Response(serial.data)
+                elif filterlogic=='Equal' or filterlogic == 'equal':
+                    q = Q(
+                    'multi_match',
+                    query=query,
+                    fields=[
+                        'Account.CategoryOfInterest',
+                    ]
+                    )
+                    search=Interest_Junction_cDocument.search().query(q)
+                    serial=InterestJunctionFindClientSerializers(search,many=True)
+                    return Response(serial.data)
+                else :
+                    return Response({"error":"you are providing invilid field logic"})
+            elif fieldname == 'YoungerAudience':
+                if filterlogic=='Equal' or filterlogic == 'equal':
+
+
+                    q = Q(
+                    'multi_match',
+                    query=query,
+                    fields=[
+                        'Account.YoungerAudience',
+                    ]
+                    )
+                    search=Interest_Junction_cDocument.search().query(q)
+                    serial=InterestJunctionFindClientSerializers(search,many=True)
+                    return Response(serial.data)
+                elif filterlogic=='NotEqual' or filterlogic == 'notequal':  
+                    q = Q(
+                    'multi_match',
+                    query=query,
+                    fields=[
+                        'Account.YoungerAudience',
+                    ],
+                    fuzziness='auto')
+                    search=Interest_Junction_cDocument.search().query(q)
+                    serial=InterestJunctionFindClientSerializers(search,many=True)
+                    return Response(serial.data)
+                # elif filterlogic=='Equal' or filterlogic == 'equal':
+                #     q = Q(
+                #     'multi_match',
+                #     query=query,
+                #     fields=[
+                #         'Account.YoungerAudience',
+                #     ]
+                #     )
+                #     search=Interest_Junction_cDocument.search().query(q)
+                #     serial=InterestJunctionFindClientSerializers(search,many=True)
+                #     return Response(serial.data) 
+            # elif fieldname == 'LastPurchasedDtae':
+            #     if filterlogic=='Greater than' or filterlogic == 'greater then':
+
+
+            #         q = Q(
+            #         'multi_match',
+            #         query=query,
+            #         fields=[
+            #             'Account.LastPurchasedDtae',
+            #         ],
+            #         )
+            #         search=Interest_Junction_cDocument.search().query(q)
+            #         serial=InterestJunctionFindClientSerializers(search,many=True)
+            #         return Response(serial.data)
+            #     elif filterlogic=='Excludes' or filterlogic == 'excludes':  
+            #         q = Q(
+            #         'multi_match',
+            #         query=query,
+            #         fields=[
+            #             'Account.YoungerAudience',
+            #         ],
+            #         fuzziness='auto')
+            #         search=Interest_Junction_cDocument.search().query(q)
+            #         serial=InterestJunctionFindClientSerializers(search,many=True)
+            #         return Response(serial.data)
+            #     elif filterlogic=='Equal' or filterlogic == 'equal':
+            #         q = Q(
+            #         'multi_match',
+            #         query=query,
+            #         fields=[
+            #             'Account.YoungerAudience',
+            #         ]
+            #         )
+            #         search=Interest_Junction_cDocument.search().query(q)
+            #         serial=InterestJunctionFindClientSerializers(search,many=True)
+            #         return Response(serial.data)        
+            elif fieldname == 'HolidayCelebrated':
+                if filterlogic=='Equal' or filterlogic == 'equal':
+
+
+                    q = Q(
+                    'multi_match',
+                    query=query,
+                    fields=[
+                        'Account.HolidayCelebrated',
+                    ]
+                    )
+                    search=Interest_Junction_cDocument.search().query(q)
+                    serial=InterestJunctionFindClientSerializers(search,many=True)
+                    return Response(serial.data)
+                elif filterlogic=='NotEqual' or filterlogic == 'notequal':  
+                    q = Q(
+                    'multi_match',
+                    query=query,
+                    fields=[
+                        'Account.HolidayCelebrated',
+                    ],
+                    fuzziness='auto')
+                    search=Interest_Junction_cDocument.search().query(q)
+                    serial=InterestJunctionFindClientSerializers(search,many=True)
+                    return Response(serial.data)
+            elif fieldname == 'Email':
+                if filterlogic=='Equal' or filterlogic == 'equal':
+
+
+                    q = Q(
+                    'multi_match',
+                    query=query,
+                    fields=[
+                        'Account.Email',
+                    ]
+                    )
+                    search=Interest_Junction_cDocument.search().query(q)
+                    serial=InterestJunctionFindClientSerializers(search,many=True)
+                    return Response(serial.data)
+                elif filterlogic=='NotEqual' or filterlogic == 'notequal':  
+                    q = Q(
+                    'multi_match',
+                    query=query,
+                    fields=[
+                        'Account.Email',
+                    ],
+                    fuzziness='auto')
+                    search=Interest_Junction_cDocument.search().query(q)
+                    serial=InterestJunctionFindClientSerializers(search,many=True)
+                    return Response(serial.data)        
+            elif fieldname == 'ShippingCity':
+                if filterlogic=='Equal' or filterlogic == 'equal':
+
+
+                    q = Q(
+                    'multi_match',
+                    query=query,
+                    fields=[
+                        'Account.ShippingCity',
+                    ]
+                    )
+                    search=Interest_Junction_cDocument.search().query(q)
+                    serial=InterestJunctionFindClientSerializers(search,many=True)
+                    return Response(serial.data)
+                elif filterlogic=='NotEqual' or filterlogic == 'notequal':  
+                    q = Q(
+                    'multi_match',
+                    query=query,
+                    fields=[
+                        'Account.ShippingCity',
+                    ],
+                    fuzziness='auto')
+                    search=Interest_Junction_cDocument.search().query(q)
+                    serial=InterestJunctionFindClientSerializers(search,many=True)
+                    return Response(serial.data)
+
+            elif fieldname == 'InterestType':
+                if filterlogic=='Equal' or filterlogic == 'equal':
+
+
+                    q = Q(
+                    'multi_match',
+                    query=query,
+                    fields=[
+                        'Interest.InterestType',
+                    ]
+                    )
+                    search=Interest_Junction_cDocument.search().query(q)
+                    serial=InterestJunctionFindClientSerializers(search,many=True)
+                    return Response(serial.data)
+                elif filterlogic=='NotEqual' or filterlogic == 'notequal':  
+                    q = Q(
+                    'multi_match',
+                    query=query,
+                    fields=[
+                        'Interest.InterestType',
+                    ],
+                    fuzziness='auto')
+                    search=Interest_Junction_cDocument.search().query(q)
+                    serial=InterestJunctionFindClientSerializers(search,many=True)
+                    return Response(serial.data)  
+            elif fieldname == 'InterestName':
+                if filterlogic=='Equal' or filterlogic == 'equal':
+
+
+                    q = Q(
+                    'multi_match',
+                    query=query,
+                    fields=[
+                        'Interest.InterestName',
+                    ]
+                    )
+                    search=Interest_Junction_cDocument.search().query(q)
+                    serial=InterestJunctionFindClientSerializers(search,many=True)
+                    return Response(serial.data)
+                elif filterlogic=='NotEqual' or filterlogic == 'notequal':  
+                    q = Q(
+                    'multi_match',
+                    query=query,
+                    fields=[
+                        'Interest.InterestName',
+                    ],
+                    fuzziness='auto')
+                    search=Interest_Junction_cDocument.search().query(q)
+                    serial=InterestJunctionFindClientSerializers(search,many=True)
+                    return Response(serial.data) 
+
+            elif fieldname == 'StageName':
+                if filterlogic=='Equal' or filterlogic == 'equal':
+
+
+                    q = Q(
+                    'multi_match',
+                    query=query,
+                    fields=[
+                        'Opportunity.StageName',
+                    ]
+                    )
+                    search=OpportunityDocument.search().query(q)
+                    serial=OpportunitySerializersPost(search,many=True)
+                    return Response(serial.data)
+                elif filterlogic=='NotEqual' or filterlogic == 'notequal':  
+                    q = Q(
+                    'multi_match',
+                    query=query,
+                    fields=[
+                        'Opportunity.StageName',
+                    ],
+                    fuzziness='auto')
+                    search=OpportunityDocument.search().query(q)
+                    serial=OpportunitySerializersPost(search,many=True)
+                    return Response(serial.data)                  
+            elif fieldname == 'BillingCity':
+                if filterlogic=='Equal' or filterlogic == 'equal':
+
+
+                    q = Q(
+                    'multi_match',
+                    query=query,
+                    fields=[
+                        'Opportunity.BillingCity',
+                    ]
+                    )
+                    search=OpportunityDocument.search().query(q)
+                    serial=OpportunitySerializersPost(search,many=True)
+                    return Response(serial.data)
+                elif filterlogic=='NotEqual' or filterlogic == 'notequal':  
+                    q = Q(
+                    'multi_match',
+                    query=query,
+                    fields=[
+                        'Opportunity.BillingCity',
+                    ],
+                    fuzziness='auto')
+                    search=OpportunityDocument.search().query(q)
+                    serial=OpportunitySerializersPost(search,many=True)
+                    return Response(serial.data)
+
+            elif fieldname == 'AverageItemSold':
+                if filterlogic=='Equal' or filterlogic == 'equal':
+
+
+                    q = Q(
+                    'multi_match',
+                    query=query,
+                    fields=[
+                        'Opportunity.AverageItemSold',
+                    ]
+                    )
+                    search=OpportunityDocument.search().query(q)
+                    serial=OpportunitySerializersPost(search,many=True)
+                    return Response(serial.data)
+                elif filterlogic=='NotEqual' or filterlogic == 'notequal':  
+                    q = Q(
+                    'multi_match',
+                    query=query,
+                    fields=[
+                        'Opportunity.AverageItemSold',
+                    ],
+                    fuzziness='auto')
+                    search=OpportunityDocument.search().query(q)
+                    serial=OpportunitySerializersPost(search,many=True)
+                    return Response(serial.data)                     
+
+                            
+            else:
+                return Response({'Error':'Please choose valid field name !'})
+        # return Response(serial.data)        
+
