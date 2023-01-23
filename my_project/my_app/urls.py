@@ -23,7 +23,7 @@ urlpatterns=[
     path('api/search_account/',SearchListAccount.as_view()),
     path('api/search_product/',SearchListProduct.as_view()),
     path('api/search_opportunity/',SearchListOpportunity.as_view()),
-    # path('api/find_client/',SearchInterestJunction.as_view()),
+    path('api/find_client/',SearchFindClientApi.as_view()),
     # path('api/search_all/',SearchAllApi.as_view()),
     path('api/save-get-update-bulk-product/',ProductApiVIew.as_view()),
     path('api/save-get-update-bulk-account/',AccountApiVIew.as_view()),
@@ -34,7 +34,8 @@ urlpatterns=[
     path('api/get-delete-interest/',InterestDelete.as_view()),
     path('api/get-delete-product/',ProductDelete.as_view()),
     path('api/get-delete-opportunity/',OpportunityDelete.as_view()),
-    path('api/get-delete-interestjunction/',InterestJunctionDelete.as_view())
+    path('api/get-delete-interestjunction/',InterestJunctionDelete.as_view()),
+    path('api/get-delete-bulk-account/',AccountBulkDelete.as_view()),
 
 ]
 
