@@ -1293,4 +1293,95 @@ class SearchFindClientApi(APIView):
             else:
                 return Response({'Error':'Please choose valid field name !'})
         # return Response(serial.data)        
+import json
+class ClientFind(APIView):
+    def get(self,request,format=None):
+        data=Interest_Junction_c.objects.all()
+        serializers=InterestJunctionFindClientSerializers(data,many=True)
+        return Response(serializers.data)
+    def post(self,request,format=None):
+        data=request.data.get('data')
+        interestcondition=data[0]
+        interestname=data[1]
+        accountfiltercondition=data[2]
+        accountfilters=data[3]
+        acc=accountfilters['AccountFilters']
+        xx=acc[1]
+        filterlogic=xx['FilterLogic']
+        print(filterlogic)
+        
 
+
+        
+        accountfiltername=accountfilters['AccountFilters']
+        # print(accountfiltername)
+        # print(accountfiltername[1])
+        interestfiltercondition=data[4]
+        interestfilter=data[5]
+        opportunityfiltercondition=[6]
+        opportunityfilter=data[7]
+        interestitem=interestname['InterestName']
+        if interestcondition['InterestCondition'] =='AND':
+            if filterlogic=='Equal':
+
+                for item1 in interestname['InterestName']:
+                    # print(item1)
+                    q = Q(
+                            'multi_match',
+                            query=item1,
+                            fields=[
+                                'InterestName',
+                            ]
+                            )
+                    search=Interest_Junction_cDocument.search().query(q)
+                    serial=InterestJunctionFindClientSerializers(search,many=True)
+        if interestcondition['InterestCondition']=='AND' or  accountfiltercondition['AccountFilterCondition']=='OR':       
+            for item1 in interestname['InterestName']:
+                q = Q(
+                        'multi_match',
+                        query=item1,
+                        fields=[
+                            'InterestName',
+                        ]
+                        )|Q(
+                            'multi_match',
+                            query='fine art',
+                            fields=[
+                                'Account.CategoryOfInterest'
+                            ]
+
+
+                        )|Q(
+                            'multi_match',
+                            query='True',
+                            fields=[
+                                'Account.YoungerAudience'
+                            ]
+                        )|Q(
+                            'multi_match',
+                            query='chrismas',
+                            fields=[
+                                'Account.HolidayCelebrated'
+                            ]
+                        )
+                search=Interest_Junction_cDocument.search().query(q)
+                serial=InterestJunctionFindClientSerializers(search,many=True)        
+        return Response(serial.data) 
+
+        
+
+        
+            
+        
+        
+        
+            
+
+        return Response({"success":"seccess"})
+#  data=request.data.get('data')
+#         print(data)  
+#         for dicts in data:
+#             print(dicts)
+#             interestjunctionid=dicts['InterestJunctionID']
+#             linkwith=dicts['link_With']
+#             account=dicts['Account']
