@@ -23,7 +23,7 @@ urlpatterns=[
     path('api/search_account/',SearchListAccount.as_view()),
     path('api/search_product/',SearchListProduct.as_view()),
     path('api/search_opportunity/',SearchListOpportunity.as_view()),
-    path('api/find_client/',SearchFindClientApi.as_view()),
+    path('api/find_client/',ClientFind.as_view()),
     # path('api/search_all/',SearchAllApi.as_view()),
     path('api/save-get-update-bulk-product/',ProductApiVIew.as_view()),
     path('api/save-get-update-bulk-account/',AccountApiVIew.as_view()),
