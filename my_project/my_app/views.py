@@ -1315,26 +1315,29 @@ class ClientFind(APIView):
         serializers=InterestJunctionFindClientSerializers(data,many=True)
         return Response(serializers.data)
     def post(self,request,format=None):
+        andlist=[]
+        orlist=[]
         data=request.data.get('data')
         interestcondition=data[0]
-        # print(interestcondition['InterestCondition'])
         interestname=data[1]
         accountfiltercondition=data[2]
         accountfilters=data[3]
         acc=accountfilters['AccountFilters']
-        youngeraudiencefilter=acc[0]
-        print(youngeraudiencefilter)
-        # filterlogic=xx['FilterLogic']
-        # print(filterlogic)
-        
-
-
-        
+        categoryofinterestfilter=acc[0]
+        # print(categoryofinterestfilter['FieldValue'])
+        youngeraudiencefilter=acc[1]
+        lastpurchasedatefilter=acc[2]
+        holidayscelebratedfilter=acc[3]
+        emailcondition=acc[4]
+        email=acc[5]
+        shippingcity=acc[6]
         accountfiltername=accountfilters['AccountFilters']
-        # print(accountfiltername)
-        # print(accountfiltername[1])
         interestfiltercondition=data[4]
         interestfilter=data[5]
+        interestfiltername=interestfilter['InterestFilter']
+        accountintereststatus=interestfiltername[0]
+        accountinterestname=interestfiltername[1]
+        # print(accountinterestname,accountintereststatus)
         opportunityfiltercondition=[6]
         opportunityfilter=data[7]
         interestitem=interestname['InterestName']
@@ -1358,76 +1361,302 @@ class ClientFind(APIView):
         #interest search        
         qz=Q('terms',**interestname)
         if accountfiltercondition['AccountFiltersCondition'] == 'AND':
-
-            if youngeraudiencefilter['FilterLogic'] =='Includes':
-                qz1=Q(
+            if categoryofinterestfilter['FilterLogic'] =='Includes':
+                qz1=Q('terms', **{'Account.CategoryOfInterest':categoryofinterestfilter['FieldValue']})
+                andlist.append(qz1)
+            elif categoryofinterestfilter['FilterLogic'] == 'Exclude':
+                qz2=Q('bool', must_not=[Q('terms',**{'Account.CategoryOfInterest':categoryofinterestfilter['FieldValue']})])
+                andlist.append(qz2)
+            else:
+                qz3=Q('bool', must=[Q('terms',**{'Account.CategoryOfInterest':categoryofinterestfilter['FieldValue']})])
+                andlist.append(qz3)
+            if youngeraudiencefilter['FilterLogic'] == 'Equal': 
+                qz4=Q(
                     'multi_match',
                     query=youngeraudiencefilter['FieldValue'],
                     fields=[
-                        youngeraudiencefilter['FieldName']
+                        'Account.YoungerAudience',
+                    ]
+                    )
+                andlist.append(qz4)    
+            else:
+                qz5=Q('bool', must_not=[Q('term',**{'Account.YoungerAudience':youngeraudiencefilter['FieldName']})])
+                
+            if holidayscelebratedfilter['FilterLogic'] == 'Equal':
+                qz6=Q(
+                    'multi_match',
+                    query=holidayscelebratedfilter['FieldValue'],
+                    fields=[
+                        'Account.HolidayCelebrated',
+                    ]
+                    )
+            else:
+                qz7=Q('bool', must_not=[Q('term',**{'Account.HolidayCelebrated':holidayscelebratedfilter['FieldValue']})])
+            if lastpurchasedatefilter['FilterLogic'] == 'Equal':
+                qz8=Q(
+                    'multi_match',
+                    query=lastpurchasedatefilter['FieldValue'],
+                    fields=[
+                        'Account.LastPurchasedDtae',
+                    ]
+                    )
+            elif lastpurchasedatefilter['FilterLogic'] == 'Not Equal':
+                qz9=Q('bool', must_not=[Q('term',**{'Account.LastPurchaseDtae':lastpurchasedatefilter['FieldValue']})])
+
+            elif lastpurchasedatefilter['FilterLogic'] == 'Greater than':
+                # qz10=Q('range', must=[Q('range',**{'Account.LastPurchaseDtae':{"gte":{lastpurchasedatefilter['FieldValue']}}})])
+                # qz10=Q('range', **{'Account.LastPurchaseDtae': {'gte':lastpurchasedatefilter['FieldValue'],'format':'DD/MM/YYYY'}})
+                qz10=Q('bool', filter=[Q('range',**{'Account.LastPurchasedDtae': {'gte':lastpurchasedatefilter['FieldValue'],'format':'dd-mm-yy'}})])
+                # qz10=Q('range', **{'Account.LastPurchaseDtae': {"gte":lastpurchasedatefilter['FieldValue'],'format':'DD/MM/YYYY'}})
+
+            else:
+                qz11=Q('bool', filter=[Q('range',**{'Account.LastPurchasedDtae': {'lte':lastpurchasedatefilter['FieldValue'],'format':'dd-mm-yy'}})])
+        else:
+            if categoryofinterestfilter['FilterLogic'] =='Includes':
+                qz12=Q('terms', **{'Account.CategoryOfInterest':categoryofinterestfilter['FieldValue']})
+            elif categoryofinterestfilter['FilterLogic'] == 'Exclude':
+                qz13=Q('bool', must_not=[Q('terms',**{'Account.CategoryOfInterest':categoryofinterestfilter['FieldValue']})])
+            else:
+                qz14=Q('bool', must=[Q('terms',**{'Account.CategoryOfInterest':categoryofinterestfilter['FieldValue']})])
+            if youngeraudiencefilter['FilterLogic'] == 'Equal': 
+                qz15=Q(
+                    'multi_match',
+                    query=youngeraudiencefilter['FieldValue'],
+                    fields=[
+                        'Account.YoungerAudience',
+                    ]
+                    )
+            else:
+                qz16=Q('bool', must_not=[Q('term',**{'Account.YoungerAudience':youngeraudiencefilter['FieldName']})])
+            if holidayscelebratedfilter['FilterLogic'] == 'Equal':
+                qz17=Q(
+                    'multi_match',
+                    query=holidayscelebratedfilter['FieldValue'],
+                    fields=[
+                        'Account.HolidayCelebrated',
+                    ]
+                    )
+            else:
+                qz18=Q('bool', must_not=[Q('term',**{'Account.HolidayCelebrated':holidayscelebratedfilter['FieldValue']})])
+            if lastpurchasedatefilter['FilterLogic'] == 'Equal':
+                qz19=Q(
+                    'multi_match',
+                    query=lastpurchasedatefilter['FieldValue'],
+                    fields=[
+                        'Account.LastPurchasedDtae',
+                    ]
+                    )
+            elif lastpurchasedatefilter['FilterLogic'] == 'NotEqual':
+                qz20=Q('bool', must_not=[Q('match',**{'Account.LastPurchaseDtae':lastpurchasedatefilter['FieldValue']})])
+
+            elif lastpurchasedatefilter['FilterLogic'] == 'Greater than':
+                # qz10=Q('bool', must=[Q('range',**{'Account.LastPurchaseDtae':{"gte":{lastpurchasedatefilter['FieldValue']}}})])
+                qz21=Q('range', **{'Account.LastPurchaseDtae': {"gt":'90/12/2020'}})
+
+            else:
+                qz22=Q('range', **{'Account.LastPurchaseDtae': {"lt":'90/12/2020'}})
+        if emailcondition['EmailCondition'] =='AND':
+            if email['FilterLogic'] =='Equal':
+                qz23=Q(
+                    'multi_match',
+                    query=email['FieldValue'],
+                    fields=[
+                        'Account.Email',
+                    ]
+                    )
+            else:
+                qz24=Q('bool', must_not=[Q('match',**{'Account.Email':email['FieldValue']})])
+
+            if shippingcity['FilterLogic'] =='Includes':
+                qz25=Q(
+                    'multi_match',
+                    query=shippingcity['FieldValue'],
+                    fields=[
+                        'Account.ShippingCity',
                     ],fuzziness='auto'
                     )
+            elif shippingcity['FilterLogic'] == 'Excludes':
+                qz26=Q('bool', must_not=[Q('match',**{'Account.ShippingCity':shippingcity['FieldValue']})])
+            elif shippingcity['FilterLogic'] == 'Equal':
+                qz27=Q(
+                    'multi_match',
+                    query=shippingcity['FieldValue'],
+                    fields=[
+                        'Account.ShippingCity',
+                    ]
+                    )
+            else:
+                qz28=Q('bool', must_not=[Q('match',**{'Account.ShippingCity':shippingcity['FieldValue']})])
+
+        else:
+            if email['FilterLogic'] =='Equal':
+                qz29=Q(
+                    'multi_match',
+                    query=email['FieldValue'],
+                    fields=[
+                        'Account.Email',
+                    ]
+                    )
+            else:
+                qz30=Q('bool', must_not=[Q('match',**{'Account.Email':email['FieldValue']})])
+
+            if shippingcity['FilterLogic'] =='Includes':
+                qz31=Q(
+                    'multi_match',
+                    query=shippingcity['FieldValue'],
+                    fields=[
+                        'Account.ShippingCity',
+                    ],fuzziness='auto'
+                    )
+            elif shippingcity['FilterLogic'] == 'Excludes':
+                qz32=Q('bool', must_not=[Q('match',**{'Account.ShippingCity':shippingcity['FieldValue']})])
+            elif shippingcity['FilterLogic'] == 'Equal':
+                qz33=Q(
+                    'multi_match',
+                    query=shippingcity['FieldValue'],
+                    fields=[
+                        'Account.ShippingCity',
+                    ]
+                    )
+            else:
+                qz34=Q('bool', must_not=[Q('match',**{'Account.ShippingCity':shippingcity['FieldValue']})])
+        if interestfiltercondition['InterestFilterCondition'] == 'AND':
+            if accountinterestname['FilterLogic'] == 'Includes':
+                qz35=Q(
+                    'multi_match',
+                    query=accountinterestname['FieldValue'],
+                    fields=[
+                        'Interest.InterestName',
+                    ],fuzziness='auto'
+                    )
+            elif accountinterestname['FilterLogic'] == 'Exclude':
+                qz36=Q('bool', must_not=[Q('match',**{'Interest.InterestName':accountinterestname['FieldValue']})])
+
+
+            elif accountinterestname['FilterLogic'] == 'Equal':
+                qz37=Q(
+                    'multi_match',
+                    query=accountinterestname['FieldValue'],
+                    fields=[
+                        'Interest.InterestName',
+                    ]
+                    )
+            else:
+                qz38=Q('bool', must_not=[Q('match',**{'Interest.InterestName':accountinterestname['FieldValue']})])
+       
+            if accountintereststatus['FilterLogic'] == 'Equal':
+                qz39=Q(
+                    'multi_match',
+                    query=accountintereststatus['FieldValue'],
+                    fields=[
+                        'Interest.ApprovalStatus',
+                    ]
+                    )
+
+            else:
+                qz40=Q('bool', must_not=[Q('match',**{'Interest.ApprovalStatus':accountintereststatus['FieldValue']})])
+        else:
+            if accountinterestname['FilterLogic'] == 'Includes':
+                qz41=Q(
+                    'multi_match',
+                    query=accountinterestname['FieldValue'],
+                    fields=[
+                        'Interest.InterestName',
+                    ],fuzziness='auto'
+                    )
+            elif accountinterestname['FilterLogic'] == 'Exclude':
+                qz42=Q('bool', must_not=[Q('match',**{'Interest.InterestName':accountinterestname['FieldValue']})])
+
+
+            elif accountinterestname['FilterLogic'] == 'Equal':
+                qz43=Q(
+                    'multi_match',
+                    query=accountinterestname['FieldValue'],
+                    fields=[
+                        'Interest.InterestName',
+                    ]
+                    )
+            else:
+                qz44=Q('bool', must_not=[Q('match',**{'Interest.InterestName':accountinterestname['FieldValue']})])
+       
+            if accountintereststatus['FilterLogic'] == 'Equal':
+                qz45=Q(
+                    'multi_match',
+                    query=accountintereststatus['FieldValue'],
+                    fields=[
+                        'Interest.ApprovalStatus',
+                    ]
+                    )
+
+            else:
+                qz46=Q('bool', must_not=[Q('match',**{'Interest.ApprovalStatus':accountintereststatus['FieldValue']})])
+ 
+
             
-        q = Q(
-                'multi_match',
-                query='ring',
-                fields=[
-                    'InterestName',
-                ]
-                )|Q(
-                    'multi_match',
-                    query='fine art',
-                    fields=[
-                        'Account.CategoryOfInterest'
-                    ]
+
+        # q = Q(
+        #         'multi_match',
+        #         query='ring',
+        #         fields=[
+        #             'InterestName',
+        #         ]
+        #         )|Q(
+        #             'multi_match',
+        #             query='fine art',
+        #             fields=[
+        #                 'Account.CategoryOfInterest'
+        #             ]
 
 
-                )|Q(
-                    'multi_match',
-                    query='True',
-                    fields=[
-                        'Account.YoungerAudience'
-                    ]
-                )|Q(
-                    'multi_match',
-                    query='chrismas',
-                    fields=[
-                        'Account.HolidayCelebrated'
-                    ]
-                )&Q(
-                    'multi_match',
-                    query='test@123.com',
-                    fields=[
-                        'Account.Email'
-                    ]
-                )&Q(
-                    'multi_match',
-                    query='test city',
-                    fields=[
-                        'Account.ShippingCity'
-                    ]
-                )&Q(
-                    'multi_match',
-                    query='General interest',
-                    fields=[
-                        'Interest.InterestType'
-                    ]
-                )&Q(
-                    'multi_match',
-                    query='ring',
-                    fields=[
-                        'Interest.InterestName'
-                    ]
-                )
+        #         )|Q(
+        #             'multi_match',
+        #             query='True',
+        #             fields=[
+        #                 'Account.YoungerAudience'
+        #             ]
+        #         )|Q(
+        #             'multi_match',
+        #             query='chrismas',
+        #             fields=[
+        #                 'Account.HolidayCelebrated'
+        #             ]
+        #         )&Q(
+        #             'multi_match',
+        #             query='test@123.com',
+        #             fields=[
+        #                 'Account.Email'
+        #             ]
+        #         )&Q(
+        #             'multi_match',
+        #             query='test city',
+        #             fields=[
+        #                 'Account.ShippingCity'
+        #             ]
+        #         )&Q(
+        #             'multi_match',
+        #             query='General interest',
+        #             fields=[
+        #                 'Interest.InterestType'
+        #             ]
+        #         )&Q(
+        #             'multi_match',
+        #             query='ring',
+        #             fields=[
+        #                 'Interest.InterestName'
+        #             ]
+        #         )
                 
-        q3=Q('match', **{'Account.CategoryOfInterest': 'asfa'})|Q('match', **{'Account.YoungerAudience': 'True'})|Q('match', **{'Account.LastPurchaseDate': '12/23/2020'})|Q('match', **{'Account.HolidayCelebrated': 'chrismas'})
-        q4=Q('match',**{'Account.Email': 'test@123.com'})|Q('match',**{'Account.ShippingCity': 'new york'})
-        #interest filter
-        q5=Q('match',**{'Interest.InterestType': 'General interest'})|Q('match',**{'Interest.InterestName': 'asdfasf'})
+        # q3=Q('match', **{'Account.CategoryOfInterest': 'asfa'})|Q('match', **{'Account.YoungerAudience': 'True'})|Q('match', **{'Account.LastPurchaseDate': '12/23/2020'})|Q('match', **{'Account.HolidayCelebrated': 'chrismas'})
+        # q4=Q('match',**{'Account.Email': 'test@123.com'})|Q('match',**{'Account.ShippingCity': 'new york'})
+        # #interest filter
+        # q5=Q('match',**{'Interest.InterestType': 'General interest'})|Q('match',**{'Interest.InterestName': 'asdfasf'})
+        # print(q5)
 
-        w=q3+q4+q5
-        print(w)
-        search=Interest_Junction_cDocument.search().query(qz)
+        # w=q3+q4+q5
+        # print(w)
+        xy=qz1&qz6&qz4&qz8
+        # print(xy)
+        search=Interest_Junction_cDocument.search().query(xy)
         serial1=InterestJunctionFindClientSerializers(search,many=True)        
         return Response(serial1.data) 
 

@@ -1,104 +1,104 @@
-{"data":[
-    {
-        "InterestCondition":"AND"
-    },
-    {
-        "InterestName": [
-            "Ring",
-            "Diamond"
-        ]
-    },
-    {
-        "AccountFiltersCondition":"OR"
-    },
-    {
-        "AccountFilters": [
-            {
-                "FieldName": "CategoryOfInterest",
-                "FieldValue": [
-                    "Clock",
-                    "Fine Art",
-                    "Fireplace Antiques",
-                    "Furnishing",
-                    "Glass",
-                    "Historic",
-                    "Jewelry",
-                    "Judaica",
-                    "Lighting",
-                    "Medical/Scientific"
-                ],
-                "FilterLogic": "Includes/Exclude/Equal"
-            },
-            {
-                "FieldName": "YoungerAudience",
-                "FieldValue": "True/False",
-                "FilterLogic": "Equal/Not Equal"
-            },
-            {
-                "FieldName": "LastPurchaseDate",
-                "FieldValue": "1/13/2023",
-                "FilterLogic": "Greater than/Lesser than/Equal/ Not Equal"
-            },
-            {
-                "FieldName": "HolidayCelebrated",
-                "FieldValue": "Christmas",
-                "FilterLogic": "Equal/ Not Equal"
-            },
-            
+    {"data":[
+        {
+            "InterestCondition":"AND"
+        },
+        {
+            "InterestName": [
+                "Ring",
+                "Diamond"
+            ]
+        },
+        {
+            "AccountFiltersCondition":"OR"
+        },
+        {
+            "AccountFilters": [
                 {
-                    "EmailCondition":"AND"
+                    "FieldName": "CategoryOfInterest",
+                    "FieldValue": [
+                        "Clock",
+                        "Fine Art",
+                        "Fireplace Antiques",
+                        "Furnishing",
+                        "Glass",
+                        "Historic",
+                        "Jewelry",
+                        "Judaica",
+                        "Lighting",
+                        "Medical/Scientific"
+                    ],
+                    "FilterLogic": "Includes/Exclude/Equal"
                 },
                 {
-                    "FieldName": "Email",
-                    "FieldValue": "test@gmail.com",
+                    "FieldName": "YoungerAudience",
+                    "FieldValue": "True/False",
+                    "FilterLogic": "Equal/Not Equal"
+                },
+                {
+                    "FieldName": "LastPurchaseDate",
+                    "FieldValue": "1/13/2023",
+                    "FilterLogic": "Greater than/Lesser than/Equal/ Not Equal"
+                },
+                {
+                    "FieldName": "HolidayCelebrated",
+                    "FieldValue": "Christmas",
+                    "FilterLogic": "Equal/ Not Equal"
+                },
+                
+                    {
+                        "EmailCondition":"AND"
+                    },
+                    {
+                        "FieldName": "Email",
+                        "FieldValue": "test@gmail.com",
+                        "FilterLogic": "Equal/ Not Equal"
+                    },
+                    {
+                        "FieldName": "ShippingCity",
+                        "FieldValue": "New York",
+                        "FilterLogic": "Includes/Exclude/Equal/ Not Equal"
+                    }
+                
+            ]
+        },
+        {
+        "InterestFilterCondition":"AND"
+        },
+        {
+            "InterestFilter": [
+                {
+                    "FieldName": "ApprovalStatus",
+                    "FieldValue": "True/False",
                     "FilterLogic": "Equal/ Not Equal"
                 },
                 {
-                    "FieldName": "ShippingCity",
-                    "FieldValue": "New York",
+                    "FieldName": "InterestName",
+                    "FieldValue": "Ring/Diamond Ring",
                     "FilterLogic": "Includes/Exclude/Equal/ Not Equal"
                 }
-            
-        ]
-    },
-    {
-      "InterestFilterCondition":"AND"
-    },
-    {
-        "InterestFilter": [
-            {
-                "FieldName": "InterestType",
-                "FieldValue": "General Interest/Client Looking For/ Not Interested",
-                "FilterLogic": "Equal/ Not Equal"
-            },
-            {
-                "FieldName": "InterestName",
-                "FieldValue": "Ring/Diamond Ring",
-                "FilterLogic": "Includes/Exclude/Equal/ Not Equal"
-            }
-        ]
-    },
-    {
-        "OpportunityFilterCondition":"OR"
-    },
-    {
-        "OpportunityFilter": [
-            
-            {
-                "FieldName": "StageName",
-                "FieldValue": "Closed Won",
-                "FilterLogic": "Equal/ Not Equal"
-            },
-            {
-                "FieldName": "BillingCity",
-                "FieldValue": "New York",
-                "FilterLogic": "Includes/Exclude/Equal/ Not Equal"
-            },
-            {
-                "FieldName": "AverageItemSold",
-                "FieldValue": "15",
-                "FilterLogic": "Greater than/Lesser than/Equal/ Not Equal"
-            }
-        ]
-    }
-]}
+            ]
+        },
+        {
+            "OpportunityFilterCondition":"OR"
+        },
+        {
+            "OpportunityFilter": [
+                
+                {
+                    "FieldName": "StageName",
+                    "FieldValue": "Closed Won",
+                    "FilterLogic": "Equal/ Not Equal"
+                },
+                {
+                    "FieldName": "BillingCity",
+                    "FieldValue": "New York",
+                    "FilterLogic": "Includes/Exclude/Equal/ Not Equal"
+                },
+                {
+                    "FieldName": "AverageItemSold",
+                    "FieldValue": "15",
+                    "FilterLogic": "Greater than/Lesser than/Equal/ Not Equal"
+                }
+            ]
+        }
+    ]}
