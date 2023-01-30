@@ -1315,6 +1315,101 @@ class ClientFind(APIView):
         serializers=InterestJunctionFindClientSerializers(data,many=True)
         return Response(serializers.data)
     def post(self,request,format=None):
+        global qz1
+        global qz2
+        global qz3
+        global qz5
+        global qz7
+        global qz9
+        global qz10
+        global qz11
+        global qz23
+        global qz6
+        global qz4
+        global qz8
+        global qz12
+        global qz13
+        global qz14
+        global qz15
+        global qz16
+        global qz17
+        global qz18
+        global qz19
+        global qz20
+        global qz21
+        global qz22
+        global qz23
+        global qz24
+        global qz25
+        global qz26
+        global qz27
+        global qz28
+        global qz29
+        global qz30
+        global qz31
+        global qz32
+        global qz33
+        global qz34
+        global qz35
+        global qz36
+        global qz37
+        global qz38
+        global qz39
+        global qz40
+        global qz41
+        global qz42
+        global qz43
+        global qz44
+        global qz45
+        global qz46
+        qz1=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz23=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz6=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz4=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz8=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz2=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz3=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz5=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz7=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz9=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz10=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz11=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz12=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz13=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz14=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz15=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz16=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz17=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz18=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz19=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz20=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz21=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz22=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz23=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz24=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz25=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz26=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz27=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz28=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz29=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz30=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz31=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz32=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz33=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz34=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz35=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz36=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz37=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz38=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz39=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz40=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz41=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz42=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz43=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz44=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz45=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz46=Q({"multi_match": {"query": "", "fields": [""]}})
+
         andlist=[]
         orlist=[]
         data=request.data.get('data')
@@ -1363,13 +1458,13 @@ class ClientFind(APIView):
         if accountfiltercondition['AccountFiltersCondition'] == 'AND':
             if categoryofinterestfilter['FilterLogic'] =='Includes':
                 qz1=Q('terms', **{'Account.CategoryOfInterest':categoryofinterestfilter['FieldValue']})
-                andlist.append(qz1)
+                andlist.append(str(qz1))
             elif categoryofinterestfilter['FilterLogic'] == 'Exclude':
                 qz2=Q('bool', must_not=[Q('terms',**{'Account.CategoryOfInterest':categoryofinterestfilter['FieldValue']})])
-                andlist.append(qz2)
+                andlist.append(str(qz2))
             else:
                 qz3=Q('bool', must=[Q('terms',**{'Account.CategoryOfInterest':categoryofinterestfilter['FieldValue']})])
-                andlist.append(qz3)
+                andlist.append(str(qz3))
             if youngeraudiencefilter['FilterLogic'] == 'Equal': 
                 qz4=Q(
                     'multi_match',
@@ -1378,9 +1473,10 @@ class ClientFind(APIView):
                         'Account.YoungerAudience',
                     ]
                     )
-                andlist.append(qz4)    
+                andlist.append(str(qz4))    
             else:
                 qz5=Q('bool', must_not=[Q('term',**{'Account.YoungerAudience':youngeraudiencefilter['FieldName']})])
+                andlist.append(str(qz5))
                 
             if holidayscelebratedfilter['FilterLogic'] == 'Equal':
                 qz6=Q(
@@ -1390,8 +1486,10 @@ class ClientFind(APIView):
                         'Account.HolidayCelebrated',
                     ]
                     )
+                andlist.append(str(qz6))    
             else:
                 qz7=Q('bool', must_not=[Q('term',**{'Account.HolidayCelebrated':holidayscelebratedfilter['FieldValue']})])
+                andlist.append(str(qz7))
             if lastpurchasedatefilter['FilterLogic'] == 'Equal':
                 qz8=Q(
                     'multi_match',
@@ -1400,17 +1498,21 @@ class ClientFind(APIView):
                         'Account.LastPurchasedDtae',
                     ]
                     )
+                andlist.append(str(qz8))    
             elif lastpurchasedatefilter['FilterLogic'] == 'Not Equal':
                 qz9=Q('bool', must_not=[Q('term',**{'Account.LastPurchaseDtae':lastpurchasedatefilter['FieldValue']})])
+                andlist.append(str(qz9))
 
             elif lastpurchasedatefilter['FilterLogic'] == 'Greater than':
                 # qz10=Q('range', must=[Q('range',**{'Account.LastPurchaseDtae':{"gte":{lastpurchasedatefilter['FieldValue']}}})])
                 # qz10=Q('range', **{'Account.LastPurchaseDtae': {'gte':lastpurchasedatefilter['FieldValue'],'format':'DD/MM/YYYY'}})
                 qz10=Q('bool', filter=[Q('range',**{'Account.LastPurchasedDtae': {'gte':lastpurchasedatefilter['FieldValue'],'format':'dd-mm-yy'}})])
                 # qz10=Q('range', **{'Account.LastPurchaseDtae': {"gte":lastpurchasedatefilter['FieldValue'],'format':'DD/MM/YYYY'}})
+                andlist.append(str(qz10))
 
             else:
                 qz11=Q('bool', filter=[Q('range',**{'Account.LastPurchasedDtae': {'lte':lastpurchasedatefilter['FieldValue'],'format':'dd-mm-yy'}})])
+                andlist.append(str(qz11))
         else:
             if categoryofinterestfilter['FilterLogic'] =='Includes':
                 qz12=Q('terms', **{'Account.CategoryOfInterest':categoryofinterestfilter['FieldValue']})
@@ -1451,10 +1553,10 @@ class ClientFind(APIView):
 
             elif lastpurchasedatefilter['FilterLogic'] == 'Greater than':
                 # qz10=Q('bool', must=[Q('range',**{'Account.LastPurchaseDtae':{"gte":{lastpurchasedatefilter['FieldValue']}}})])
-                qz21=Q('range', **{'Account.LastPurchaseDtae': {"gt":'90/12/2020'}})
+                qz21=Q('range', **{'Account.LastPurchaseDtae': {"gte":lastpurchasedatefilter['FieldValue']}})
 
             else:
-                qz22=Q('range', **{'Account.LastPurchaseDtae': {"lt":'90/12/2020'}})
+                qz22=Q('range', **{'Account.LastPurchaseDtae': {"lte":lastpurchasedatefilter['FieldValue']}})
         if emailcondition['EmailCondition'] =='AND':
             if email['FilterLogic'] =='Equal':
                 qz23=Q(
@@ -1652,10 +1754,12 @@ class ClientFind(APIView):
         # q5=Q('match',**{'Interest.InterestType': 'General interest'})|Q('match',**{'Interest.InterestName': 'asdfasf'})
         # print(q5)
 
-        # w=q3+q4+q5
-        # print(w)
-        xy=qz1&qz6&qz4&qz8
-        # print(xy)
+        # print(andlist)
+        # s='|Q'
+        # p=s.join(andlist)
+        # print(p)
+        xy=qz1&qz6&qz4&qz8&qz2&qz3&qz5&qz7&qz9&qz10&qz11|qz12|qz13|qz14|qz15|qz16|qz17|qz18|qz19|qz20|qz21|qz22&qz23&qz24&qz25&qz26&qz27&qz28|qz29|qz30|qz31|qz32|qz33|qz34&qz35&qz36&qz37&qz38&qz39&qz40|qz41|qz42|qz43|qz44|qz45|qz46|qz
+        print(xy)
         search=Interest_Junction_cDocument.search().query(xy)
         serial1=InterestJunctionFindClientSerializers(search,many=True)        
         return Response(serial1.data) 
