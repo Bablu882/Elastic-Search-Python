@@ -1307,8 +1307,10 @@ class SearchFindClientApi(APIView):
                             
             else:
                 return Response({'Error':'Please choose valid field name !'})
-        # return Response(serial.data)        
-import json
+        # return Response(serial.data)   
+
+###---------------------------------------FIND CLIENT------------------------------------------###
+
 class ClientFind(APIView):
     def get(self,request,format=None):
         data=Interest_Junction_c.objects.all()
@@ -1693,71 +1695,6 @@ class ClientFind(APIView):
             else:
                 qz46=Q('bool', must_not=[Q('match',**{'Interest.ApprovalStatus':accountintereststatus['FieldValue']})])
  
-
-            
-
-        # q = Q(
-        #         'multi_match',
-        #         query='ring',
-        #         fields=[
-        #             'InterestName',
-        #         ]
-        #         )|Q(
-        #             'multi_match',
-        #             query='fine art',
-        #             fields=[
-        #                 'Account.CategoryOfInterest'
-        #             ]
-
-
-        #         )|Q(
-        #             'multi_match',
-        #             query='True',
-        #             fields=[
-        #                 'Account.YoungerAudience'
-        #             ]
-        #         )|Q(
-        #             'multi_match',
-        #             query='chrismas',
-        #             fields=[
-        #                 'Account.HolidayCelebrated'
-        #             ]
-        #         )&Q(
-        #             'multi_match',
-        #             query='test@123.com',
-        #             fields=[
-        #                 'Account.Email'
-        #             ]
-        #         )&Q(
-        #             'multi_match',
-        #             query='test city',
-        #             fields=[
-        #                 'Account.ShippingCity'
-        #             ]
-        #         )&Q(
-        #             'multi_match',
-        #             query='General interest',
-        #             fields=[
-        #                 'Interest.InterestType'
-        #             ]
-        #         )&Q(
-        #             'multi_match',
-        #             query='ring',
-        #             fields=[
-        #                 'Interest.InterestName'
-        #             ]
-        #         )
-                
-        # q3=Q('match', **{'Account.CategoryOfInterest': 'asfa'})|Q('match', **{'Account.YoungerAudience': 'True'})|Q('match', **{'Account.LastPurchaseDate': '12/23/2020'})|Q('match', **{'Account.HolidayCelebrated': 'chrismas'})
-        # q4=Q('match',**{'Account.Email': 'test@123.com'})|Q('match',**{'Account.ShippingCity': 'new york'})
-        # #interest filter
-        # q5=Q('match',**{'Interest.InterestType': 'General interest'})|Q('match',**{'Interest.InterestName': 'asdfasf'})
-        # print(q5)
-
-        # print(andlist)
-        # s='|Q'
-        # p=s.join(andlist)
-        # print(p)
         xy=qz1&qz6&qz4&qz8&qz2&qz3&qz5&qz7&qz9&qz10&qz11|qz12|qz13|qz14|qz15|qz16|qz17|qz18|qz19|qz20|qz21|qz22&qz23&qz24&qz25&qz26&qz27&qz28|qz29|qz30|qz31|qz32|qz33|qz34&qz35&qz36&qz37&qz38&qz39&qz40|qz41|qz42|qz43|qz44|qz45|qz46|qz
         print(xy)
         search=Interest_Junction_cDocument.search().query(xy)
