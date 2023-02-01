@@ -545,16 +545,19 @@ class InterestApiVIew(APIView):
             Interestid=dicts['InterestID']
             interestname=dicts['InterestName']
             approvalstatus=dicts['ApprovalStatus']
+            interesttype=dicts['InterestType']
             if Interest.objects.filter(InterestID=Interestid).exists():
                 print('existerror')
                 gets=Interest.objects.get(InterestID=Interestid)
                 gets.InterestName=interestname
                 gets.ApprovalStatus=approvalstatus
+                gets.InterestType=interesttype
                 gets.save()
             else:
                 prod=Interest.objects.create(InterestID=Interestid,
                 InterestName=interestname,
-                ApprovalStatus=approvalstatus)    
+                ApprovalStatus=approvalstatus,
+                InterestType=interesttype)    
         return Response({'msg':'interest created or updated success !'})        
 
 
@@ -1432,41 +1435,21 @@ class ClientFind(APIView):
         interestfiltercondition=data[4]
         interestfilter=data[5]
         interestfiltername=interestfilter['InterestFilter']
-        accountintereststatus=interestfiltername[0]
+        accountinteresttype=interestfiltername[0]
+        print(accountinteresttype)
         accountinterestname=interestfiltername[1]
         # print(accountinterestname,accountintereststatus)
         opportunityfiltercondition=[6]
         opportunityfilter=data[7]
         interestitem=interestname['InterestName']
-        # if interestcondition['InterestCondition'] =='AND':
-        #     if filterlogic=='Equal':
-
-        #         for item2 in interestname['InterestName']:
-        #             print(item2)
-        #             q = Q(
-        #                     'multi_match',
-        #                     query=item1,
-        #                     fields=[
-        #                         'InterestName',
-        #                     ]
-        #                     )
-        #             search=Interest_Junction_cDocument.search().query(q)
-        #             serial=InterestJunctionFindClientSerializers(search,many=True)
-        # if interestcondition['InterestCondition']=='AND' or  accountfiltercondition['AccountFilterCondition']=='OR':       
-            # for item1 in interestname['InterestName']:
-                # q=Q({"multi_match": {"query": "ring", "fields": ["InterestName"]}})
-        #interest search        
         qz=Q('terms',**interestname)
         if accountfiltercondition['AccountFiltersCondition'] == 'AND':
             if categoryofinterestfilter['FilterLogic'] =='Includes':
                 qz1=Q('terms', **{'Account.CategoryOfInterest':categoryofinterestfilter['FieldValue']})
-                andlist.append(str(qz1))
             elif categoryofinterestfilter['FilterLogic'] == 'Exclude':
                 qz2=Q('bool', must_not=[Q('terms',**{'Account.CategoryOfInterest':categoryofinterestfilter['FieldValue']})])
-                andlist.append(str(qz2))
             else:
                 qz3=Q('bool', must=[Q('terms',**{'Account.CategoryOfInterest':categoryofinterestfilter['FieldValue']})])
-                andlist.append(str(qz3))
             if youngeraudiencefilter['FilterLogic'] == 'Equal': 
                 qz4=Q(
                     'multi_match',
@@ -1475,10 +1458,8 @@ class ClientFind(APIView):
                         'Account.YoungerAudience',
                     ]
                     )
-                andlist.append(str(qz4))    
             else:
                 qz5=Q('bool', must_not=[Q('term',**{'Account.YoungerAudience':youngeraudiencefilter['FieldName']})])
-                andlist.append(str(qz5))
                 
             if holidayscelebratedfilter['FilterLogic'] == 'Equal':
                 qz6=Q(
@@ -1488,10 +1469,8 @@ class ClientFind(APIView):
                         'Account.HolidayCelebrated',
                     ]
                     )
-                andlist.append(str(qz6))    
             else:
                 qz7=Q('bool', must_not=[Q('term',**{'Account.HolidayCelebrated':holidayscelebratedfilter['FieldValue']})])
-                andlist.append(str(qz7))
             if lastpurchasedatefilter['FilterLogic'] == 'Equal':
                 qz8=Q(
                     'multi_match',
@@ -1500,21 +1479,17 @@ class ClientFind(APIView):
                         'Account.LastPurchasedDtae',
                     ]
                     )
-                andlist.append(str(qz8))    
             elif lastpurchasedatefilter['FilterLogic'] == 'Not Equal':
                 qz9=Q('bool', must_not=[Q('term',**{'Account.LastPurchaseDtae':lastpurchasedatefilter['FieldValue']})])
-                andlist.append(str(qz9))
 
             elif lastpurchasedatefilter['FilterLogic'] == 'Greater than':
                 # qz10=Q('range', must=[Q('range',**{'Account.LastPurchaseDtae':{"gte":{lastpurchasedatefilter['FieldValue']}}})])
                 # qz10=Q('range', **{'Account.LastPurchaseDtae': {'gte':lastpurchasedatefilter['FieldValue'],'format':'DD/MM/YYYY'}})
                 qz10=Q('bool', filter=[Q('range',**{'Account.LastPurchasedDtae': {'gte':lastpurchasedatefilter['FieldValue'],'format':'dd-mm-yy'}})])
                 # qz10=Q('range', **{'Account.LastPurchaseDtae': {"gte":lastpurchasedatefilter['FieldValue'],'format':'DD/MM/YYYY'}})
-                andlist.append(str(qz10))
 
             else:
                 qz11=Q('bool', filter=[Q('range',**{'Account.LastPurchasedDtae': {'lte':lastpurchasedatefilter['FieldValue'],'format':'dd-mm-yy'}})])
-                andlist.append(str(qz11))
         else:
             if categoryofinterestfilter['FilterLogic'] =='Includes':
                 qz12=Q('terms', **{'Account.CategoryOfInterest':categoryofinterestfilter['FieldValue']})
@@ -1648,17 +1623,17 @@ class ClientFind(APIView):
             else:
                 qz38=Q('bool', must_not=[Q('match',**{'Interest.InterestName':accountinterestname['FieldValue']})])
        
-            if accountintereststatus['FilterLogic'] == 'Equal':
+            if accountinteresttype['FilterLogic'] == 'Equal':
                 qz39=Q(
                     'multi_match',
-                    query=accountintereststatus['FieldValue'],
+                    query=accountinteresttype['FieldValue'],
                     fields=[
-                        'Interest.ApprovalStatus',
+                        'Interest.InterestType',
                     ]
                     )
 
             else:
-                qz40=Q('bool', must_not=[Q('match',**{'Interest.ApprovalStatus':accountintereststatus['FieldValue']})])
+                qz40=Q('bool', must_not=[Q('match',**{'Interest.InterestType':accountintereststatus['FieldValue']})])
         else:
             if accountinterestname['FilterLogic'] == 'Includes':
                 qz41=Q(
@@ -1683,20 +1658,20 @@ class ClientFind(APIView):
             else:
                 qz44=Q('bool', must_not=[Q('match',**{'Interest.InterestName':accountinterestname['FieldValue']})])
        
-            if accountintereststatus['FilterLogic'] == 'Equal':
+            if accountinteresttype['FilterLogic'] == 'Equal':
                 qz45=Q(
                     'multi_match',
-                    query=accountintereststatus['FieldValue'],
+                    query=accountinteresttype['FieldValue'],
                     fields=[
-                        'Interest.ApprovalStatus',
+                        'Interest.InterestType',
                     ]
                     )
 
             else:
-                qz46=Q('bool', must_not=[Q('match',**{'Interest.ApprovalStatus':accountintereststatus['FieldValue']})])
+                qz46=Q('bool', must_not=[Q('match',**{'Interest.InterestType':accountintereststatus['FieldValue']})])
  
         xy=qz1&qz6&qz4&qz8&qz2&qz3&qz5&qz7&qz9&qz10&qz11|qz12|qz13|qz14|qz15|qz16|qz17|qz18|qz19|qz20|qz21|qz22&qz23&qz24&qz25&qz26&qz27&qz28|qz29|qz30|qz31|qz32|qz33|qz34&qz35&qz36&qz37&qz38&qz39&qz40|qz41|qz42|qz43|qz44|qz45|qz46|qz
-        print(xy)
+        # print(xy)
         search=Interest_Junction_cDocument.search().query(xy)
         serial1=InterestJunctionFindClientSerializers(search,many=True)        
         return Response(serial1.data) 
