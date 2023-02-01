@@ -1,235 +1,73 @@
 {
-	"info": {
-		"_postman_id": "c631b8f5-869f-4793-a303-823cec980aa9",
-		"name": "ElasticSearch",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "6154974"
+	"InterestCondition": "AND",
+	"InterestName": [
+		"Ring",
+		"Diamond"
+	],
+	"AccountFilters": {
+		"AccountFiltersCondition": "OR",
+		
+		"CategoryOfInterestFieldName": "CategoryOfInterest",
+		"CategoryOfInterestFieldValue": [
+			"Clock",
+			"Fine Art",
+			"Fireplace Antiques",
+			"Furnishing",
+			"Glass",
+			"Historic",
+			"Jewelry",
+			"Judaica",
+			"Lighting",
+			"Medical/Scientific"
+		],
+		"CategoryOfInterestFilterLogic": "Includes/Exclude/Equal",
+
+		"YoungerAudienceFieldName": "YoungerAudience",
+		"YoungerAudienceFieldValue": "True/False",
+		"YoungerAudienceFilterLogic": "Equal/Not Equal",
+
+		"LastPurchaseDateFieldName": "LastPurchaseDate",
+		"LastPurchaseDateFieldValue": "1/13/2023",
+		"LastPurchaseDateFilterLogic": "Greater than/Lesser than/Equal/ Not Equal",
+
+		"HolidayCelebratedFieldName": "HolidayCelebrated",
+		"HolidayCelebratedFieldValue": "Christmas",
+		"HolidayCelebratedFilterLogic": "Equal/ Not Equal",
+
+		"EmailCondition": "AND",
+
+		"EmailFieldName": "Email",
+		"EmailFieldValue": "test@gmail.com",
+		"EmailFilterLogic": "Equal/ Not Equal",
+
+		"ShippingCityFieldName": "ShippingCity",
+		"ShippingCityFieldValue": "New York",
+		"ShippingCityFilterLogic": "Includes/Exclude/Equal/ Not Equal"
 	},
-	"item": [
-		{
-			"name": "Data from ES",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"Id\": \"a3A8X000006jn1eUAA\",\n    \"Account__c\": \"0018X000031eMOoQAM\",\n    \"Approved_Interest_Tag__c\": \"true\",\n    \"Approved_Tag__c\": \"false\",\n    \"Category_of_Interest__c\": \"\",\n    \"Contact__c\": \"\",\n    \"CreatedById\": \"0051L00000CEWHfQAP\",\n    \"CreatedDate\": \"2022-07-19T00:43:23.000Z\",\n    \"Created_From_Legacy_Batch__c\": \"false\",\n    \"Created_From_Purchase__c\": \"false\",\n    \"Interests__c\": \"a0I1L000011bwjkUAA\",\n    \"Interest_Name__c\": \"a0I1L000011bwjk\",\n    \"Interest_Id__c\": \"Art Deco Jewelry\",\n    \"Interest_Type__c\": \"General Interest\",\n    \"Name\": \"Art Deco Jewelry\",\n    \"Opportunity__c\": \"\",\n    \"Period_of_Interest__c\": \"\",\n    \"Rau_Product__c\": \"\",\n    \"Specifics__c\": \"\"\n}"
-				},
-				"url": {
-					"raw": "{{url}}/api/esart",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"api",
-						"esart"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Data from DB",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"type": "text",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"Id\": \"a3A8X000006jn1eUAA\",\n    \"Account__c\": \"0018X000031eMOoQAM\",\n    \"Approved_Interest_Tag__c\": \"true\",\n    \"Approved_Tag__c\": \"false\",\n    \"Category_of_Interest__c\": \"\",\n    \"Contact__c\": \"\",\n    \"CreatedById\": \"0051L00000CEWHfQAP\",\n    \"CreatedDate\": \"2022-07-19T00:43:23.000Z\",\n    \"Created_From_Legacy_Batch__c\": \"false\",\n    \"Created_From_Purchase__c\": \"false\",\n    \"Interests__c\": \"a0I1L000011bwjkUAA\",\n    \"Interest_Name__c\": \"a0I1L000011bwjk\",\n    \"Interest_Id__c\": \"Art Deco Jewelry\",\n    \"Interest_Type__c\": \"General Interest\",\n    \"Name\": \"Art Deco Jewelry\",\n    \"Opportunity__c\": \"\",\n    \"Period_of_Interest__c\": \"\",\n    \"Rau_Product__c\": \"\",\n    \"Specifics__c\": \"\"\n}"
-				},
-				"url": {
-					"raw": "{{url}}/api/dbart",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"api",
-						"dbart"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "interest-save",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					},
-					{
-						"key": "Accept",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "[\n    {\n        \"interestId\": \"0011F000014n6oFQAQyu\",\n        \"interestName\": \"Jewellery\",\n        \"Approved_Tag__c\" :\"rtrtr\"\n    },\n    {\n        \"interestId\": \"0011F000014n6oFQAQyu2\",\n        \"interestName\": \"sdg\",\n        \"Approved_Tag__c\" : \"sas\"\n    }\n]"
-				},
-				"url": {
-					"raw": "{{url}}/api/interest-save",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"api",
-						"interest-save"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "get-interest-search",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n\n    \"interestId\": \"\"\n\n  } "
-				},
-				"url": {
-					"raw": "{{url}}/api/get-interest-search",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"api",
-						"get-interest-search"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "product-save",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					},
-					{
-						"key": "Accept",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "[{\n\n    \"accountId\": \"0011F000014n6oFQAQ\",\n    \"accountName\": \"Jewellery\",\n    \"rauProductId\": \"a061F000006XBzV\",\n    \"rauProductName\": \"29-5051\",\n    \"Interest_Type__c\": \"Product Attribute\",\n    \"interestId\": \"0011F000014n6oFQAQ\",\n    \"Tag_Source__c\": \"Product Attribute - a061F000006XBzVQAW\"\n\n  }]"
-				},
-				"url": {
-					"raw": "{{url}}/api/product-save",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"api",
-						"product-save"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "get-product-search",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n\n    \"accountId\": \"0011F000014n6oFQAQ\",\n    \"accountName\": \"Jewellery\",\n    \"rauProductId\": \"a061F000006XBzV\",\n    \"rauProductName\": \"29-5051\",\n    \"Interest_Type__c\": \"Product Attribute\",\n    \"interestId\": \"0011F000014n6oFQAQ\",\n    \"Tag_Source__c\": \"Product Attribute - a061F000006XBzVQAW\"\n\n  }"
-				},
-				"url": {
-					"raw": "{{url}}/api/get-product-search",
-					"host": [
-						"{{url}}"
-					],
-					"path": [
-						"api",
-						"get-product-search"
-					]
-				}
-			},
-			"response": []
-		}
-	],
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		}
-	],
-	"variable": [
-		{
-			"key": "url",
-			"value": "http://ec2-54-236-29-160.compute-1.amazonaws.com",
-			"type": "string"
-		}
-	]
-}	
+	"InterestFilter": {
+		"InterestFilterCondition": "AND",
+
+		"ApprovalStatusFieldName": "ApprovalStatus",
+		"ApprovalStatusFieldValue": "True/False",
+		"ApprovalStatusFilterLogic": "Equal/ Not Equal",
+
+		"InterestNameFieldName": "InterestName",
+		"InterestNameFieldValue": "Ring/Diamond Ring",
+		"InterestNameFilterLogic": "Includes/Exclude/Equal/ Not Equal"
+	},
+	"OpportunityFilter": {
+		"OpportunityFilterCondition": "OR",
+
+		"StageNameFieldName": "StageName",
+		"StageNameFieldValue": "Closed Won",
+		"StageNameFilterLogic": "Equal/ Not Equal",
+
+		"BillingCityFieldName": "BillingCity",
+		"BillingCityFieldValue": "New York",
+		"BillingCityFilterLogic": "Includes/Exclude/Equal/ Not Equal",
+		
+		"AverageItemSoldFieldName": "AverageItemSold",
+		"AverageItemSoldFieldValue": "15",
+		"AverageItemSoldFilterLogic": "Greater than/Lesser than/Equal/ Not Equal"
+	}
+}

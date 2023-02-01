@@ -67,8 +67,8 @@
         {
             "InterestFilter": [
                 {
-                    "FieldName": "ApprovalStatus",
-                    "FieldValue": "True/False",
+                    "FieldName": "InterestType",
+                    "FieldValue": "General Interest/Client Looking For/ Not Interested",
                     "FilterLogic": "Equal/ Not Equal"
                 },
                 {
