@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-j%a#p4)rud#ve$j23a1b7ujv4=((4a^uaulb69c7_f8$-_nz%4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -99,7 +99,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'elastic',
         'USER': 'root',
-        'PASSWORD': 'webnyxamysqldb',
+        'PASSWORD': 'XdQ6e2UIIxlzxhg',
         'HOST':'localhost',
         'PORT':'',
     }
