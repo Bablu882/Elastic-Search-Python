@@ -47,9 +47,9 @@
 	"InterestFilter": {
 		"InterestFilterCondition": "AND",
 
-		"ApprovalStatusFieldName": "ApprovalStatus",
-		"ApprovalStatusFieldValue": "True/False",
-		"ApprovalStatusFilterLogic": "Equal/ Not Equal",
+		"InterestTypeFieldName": "InterestType",
+		"InterestTypeFieldValue": "General Interest/Client Looking For/Not Interested",
+		"InterestTypeFilterLogic": "Equal/ Not Equal",
 
 		"InterestNameFieldName": "InterestName",
 		"InterestNameFieldValue": "Ring/Diamond Ring",
@@ -65,7 +65,7 @@
 		"BillingCityFieldName": "BillingCity",
 		"BillingCityFieldValue": "New York",
 		"BillingCityFilterLogic": "Includes/Exclude/Equal/ Not Equal",
-		
+
 		"AverageItemSoldFieldName": "AverageItemSold",
 		"AverageItemSoldFieldValue": "15",
 		"AverageItemSoldFilterLogic": "Greater than/Lesser than/Equal/ Not Equal"
