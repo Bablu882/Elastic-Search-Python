@@ -5,20 +5,19 @@ from rest_framework import generics
 from .models import *
 from .serializers import *
 from rest_framework.response import Response
-# from my_app.documents import InterestDocument,AccountDocument,ProductDocument,Interest_Junction_cDocument
 from my_app.documents import AccountDocument,ProductDocument,InterestDocument,Interest_Junction_cDocument,OpportunityDocument
 from elasticsearch_dsl import Q
 from django.http import JsonResponse
 from rest_framework import status
 
 
-# Create your views here.
+# Testing
 def test(request):
     return render(request,'my_app/test.html')
 
 
 
-###--------------------------save and get account api---------------------------------###
+###--------------------------SAVE AND GET ACCOUNT API---------------------------------###
 
 class AccountList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAPIView):
     queryset=Account.objects.all()
@@ -50,7 +49,7 @@ class AccountList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.Generic
 #             else:    
 #                 return self.create(request,*args,**kwargs)         
 
-# ###--------------------------save and get interest api------------------------------------###
+# ###--------------------------SAVE AND GET INTEREST------------------------------------###
 
 class InterestList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAPIView):
     queryset=Interest.objects.all()
@@ -62,7 +61,7 @@ class InterestList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.Generi
     def post(self,request,*args,**kwargs):
         return self.create(request,*args,**kwargs) 
 
-# ###-----------------------------save and get interest junction api-------------------------------###
+# ###-----------------------------SAVE AND GET INTEREST JUNCTION API-------------------------------###
 
 class InterestJunctionList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAPIView):
     queryset=Interest_Junction_c.objects.all()
@@ -74,7 +73,7 @@ class InterestJunctionList(mixins.ListModelMixin,mixins.CreateModelMixin,generic
     def post(self,request,*args,**kwargs):
         return self.create(request,*args,**kwargs) 
 
-# ###------------------------------save and get product api---------------------------------------###
+# ###------------------------------SAVE AND GET PRODUCT API---------------------------------------###
 
 class ProductList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAPIView):
     queryset=Product.objects.all()
@@ -84,44 +83,11 @@ class ProductList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.Generic
         return self.list(request,*args,**kwargs)
 
     def post(self,request,*args,**kwargs):
-        # serializers=ProductSerializers(data=request.data)
-        # if serializers.is_valid(raise_exception=True):
         return self.create(request,*args,**kwargs) 
 
 
 
-# class SearchInterest(APIView):
-#     def post(self,request,format=None):
-#         serializer=InterestSerializers(data=request.data)
-#         serializer2=AccountSerializers(data=request.data)
-#         if serializer2.is_valid(raise_exception=True):
-#             accountid=serializer2.data.get('Accountid')
-#             accountname=serializer2.data.get('AccountName')
-#             print(accountname,accountid)
-#             search=InterestDocument.search().filter('fuzzy',InterestID=accountid)
-#             for x in search:
-#                 print(x.InterestID,x.InterestType,x.InterestName,x.ApprovalStatus)
-#                 interestid=x.InterestID
-#                 interesttype=x.InterestType
-#                 interestname=x.InterestName
-#                 approvalstatus=x.ApprovalStatus
-                
-
-
-
-        
-#         return Response([{'messages':'success',
-#                         'Accountid':accountid,
-#                         'AccountName':accountname,
-#                         'Contactid':'Null',
-#                         'ContactName':'Null',
-#                         'InterestID':interestid,
-#                         'InterestName':interestname,
-#                         'InterestType':interesttype,
-#                         'ApprovalStatus':approvalstatus
-#                         }])
-
-# ####----------------------------------search_interest api---------------------------------------###
+# ####----------------------------------SEARCH INTEREST API---------------------------------------###
 from rest_framework.pagination import LimitOffsetPagination
 
 class SearchListInterest(APIView,LimitOffsetPagination):
@@ -151,7 +117,7 @@ class SearchListInterest(APIView,LimitOffsetPagination):
         return  Response(serial.data)
 
 
-# ###---------------------------------search_account api-----------------------------------------###
+# ###---------------------------------SEARCH ACCOUNT API-----------------------------------------###
 
 class SearchListAccount(APIView):
     def get(self,request,format=None):
@@ -182,7 +148,7 @@ class SearchListAccount(APIView):
         return Response(serial.data)
 
 
-# ###-----------------------------search_product api-----------------------------------------###
+# ###-----------------------------SEARCH PRODUCT API-----------------------------------------###
 
 class SearchListProduct(APIView):
     def get(self,request,format=None):
@@ -208,7 +174,9 @@ class SearchListProduct(APIView):
             print([result for result in search])
             serial=ProductSerializers(search,many=True)
         return Response(serial.data)
-###---------------------opportunity search---------------------------------------------###
+
+###---------------------------OPPORTUNITY SEARCH API---------------------------------------###
+
 class SearchListOpportunity(APIView):
     def get(self,request,format=None):
         opportunity=Opportunity.objects.all()
@@ -234,7 +202,7 @@ class SearchListOpportunity(APIView):
         return Response(serial.data)
 
 
-# ###-----------------------------find client search interest junction--------------------###
+# ###-----------------------------SEARCH INTEREST JUNCTION API ---------------------------------###
 class SearchInterestJunction(APIView):
     def get(self,request,format=None):
         data=Interest_Junction_c.objects.all()
@@ -300,62 +268,7 @@ class SearchInterestJunction(APIView):
                 
 
 
-
-
-
-
-# ###----------------------------client search all in single api------------------------------###
-
-# class SearchAllApi(APIView):
-#     def get(self,request,format=None):
-#         interest=Interest.objects.all()
-#         account=Account.objects.all()
-#         product=Product.objects.all()
-#         serializers1=InterestSerializers(interest,many=True)
-#         serializers2=AccountSerializers(account,many=True)
-#         serializers3=ProductSerializers(product,many=True)
-#         return Response({"interest":serializers1.data,"account":serializers2.data,"product":serializers3.data})
-#     def post(self,request,format=None):
-#         serializers=SearchallSerializers(data=request.data)
-#         if serializers.is_valid():
-#             datas=serializers.data.get('search')
-#             query=datas
-#             q = Q(
-#                 'multi_match',
-#                 query=query,
-#                 fields=[
-#                     'ProductName',
-#                     'Productid'
-#                 ],
-#                 fuzziness='auto')
-#             q1 = Q(
-#                 'multi_match',
-#                 query=query,
-#                 fields=[
-#                     'InterestName',
-#                     'Interestid',
-#                     'InterestType',
-#                     'ApprovalStatus'
-#                 ],
-#                 fuzziness='auto')
-#             q2 = Q(
-#                 'multi_match',
-#                 query=query,
-#                 fields=[
-#                     'AccountName',
-#                     'Accountid'
-#                 ],
-#                 fuzziness='auto')
-#             interest=InterestDocument.search().query(q1)            
-#             product=ProductDocument.search().query(q)
-#             account=AccountDocument().search().query(q2)
-#             interestserial=InterestSerializers(interest,many=True)
-#             productserial=ProductSerializers(product,many=True)
-#             accountserial=AccountSerializers(account,many=True)
-#             return Response({"interest":interestserial.data,
-#             "product":productserial.data,
-#             "account":accountserial.data})
-
+###------------------------SAVE AND GET OPPORTUNITY API------------------------------------###
 
 class OpportunityList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAPIView):
     queryset=Opportunity.objects.all()
@@ -370,7 +283,7 @@ class OpportunityList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.Gen
 
 
 
-###--------------------------------------------------------------------------------####
+###-------------------------------------CREATE SINGLE API -------------------------------------------####
 
 from rest_framework import viewsets
 
@@ -434,7 +347,7 @@ class OpportunityView(viewsets.ModelViewSet):
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-###---------------------------------------------------------------------------------###
+###---------------------------------PRODUCT BULK SAVE API-----------------------------------###
 
 
 class ProductApiVIew(APIView):
@@ -444,24 +357,25 @@ class ProductApiVIew(APIView):
         return Response(serializers.data)
 
     def post(self,request,format=None):
+        update=[]
+        create=[]
         data=request.data.get('data')
-        print(data)  
         for dicts in data:
             print(dicts)
             productid=dicts['Productid']
-            print(productid)
             productname=dicts['ProductName']
-            print(productname)
             if Product.objects.filter(Productid=productid).exists():
-                print('existerror')
                 gets=Product.objects.get(Productid=productid)
                 gets.ProductName=productname
                 gets.save()
+                update.append(str(gets))
             else:
-                prod=Product.objects.create(Productid=productid,ProductName=productname)    
-        return Response({'msg':'product created or updated success !'})        
+                prod=Product.objects.create(Productid=productid,ProductName=productname)
+                create.append(str(prod))
 
+        return Response({'Product updated !':'success','Product created !':'success'})        
 
+###----------------------------------------ACCOUNT BULK SAVE API-------------------------------###
 
 class AccountApiVIew(APIView):
     def get(self,request,format=None):
@@ -470,8 +384,9 @@ class AccountApiVIew(APIView):
         return Response(serializers.data)
 
     def post(self,request,format=None):
+        update=[]
+        create=[]
         data=request.data.get('data')
-        print(data)  
         for dicts in data:
             print(dicts)
             accountid=dicts['Accountid']
@@ -491,7 +406,6 @@ class AccountApiVIew(APIView):
             shippingcity=dicts['ShippingCity']
             findclientvisible=dicts['FindClients_visible']
             if Account.objects.filter(Accountid=accountid).exists():
-                print('existerror')
                 gets=Account.objects.get(Accountid=accountid)
                 gets.AccountName=accountname
                 gets.State=state
@@ -509,6 +423,7 @@ class AccountApiVIew(APIView):
                 gets.ShippingCity=shippingcity
                 gets.FindClients_visible=findclientvisible
                 gets.save()
+                update.append(str(gets))
             else:
                 prod=Account.objects.create(
                     Accountid=accountid,
@@ -527,9 +442,11 @@ class AccountApiVIew(APIView):
                     Email=email,
                     ShippingCity=shippingcity,
                     FindClients_visible=findclientvisible
-                )    
-        return Response({'msg':'account created or updated success !'})        
+                ) 
+                create.append(str(prod))   
+        return Response({'Account updated !':'success','Account created !':'success'})        
 
+###-------------------------------------INTEREST BULK SAVE API--------------------------------###
 
 class InterestApiVIew(APIView):
     def get(self,request,format=None):
@@ -538,8 +455,9 @@ class InterestApiVIew(APIView):
         return Response(serializers.data)
 
     def post(self,request,format=None):
+        update=[]
+        create=[]
         data=request.data.get('data')
-        print(data)  
         for dicts in data:
             print(dicts)
             Interestid=dicts['InterestID']
@@ -547,19 +465,21 @@ class InterestApiVIew(APIView):
             approvalstatus=dicts['ApprovalStatus']
             interesttype=dicts['InterestType']
             if Interest.objects.filter(InterestID=Interestid).exists():
-                print('existerror')
                 gets=Interest.objects.get(InterestID=Interestid)
                 gets.InterestName=interestname
                 gets.ApprovalStatus=approvalstatus
                 gets.InterestType=interesttype
                 gets.save()
+                update.append(str(gets))
             else:
                 prod=Interest.objects.create(InterestID=Interestid,
                 InterestName=interestname,
                 ApprovalStatus=approvalstatus,
-                InterestType=interesttype)    
-        return Response({'msg':'interest created or updated success !'})        
+                InterestType=interesttype)
+                create.append(str(prod))    
+        return Response({'Interest updated !':'success','Interest created !':'success'})        
 
+###--------------------------------------OPPORTUNITY BULK SAVE API-------------------------------###
 
 class OpportunityApiVIew(APIView):
     def get(self,request,format=None):
@@ -568,8 +488,10 @@ class OpportunityApiVIew(APIView):
         return Response(serializers.data)
 
     def post(self,request,format=None):
+        update=[]
+        create=[]
+        failed=[]
         data=request.data.get('data')
-        print(data)  
         for dicts in data:
             print(dicts)
             opportunityid=dicts['OpportunityId']
@@ -588,17 +510,21 @@ class OpportunityApiVIew(APIView):
                     gets.AverageitemSold=avarageitemsold
                     gets.AccountId=None
                     gets.save()
+                    update.append(str(gets))
                 else:
                     if not Account.objects.filter(Accountid=accountid).exists():
-                        return Response({"error":"Accountid does not exists in Account table ",'Accountid':accountid,'Opportunityid':opportunityid})
-                    insta=Account.objects.get(Accountid=accountid)
-                    gets=Opportunity.objects.get(OpportunityId=opportunityid)
-                    gets.OpportunityName=opportunityname
-                    gets.StageName=stagename
-                    gets.Billing_City=billingcity
-                    gets.AverageitemSold=avarageitemsold
-                    gets.AccountId=insta
-                    gets.save()   
+                        fail=({"Failed to update !":"Accountid does not exists in Account table ",'Accountid':accountid,'Opportunityid':opportunityid})
+                        failed.append(fail)
+                    else:    
+                        insta=Account.objects.get(Accountid=accountid)
+                        gets=Opportunity.objects.get(OpportunityId=opportunityid)
+                        gets.OpportunityName=opportunityname
+                        gets.StageName=stagename
+                        gets.Billing_City=billingcity
+                        gets.AverageitemSold=avarageitemsold
+                        gets.AccountId=insta
+                        gets.save() 
+                        update.append(str(gets))  
             else:
                 if not accountid:
                     prod=Opportunity.objects.create(
@@ -607,10 +533,12 @@ class OpportunityApiVIew(APIView):
                         StageName=stagename,
                         Billing_City=billingcity,
                         AverageitemSold=avarageitemsold,
-                    )   
+                    )  
+                    create.append(str(prod)) 
                 else:
                     if not Account.objects.filter(Accountid=accountid).exists():     
-                        return Response({"error":"Accountid does not exists in Account table ",'Accountid':accountid,'Opportunityid':opportunityid})
+                        fail=({"Failed to create !":"Accountid does not exists in Account table ",'Accountid':accountid,'Opportunityid':opportunityid})
+                        failed.append(fail)
                     else:
                         accou=Account.objects.get(Accountid=accountid)
                         prod=Opportunity.objects.create(
@@ -620,9 +548,11 @@ class OpportunityApiVIew(APIView):
                         Billing_City=billingcity,
                         AverageitemSold=avarageitemsold,
                         AccountId=accou
-                    ) 
-        return Response({'msg':'product created or updated success !'}) 
+                        ) 
+                        create.append(str(prod))
+        return Response({'Opportunity updated !':'success','Opportunity created !':'success','Opportunity failed':failed}) 
 
+###------------------------------INTEREST JUNCTION BULK SAVE API--------------------------------###
 
 class InterstJunctionApiVIew(APIView):
     def get(self,request,format=None):
@@ -631,8 +561,10 @@ class InterstJunctionApiVIew(APIView):
         return Response(serializers.data)
 
     def post(self,request,format=None):
+        update=[]
+        create=[]
+        failed=[]
         data=request.data.get('data')
-        print(data)  
         for dicts in data:
             print(dicts)
             interestjunctionid=dicts['InterestJunctionID']
@@ -644,231 +576,146 @@ class InterstJunctionApiVIew(APIView):
             interestname=dicts['InterestName']
 
             if Interest_Junction_c.objects.filter(InterestJunctionID=interestjunctionid).exists():
-                if not account and not product and not interest:
-                    gets=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
-                    gets.link_With=linkwith
-                    gets.InterestNameJunction=interestnamejunction
-                    gets.InterestName=interestname
-                    gets.Account=None
-                    gets.Product=None
-                    gets.Interest=None
-                    gets.save()
-                else:
+                if linkwith == 'Account' and not interest:
                     if not Account.objects.filter(Accountid=account).exists():
-                        return Response({"error":"Accountid does not exists in Account table ",'Accountid':account,'InterestJunctionID':interest})
-                    
-                    if not Product.objects.filter(Productid=product).exists():     
-                        return Response({"error":"Product does not exists in InterstJunction table ",'Productid':product,'InterestJunctionid':interestjunctionid})    
-                    
-                    if not Interest.objects.filter(InterestID=interest).exists():     
-                        return Response({"error":"Interst does not exists in InterestJunction table ",'Interestid':interest,'InterestJunctionID':interestjunctionid})   
-                    prod=Product.objects.get(Productid=product)    
-                    acc=Account.objects.get(Accountid=account)
-                    intr=Interest.objects.get(InterestID=interest)
-
-                    gets1=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
-                    gets1.link_With=linkwith
-                    gets1.InterestNameJunction=interestnamejunction
-                    gets1.InterestName=interestname
-                    gets1.Account=acc
-                    gets1.Product=prod
-                    gets1.Interest=intr  
-                    gets1.save() 
+                        fail0=({'Failed to update !':'Account object does not exist in account','Accountid':account,'InterestJunctionID':interestjunctionid})
+                        failed.append(fail0)
+                    else:
+                        accou=Account.objects.get(Accountid=account)    
+                        gets=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
+                        gets.link_With=linkwith
+                        gets.InterestNameJunction=interestnamejunction
+                        gets.InterestName=interestname
+                        gets.Account=accou
+                        gets.Product=None
+                        gets.Interest=None
+                        gets.save()
+                        update.append(str(gets))
+                elif linkwith == 'Account' and interest:
+                    if not Account.objects.filter(Accountid=account).exists():
+                        fail1=({'Failed to update !':'Account object does not exist in account','Accountid':account,'InterestJunctionID':interestjunctionid})
+                        failed.append(fail1)
+                    elif not Interest.objects.filter(InterestID=interest).exists():
+                        fail2=({'Failed to update !':'Interest object does not exists in interest','InterestID':interest,'InterestJunctionID':interestjunctionid})    
+                        failed.append(fail2)
+                    else:
+                        accou=Account.objects.get(Accountid=account) 
+                        intre=Interest.objects.get(InterestID=interest)   
+                        gets1=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
+                        gets1.link_With=linkwith
+                        gets1.InterestNameJunction=interestnamejunction
+                        gets1.InterestName=interestname
+                        gets1.Account=accou
+                        gets1.Product=None
+                        gets1.Interest=intre
+                        gets1.save()
+                        update.append(str(gets1))        
+                elif linkwith == 'Product' and not interest:
+                    if not Product.objects.filter(Productid=product).exists():
+                        fail3=({'Failed to update !':'Product object does not exist in product','Productid':product,'InterestJunctionID':interestjunctionid})
+                        failed.append(fail3)
+                    else:
+                        prod1=Product.objects.get(Productid=product)    
+                        gets2=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
+                        gets2.link_With=linkwith
+                        gets2.InterestNameJunction=interestnamejunction
+                        gets2.InterestName=interestname
+                        gets2.Account=None
+                        gets2.Product=prod1
+                        gets2.Interest=None
+                        gets2.save()
+                        update.append(str(gets2))        
+                else:
+                    if not Product.objects.filter(Productid=product).exists():
+                        fail4=({"Failed to update !":"Product object does not exists in product",'Productid':product,'InterestJunctionID':interest})
+                        failed.append(fail4)                    
+                    elif not Interest.objects.filter(InterestID=interest).exists():     
+                        fail5=({"Failed to update !":"Interst objects does not exists in interest",'Interestid':interest,'InterestJunctionID':interestjunctionid})   
+                        failed.append(fail5)
+                    else:
+                        prod3=Product.objects.get(Productid=product)    
+                        intr3=Interest.objects.get(InterestID=interest)
+                        gets3=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
+                        gets3.link_With=linkwith
+                        gets3.InterestNameJunction=interestnamejunction
+                        gets3.InterestName=interestname
+                        gets3.Account=None
+                        gets3.Product=prod3
+                        gets3.Interest=intr3  
+                        gets3.save()
+                        update.append(str(gets3)) 
             else:
-                if not account and not product and not interest:
-                    produc=Interest_Junction_c.objects.create(
-                        InterestJunctionID=interestjunctionid,
-                        link_With=linkwith,
-                        InterestNameJunction=interestnamejunction,
-                        InterestName=interestname
-                    )   
-                else:
+                if linkwith == 'Account' and  not interest:
                     if not Account.objects.filter(Accountid=account).exists():
-                        return Response({"error":"Accountid does not exists in Account table ",'Accountid':account,'InterestJunctionID':interest})
-                    
-                    if not Product.objects.filter(Productid=product).exists():     
-                        return Response({"error":"Product does not exists in InterstJunction table ",'Productid':product,'InterestJunctionid':interestjunctionid})    
-                    
-                    if not Interest.objects.filter(InterestID=interest).exists():     
-                        return Response({"error":"Interst does not exists in InterestJunction table ",'Interestid':interest,'InterestJunctionID':interestjunctionid})    
-                        
-                    prod1=Product.objects.get(Productid=product)    
-                    acc1=Account.objects.get(Accountid=account)
-                    intr1=Interest.objects.get(InterestID=interest)    
-                    produce=Interest_Junction_c.objects.create(
-                    InterestJunctionID=interestjunctionid,
-                    link_With=linkwith,
-                    InterestNameJunction=interestnamejunction,
-                    InterestName=interestname,
-                    Account=acc1,
-                    Product=prod1,
-                    Interest=intr1
-                    ) 
-        return Response({'msg':'InterestJunction created or updated success !'}) 
+                        fail6=({'Failed to Create !':'Account object does not exists in account','Accountid':account,'InterestJunctionID':interestjunctionid})
+                        failed.append(fail6)
+                    else:
+                        getaccou=Account.objects.get(Accountid=account)
+                        produc=Interest_Junction_c.objects.create(
+                            InterestJunctionID=interestjunctionid,
+                            link_With=linkwith,
+                            InterestNameJunction=interestnamejunction,
+                            InterestName=interestname,
+                            Account=getaccou
+                            )
+                        create.append(str(produc))
+                elif linkwith == 'Account' and interest:
+                    if not Account.objects.filter(Accountid=account).exists():
+                        fail7=({'Failed to create !':'Account object does not exists in account','Accountid':account,'InterestJunctionID':interestjunctionid})
+                        failed.append(fail7)
+                    elif not Interest.objects.filter(InterestID=interest).exists():
+                        fail8=({'Failed to create !':'Interest object does not exists in interest','InterestID':interest,'InterestJunctionID':interestjunctionid})    
+                        failed.append(fail8)
+                    else:
+                        getaccou1=Account.objects.get(Accountid=account)
+                        getintere1=Interest.objects.get(InterestID=interest)
+                        produc1=Interest_Junction_c.objects.create(
+                            InterestJunctionID=interestjunctionid,
+                            link_With=linkwith,
+                            InterestNameJunction=interestnamejunction,
+                            InterestName=interestname,
+                            Interest=getintere1,
+                            Account=getaccou1
+                            )
+                        create.append(str(produc1)) 
+                elif linkwith == 'Product' and  not interest:
+                    if not Product.objects.filter(Productid=product).exists():
+                        fail9=({'Failed to create !':'Product object does not exists in product','Productid':product,'InterestJunctionID':interestjunctionid})
+                        failed.append(fail9)
+                    else:
+                        getprod11=Product.objects.get(Productid=product)
+                        produc11=Interest_Junction_c.objects.create(
+                            InterestJunctionID=interestjunctionid,
+                            link_With=linkwith,
+                            InterestNameJunction=interestnamejunction,
+                            InterestName=interestname,
+                            Product=getprod11
+                            )
+                        create.append(str(produc11))                        
+                else:
+                    if not Product.objects.filter(Productid=product).exists():
+                        fail10=({'Failed to create !':'Product object does not exists in product','Productid':product,'InterestJunctionID':interestjunctionid})
+                        failed.append(fail10)
+                    elif not Interest.objects.filter(InterestID=interest).exists():
+                        fail11=({'Failed to create !':'Interest object does not exists in interest','InterestID':interest,'InterestJunctionID':interestjunctionid})    
+                        failed.append(fail11)
+                    else:
+                        getprod22=Product.objects.get(Productid=product)
+                        getintere22=Interest.objects.get(InterestID=interest)
+                        produc22=Interest_Junction_c.objects.create(
+                            InterestJunctionID=interestjunctionid,
+                            link_With=linkwith,
+                            InterestNameJunction=interestnamejunction,
+                            InterestName=interestname,
+                            Interest=getintere22,
+                            Product=getprod22
+                            )
+                        create.append(str(produc22)) 
+        return Response({'InterestJunction updated !':'success','InterestJunction created':'success','InterestJunction failed':failed}) 
 
 
 
-        
-
-
-# class InterestJunctionApiVIew(APIView):
-#     def get(self,request,format=None):
-#         interest=Interest_Junction_c.objects.all()
-#         serializers=InterestJunctionSerializers(interest,many=True)
-#         return Response(serializers.data)
-
-#     def post(self,request,format=None):
-#         data=request.data.get('data')
-#         print(data)  
-#         for dicts in data:
-#             print(dicts)
-            # interestjunctionid=dicts['InterestJunctionID']
-            # print(interestjunctionid)
-            # linkwith=dicts['link_With']
-            # account=dicts['Account']
-            # interest=dicts['Interest']
-            # product=dicts['Product']
-            # interestnamejunction=dicts['InterestNameJunction']
-            # interestname=dicts['InterestName']
-#             if Interest_Junction_c.objects.filter(InterestJunctionID=interestjunctionid).exists():
-#                 if not product:
-#                     if not Account.objects.filter(Accountid=account).exists():
-#                         return Response({"error":"accpunt not exists"})
-#                     if not Interest.objects.filter(InterestID=interest).exists():
-#                         return Response({'error':'interst not exists'})    
-#                     acc=Account.objects.get(Accountid=account)
-#                     print(acc)    
-#                     intrst=Interest.objects.get(InterestID=interest)
-#                     gets=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
-                    # gets.link_With=linkwith
-                    # gets.InterestNameJunction=interestnamejunction
-                    # gets.InterestName=interestname
-                    # gets.Account=acc
-                    # gets.Product=None
-                    # gets.Interest=intrst
-                    # gets.save()
-#                 if not account:
-#                     if not Product.objects.filter(Productid=product).exists():
-#                         return Response({"error":"product not exists"})
-#                     if not Interest.objects.filter(InterestID=interest).exists():
-#                         return Response({'error':'interst not exists'})
-#                     interest1=Interest.objects.get(InterestID=interest)
-#                     product1=Product.objects.get(Productid=product)
-#                     gets1=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
-#                     gets1.link_With=linkwith
-#                     gets1.InterestNameJunction=interestnamejunction
-#                     gets1.InterestName=interestname
-#                     gets1.Account=None
-#                     gets1.Product=product1
-#                     gets1.Interest=interest1
-#                     gets1.save()  
-#                 if not interest:
-#                     if not Product.objects.filter(Productid=product).exists():
-#                         return Response({"error":"product not exists"})
-#                     if not Account.objects.filter(Accountid=account).exists():
-#                         return Response({'error':'account not exists'})
-#                     account2=Account.objects.get(Accountid=account)
-#                     product2=Product.objects.get(Productid=product)
-#                     gets2=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
-#                     gets2.link_With=linkwith
-#                     gets2.InterestNameJunction=interestnamejunction
-#                     gets2.InterestName=interestname
-#                     gets2.Account=account2
-#                     gets2.Product=product2
-#                     gets2.Interest=None
-#                     gets2.save()  
-#                 if not account and not product:  
-#                     if not Interest.objects.filter(InterestID=interest).exists():
-#                         return Response({'error':'interest not exists'})
-#                     interest3=Interest.objects.get(InterestID=interest)
-#                     gets3=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
-#                     gets3.link_With=linkwith
-#                     gets3.InterestNameJunction=interestnamejunction
-#                     gets3.InterestName=interestname
-#                     gets3.Account=None
-#                     gets3.Product=None
-#                     gets3.Interest=interest3
-#                     gets3.save() 
-#                 if not account and not interest:
-#                     if not Product.objects.filter(Productid=product).exists():
-#                         return Response({'error':'product not exists'})
-#                     product4=Product.objects.get(Productid=product)
-#                     gets4=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
-#                     gets4.link_With=linkwith
-#                     gets4.InterestNameJunction=interestnamejunction
-#                     gets4.InterestName=interestname
-#                     gets4.Account=None
-#                     gets4.Product=product4
-#                     gets4.Interest=None
-#                     gets4.save() 
-
-#                 if not interest and not product:
-#                     if not Account.objects.filter(Accountid=account).exists():
-#                         return Response({'error':'account not exists'})
-#                     account5=Account.objects.get(Accountid=account)
-#                     gets5=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
-#                     gets5.link_With=linkwith
-#                     gets5.InterestNameJunction=interestnamejunction
-#                     gets5.InterestName=interestname
-#                     gets5.Account=account5
-#                     gets5.Product=None
-#                     gets5.Interest=None
-#                     gets5.save() 
-#                 if not account and not product and not interest:
-#                     gets6=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
-#                     gets6.link_With=linkwith
-#                     gets6.InterestNameJunction=interestnamejunction
-#                     gets6.InterestName=interestname
-#                     gets6.Account=None
-#                     gets6.Product=None
-#                     gets6.Interest=None
-#                     gets6.save() 
-#                 if account and product and interest is not None:
-#                     if not Product.objects.filter(Productid=product).exists():
-#                         return Response({"error":"product not exists"})
-#                     if not Account.objects.filter(Accountid=account).exists():
-#                         return Response({'error':'account not exists'})
-#                     if not Interest.objects.filter(InterestID=interest):
-#                         return Response({"error":"account not exist"})    
-#                     interest6=Interest.objects.get(InterestID=interest)    
-#                     account6=Account.objects.get(Accountid=account)
-#                     product6=Product.objects.get(Productid=product)
-#                     gets7=Interest_Junction_c.objects.get(InterestJunctionID=interestjunctionid)
-#                     gets7.link_With=linkwith
-#                     gets7.InterestNameJunction=interestnamejunction
-#                     gets7.InterestName=interestname
-#                     gets7.Account=account6
-#                     gets7.Product=product6
-#                     gets7.Interest=interest6
-#                     gets7.save()  
-
-
-#             else:
-#                 pass
-#                 # if not accountid:
-#                 #     prod=Opportunity.objects.create(
-#                 #         OpportunityId=opportunityid,
-#                 #         OpportunityName=opportunityname,
-#                 #         StageName=stagename,
-#                 #         Billing_City=billingcity,
-#                 #         AverageitemSold=avarageitemsold,
-#                 #     )   
-#                 # else:
-#                 #     if not Account.objects.filter(Accountid=accountid).exists():     
-#                 #         return Response({"error":"Accountid does not exists in Account table ",'Accountid':accountid,'Opportunityid':opportunityid})
-#                 #     else:
-#                 #         accou=Account.objects.get(Accountid=accountid)
-#                 #         prod=Opportunity.objects.create(
-#                 #         OpportunityId=opportunityid,
-#                 #         OpportunityName=opportunityname,
-#                 #         StageName=stagename,
-#                 #         Billing_City=billingcity,
-#                 #         AverageitemSold=avarageitemsold,
-#                 #         AccountId=accou
-#                 #     )     
-#         return Response({'msg':'interest created or updated success !'})        
-
-
+###--------------------------------------ACCOUNT BULK DELETE API---------------------------------###
 
 class AccountDelete(APIView):
     def get(self,request,format=None):
@@ -877,16 +724,21 @@ class AccountDelete(APIView):
         return Response(serial.data)
 
     def post(self,request,format=None):
+        failed=[]
         data=request.data.get('data')
         for dicts in data:
             accountid=dicts['Accountid']
             print(accountid)
             if not Account.objects.filter(Accountid=accountid).exists():
-                return Response({'error':'Account not exist with this id ','id':accountid})
-            account=Account.objects.get(Accountid=accountid)
-            account.delete()
-        return Response({'message':'Account deleted successfully'})
-        
+                fail=({'Error':'Account does not exist with this id ','Accountid':accountid})
+                failed.append(fail)
+            else:
+                account=Account.objects.get(Accountid=accountid)
+                account.delete()
+        return Response({'Account deleted !':'success','Failed to delete':failed})
+
+###-------------------------------------INTEREST BULK DELETE API----------------------------------###
+
 class InterestDelete(APIView):
     def get(self,request,format=None):
         get=Interest.objects.all()
@@ -894,16 +746,21 @@ class InterestDelete(APIView):
         return Response(serial.data)
 
     def post(self,request,format=None):
+        failed=[]
         data=request.data.get('data')
         for dicts in data:
             interestid=dicts['InterestID']
             print(interestid)
             if not Interest.objects.filter(InterestID=interestid).exists():
-                return Response({'error':'Product not exists with this id','id':interestid})
-            interest=Interest.objects.get(InterestID=interestid)
-            interest.delete()
-        return Response({'message':'Interest deleted successfully'})
-                
+                fail=({'Error':'Interest does not exists with this id','InterestID':interestid})
+                failed.append(fail)
+            else:
+                interest=Interest.objects.get(InterestID=interestid)
+                interest.delete()
+        return Response({'Interest deleted !':'success','Failed to delete':failed})
+
+###------------------------------------PRODUCT BULK DELETE API-----------------------------------###
+
 class ProductDelete(APIView):
     def get(self,request,format=None):
         get=Product.objects.all()
@@ -911,16 +768,20 @@ class ProductDelete(APIView):
         return Response(serial.data)
 
     def post(self,request,format=None):
+        failed=[]
         data=request.data.get('data')
         for dicts in data:
             productid=dicts['Productid']
             print(productid)
             if not Product.objects.filter(Productid=productid).exists():
-                return Response({'error':'Product not exists with this id','id':productid})
-            product=Product.objects.get(Productid=productid)
-            product.delete()
-        return Response({'message':'Product  deleted successfully'})
+                fail=({'Error':'Product not exists with this id','Productid':productid})
+                failed.append(fail)
+            else:    
+                product=Product.objects.get(Productid=productid)
+                product.delete()
+        return Response({'Product deleted !':'success','Failed to delete':failed})
 
+###----------------------------------OPPORTUNITY BULK DELETE API---------------------------------###
 
 class OpportunityDelete(APIView):
     def get(self,request,format=None):
@@ -929,16 +790,20 @@ class OpportunityDelete(APIView):
         return Response(serial.data)
 
     def post(self,request,format=None):
+        failed=[]
         data=request.data.get('data')
         for dicts in data:
             opportunityid=dicts['OpportunityId']
             print(opportunityid)
             if not Opportunity.objects.filter(OpportunityId=opportunityid).exists():
-                return Response({'error':'Opportunity not exists with this id','id':opportunityid})
-            oppor=Opportunity.objects.get(OpportunityId=opportunityid)
-            oppor.delete()
-        return Response({'message':'Opportunity  deleted successfully'})
+                fail=({'Error':'Opportunity not exists with this id','Opportunityid':opportunityid})
+                failed.append(fail)
+            else:    
+                oppor=Opportunity.objects.get(OpportunityId=opportunityid)
+                oppor.delete()
+        return Response({'Opportunity deleted !':'success','Failed to delete':failed})
 
+###--------------------------------INTEREST JUNCTION BULK DELETE API----------------------------------###
 
 class InterestJunctionDelete(APIView):
     def get(self,request,format=None):
@@ -947,19 +812,22 @@ class InterestJunctionDelete(APIView):
         return Response(serial.data)
 
     def post(self,request,format=None):
+        failed=[]
         data=request.data.get('data')
         for dicts in data:
             junctionid=dicts['InterestJunctionID']
             print(junctionid)
             if not Interest_Junction_c.objects.filter(InterestJunctionID=junctionid).exists():
-                return Response({'error':'InterstJunction not exists with this id','id':junctionid})
-            junc=Interest_Junction_c.objects.get(InterestJunctionID=junctionid)    
-            junc.delete()
-        return Response({'message':'InterstJunction deleted successfully'})
+                fail=({'error':'InterstJunction not exists with this id','InterestJunctionid':junctionid})
+                failed.append(fail)
+            else:    
+                junc=Interest_Junction_c.objects.get(InterestJunctionID=junctionid)    
+                junc.delete()
+        return Response({'InterestJunction deleted !':'success','Failed to delete':failed})
        
 
 
-
+###-------------------------------------ACCOUNT BULK DELETE API--------------------------------###
 
 class AccountBulkDelete(APIView):
     def get(self,request,format=None):
@@ -979,340 +847,7 @@ class AccountBulkDelete(APIView):
         return Response({'message':'Account deleted successfully'})
 
 
-
-class SearchFindClientApi(APIView):
-    def get(self,request,format=None):
-        data=Interest_Junction_c.objects.all()
-        serializers=InterestJunctionSerializers(data,many=True)
-        return Response(serializers.data)
-    def post(self,request,format=None):
-        serializers=FindClientSearchSerializers(data=request.data)
-        if serializers.is_valid(raise_exception=True):
-            fieldname=serializers.data.get('FieldName')
-            fieldvalue=serializers.data.get('FieldValue')
-            filterlogic=serializers.data.get('FilterLogic')
-            query=fieldvalue
-            #account search for fields
-            if fieldname == 'CategoryOfInterest':
-                if filterlogic=='Includes' or filterlogic == 'includes':
-
-
-                    q = Q(
-                    'multi_match',
-                    query=query,
-                    fields=[
-                        'Account.CategoryOfInterest',
-                    ],
-                    fuzziness='auto')
-                    search=Interest_Junction_cDocument.search().query(q)
-                    serial=InterestJunctionFindClientSerializers(search,many=True)
-                    return Response(serial.data)
-                elif filterlogic=='Excludes' or filterlogic == 'excludes':  
-                    q = Q(
-                    'multi_match',
-                    query=query,
-                    fields=[
-                        'Account.CategoryOfInterest',
-                    ],
-                    fuzziness='auto')
-                    search=Interest_Junction_cDocument.search().query(q)
-                    serial=InterestJunctionFindClientSerializers(search,many=True)
-                    return Response(serial.data)
-                elif filterlogic=='Equal' or filterlogic == 'equal':
-                    q = Q(
-                    'multi_match',
-                    query=query,
-                    fields=[
-                        'Account.CategoryOfInterest',
-                    ]
-                    )
-                    search=Interest_Junction_cDocument.search().query(q)
-                    serial=InterestJunctionFindClientSerializers(search,many=True)
-                    return Response(serial.data)
-                else :
-                    return Response({"error":"you are providing invilid field logic"})
-            elif fieldname == 'YoungerAudience':
-                if filterlogic=='Equal' or filterlogic == 'equal':
-
-
-                    q = Q(
-                    'multi_match',
-                    query=query,
-                    fields=[
-                        'Account.YoungerAudience',
-                    ]
-                    )
-                    search=Interest_Junction_cDocument.search().query(q)
-                    serial=InterestJunctionFindClientSerializers(search,many=True)
-                    return Response(serial.data)
-                elif filterlogic=='NotEqual' or filterlogic == 'notequal':  
-                    q = Q(
-                    'multi_match',
-                    query=query,
-                    fields=[
-                        'Account.YoungerAudience',
-                    ],
-                    fuzziness='auto')
-                    search=Interest_Junction_cDocument.search().query(q)
-                    serial=InterestJunctionFindClientSerializers(search,many=True)
-                    return Response(serial.data)
-                # elif filterlogic=='Equal' or filterlogic == 'equal':
-                #     q = Q(
-                #     'multi_match',
-                #     query=query,
-                #     fields=[
-                #         'Account.YoungerAudience',
-                #     ]
-                #     )
-                #     search=Interest_Junction_cDocument.search().query(q)
-                #     serial=InterestJunctionFindClientSerializers(search,many=True)
-                #     return Response(serial.data) 
-            # elif fieldname == 'LastPurchasedDtae':
-            #     if filterlogic=='Greater than' or filterlogic == 'greater then':
-
-
-            #         q = Q(
-            #         'multi_match',
-            #         query=query,
-            #         fields=[
-            #             'Account.LastPurchasedDtae',
-            #         ],
-            #         )
-            #         search=Interest_Junction_cDocument.search().query(q)
-            #         serial=InterestJunctionFindClientSerializers(search,many=True)
-            #         return Response(serial.data)
-            #     elif filterlogic=='Excludes' or filterlogic == 'excludes':  
-            #         q = Q(
-            #         'multi_match',
-            #         query=query,
-            #         fields=[
-            #             'Account.YoungerAudience',
-            #         ],
-            #         fuzziness='auto')
-            #         search=Interest_Junction_cDocument.search().query(q)
-            #         serial=InterestJunctionFindClientSerializers(search,many=True)
-            #         return Response(serial.data)
-            #     elif filterlogic=='Equal' or filterlogic == 'equal':
-            #         q = Q(
-            #         'multi_match',
-            #         query=query,
-            #         fields=[
-            #             'Account.YoungerAudience',
-            #         ]
-            #         )
-            #         search=Interest_Junction_cDocument.search().query(q)
-            #         serial=InterestJunctionFindClientSerializers(search,many=True)
-            #         return Response(serial.data)        
-            elif fieldname == 'HolidayCelebrated':
-                if filterlogic=='Equal' or filterlogic == 'equal':
-
-
-                    q = Q(
-                    'multi_match',
-                    query=query,
-                    fields=[
-                        'Account.HolidayCelebrated',
-                    ]
-                    )
-                    search=Interest_Junction_cDocument.search().query(q)
-                    serial=InterestJunctionFindClientSerializers(search,many=True)
-                    return Response(serial.data)
-                elif filterlogic=='NotEqual' or filterlogic == 'notequal':  
-                    q = Q(
-                    'multi_match',
-                    query=query,
-                    fields=[
-                        'Account.HolidayCelebrated',
-                    ],
-                    fuzziness='auto')
-                    search=Interest_Junction_cDocument.search().query(q)
-                    serial=InterestJunctionFindClientSerializers(search,many=True)
-                    return Response(serial.data)
-            elif fieldname == 'Email':
-                if filterlogic=='Equal' or filterlogic == 'equal':
-
-
-                    q = Q(
-                    'multi_match',
-                    query=query,
-                    fields=[
-                        'Account.Email',
-                    ]
-                    )
-                    search=Interest_Junction_cDocument.search().query(q)
-                    serial=InterestJunctionFindClientSerializers(search,many=True)
-                    return Response(serial.data)
-                elif filterlogic=='NotEqual' or filterlogic == 'notequal':  
-                    q = Q(
-                    'multi_match',
-                    query=query,
-                    fields=[
-                        'Account.Email',
-                    ],
-                    fuzziness='auto')
-                    search=Interest_Junction_cDocument.search().query(q)
-                    serial=InterestJunctionFindClientSerializers(search,many=True)
-                    return Response(serial.data)        
-            elif fieldname == 'ShippingCity':
-                if filterlogic=='Equal' or filterlogic == 'equal':
-
-
-                    q = Q(
-                    'multi_match',
-                    query=query,
-                    fields=[
-                        'Account.ShippingCity',
-                    ]
-                    )
-                    search=Interest_Junction_cDocument.search().query(q)
-                    serial=InterestJunctionFindClientSerializers(search,many=True)
-                    return Response(serial.data)
-                elif filterlogic=='NotEqual' or filterlogic == 'notequal':  
-                    q = Q(
-                    'multi_match',
-                    query=query,
-                    fields=[
-                        'Account.ShippingCity',
-                    ],
-                    fuzziness='auto')
-                    search=Interest_Junction_cDocument.search().query(q)
-                    serial=InterestJunctionFindClientSerializers(search,many=True)
-                    return Response(serial.data)
-
-            elif fieldname == 'InterestType':
-                if filterlogic=='Equal' or filterlogic == 'equal':
-
-
-                    q = Q(
-                    'multi_match',
-                    query=query,
-                    fields=[
-                        'Interest.InterestType',
-                    ]
-                    )
-                    search=Interest_Junction_cDocument.search().query(q)
-                    serial=InterestJunctionFindClientSerializers(search,many=True)
-                    return Response(serial.data)
-                elif filterlogic=='NotEqual' or filterlogic == 'notequal':  
-                    q = Q(
-                    'multi_match',
-                    query=query,
-                    fields=[
-                        'Interest.InterestType',
-                    ],
-                    fuzziness='auto')
-                    search=Interest_Junction_cDocument.search().query(q)
-                    serial=InterestJunctionFindClientSerializers(search,many=True)
-                    return Response(serial.data)  
-            elif fieldname == 'InterestName':
-                if filterlogic=='Equal' or filterlogic == 'equal':
-
-
-                    q = Q(
-                    'multi_match',
-                    query=query,
-                    fields=[
-                        'Interest.InterestName',
-                    ]
-                    )
-                    search=Interest_Junction_cDocument.search().query(q)
-                    serial=InterestJunctionFindClientSerializers(search,many=True)
-                    return Response(serial.data)
-                elif filterlogic=='NotEqual' or filterlogic == 'notequal':  
-                    q = Q(
-                    'multi_match',
-                    query=query,
-                    fields=[
-                        'Interest.InterestName',
-                    ],
-                    fuzziness='auto')
-                    search=Interest_Junction_cDocument.search().query(q)
-                    serial=InterestJunctionFindClientSerializers(search,many=True)
-                    return Response(serial.data) 
-
-            elif fieldname == 'StageName':
-                if filterlogic=='Equal' or filterlogic == 'equal':
-
-
-                    q = Q(
-                    'multi_match',
-                    query=query,
-                    fields=[
-                        'Opportunity.StageName',
-                    ]
-                    )
-                    search=OpportunityDocument.search().query(q)
-                    serial=OpportunitySerializersPost(search,many=True)
-                    return Response(serial.data)
-                elif filterlogic=='NotEqual' or filterlogic == 'notequal':  
-                    q = Q(
-                    'multi_match',
-                    query=query,
-                    fields=[
-                        'Opportunity.StageName',
-                    ],
-                    fuzziness='auto')
-                    search=OpportunityDocument.search().query(q)
-                    serial=OpportunitySerializersPost(search,many=True)
-                    return Response(serial.data)                  
-            elif fieldname == 'BillingCity':
-                if filterlogic=='Equal' or filterlogic == 'equal':
-
-
-                    q = Q(
-                    'multi_match',
-                    query=query,
-                    fields=[
-                        'Opportunity.BillingCity',
-                    ]
-                    )
-                    search=OpportunityDocument.search().query(q)
-                    serial=OpportunitySerializersPost(search,many=True)
-                    return Response(serial.data)
-                elif filterlogic=='NotEqual' or filterlogic == 'notequal':  
-                    q = Q(
-                    'multi_match',
-                    query=query,
-                    fields=[
-                        'Opportunity.BillingCity',
-                    ],
-                    fuzziness='auto')
-                    search=OpportunityDocument.search().query(q)
-                    serial=OpportunitySerializersPost(search,many=True)
-                    return Response(serial.data)
-
-            elif fieldname == 'AverageItemSold':
-                if filterlogic=='Equal' or filterlogic == 'equal':
-
-
-                    q = Q(
-                    'multi_match',
-                    query=query,
-                    fields=[
-                        'Opportunity.AverageItemSold',
-                    ]
-                    )
-                    search=OpportunityDocument.search().query(q)
-                    serial=OpportunitySerializersPost(search,many=True)
-                    return Response(serial.data)
-                elif filterlogic=='NotEqual' or filterlogic == 'notequal':  
-                    q = Q(
-                    'multi_match',
-                    query=query,
-                    fields=[
-                        'Opportunity.AverageItemSold',
-                    ],
-                    fuzziness='auto')
-                    search=OpportunityDocument.search().query(q)
-                    serial=OpportunitySerializersPost(search,many=True)
-                    return Response(serial.data)                     
-
-                            
-            else:
-                return Response({'Error':'Please choose valid field name !'})
-        # return Response(serial.data)   
-
-###---------------------------------------FIND CLIENT------------------------------------------###
+###---------------------------------------FIND CLIENT API------------------------------------------###
 
 class ClientFind(APIView):
     def get(self,request,format=None):
@@ -1415,8 +950,6 @@ class ClientFind(APIView):
         qz45=Q({"multi_match": {"query": "", "fields": [""]}})
         qz46=Q({"multi_match": {"query": "", "fields": [""]}})
 
-        andlist=[]
-        orlist=[]
         data=request.data.get('data')
         interestcondition=data[0]
         interestname=data[1]
@@ -1424,7 +957,6 @@ class ClientFind(APIView):
         accountfilters=data[3]
         acc=accountfilters['AccountFilters']
         categoryofinterestfilter=acc[0]
-        # print(categoryofinterestfilter['FieldValue'])
         youngeraudiencefilter=acc[1]
         lastpurchasedatefilter=acc[2]
         holidayscelebratedfilter=acc[3]
@@ -1436,11 +968,17 @@ class ClientFind(APIView):
         interestfilter=data[5]
         interestfiltername=interestfilter['InterestFilter']
         accountinteresttype=interestfiltername[0]
-        print(accountinteresttype)
         accountinterestname=interestfiltername[1]
-        # print(accountinterestname,accountintereststatus)
-        opportunityfiltercondition=[6]
+        opportunityfiltercondition=data[6]
+        # print(opportunityfiltercondition)
         opportunityfilter=data[7]
+        opportunitycolumn=opportunityfilter['OpportunityFilter']
+        opportunitystagename=opportunitycolumn[0]
+        opportunitybillingcity=opportunitycolumn[1]
+        opportunityavarageitemsold=opportunitycolumn[2]
+        # print(opportunityavarageitemsold)
+        # print(opportunitystagename)
+        # print(opportunitybillingcity)
         interestitem=interestname['InterestName']
         qz=Q('terms',**interestname)
         if accountfiltercondition['AccountFiltersCondition'] == 'AND':
@@ -1483,10 +1021,7 @@ class ClientFind(APIView):
                 qz9=Q('bool', must_not=[Q('term',**{'Account.LastPurchaseDtae':lastpurchasedatefilter['FieldValue']})])
 
             elif lastpurchasedatefilter['FilterLogic'] == 'Greater than':
-                # qz10=Q('range', must=[Q('range',**{'Account.LastPurchaseDtae':{"gte":{lastpurchasedatefilter['FieldValue']}}})])
-                # qz10=Q('range', **{'Account.LastPurchaseDtae': {'gte':lastpurchasedatefilter['FieldValue'],'format':'DD/MM/YYYY'}})
                 qz10=Q('bool', filter=[Q('range',**{'Account.LastPurchasedDtae': {'gte':lastpurchasedatefilter['FieldValue'],'format':'dd-mm-yy'}})])
-                # qz10=Q('range', **{'Account.LastPurchaseDtae': {"gte":lastpurchasedatefilter['FieldValue'],'format':'DD/MM/YYYY'}})
 
             else:
                 qz11=Q('bool', filter=[Q('range',**{'Account.LastPurchasedDtae': {'lte':lastpurchasedatefilter['FieldValue'],'format':'dd-mm-yy'}})])
@@ -1668,8 +1203,97 @@ class ClientFind(APIView):
                     )
 
             else:
-                qz46=Q('bool', must_not=[Q('match',**{'Interest.InterestType':accountintereststatus['FieldValue']})])
- 
+                qz46=Q('bool', must_not=[Q('match',**{'Interest.InterestType':accountinteresttype['FieldValue']})])
+        if opportunityfiltercondition['OpportunityFilterCondition'] == 'AND':
+            if opportunitystagename['FilterLogic'] =='Equal':
+                qz47=Q(
+                    'multi_match',
+                    query=opportunitystagename['FieldValue'],
+                    fields=[
+                        opportunitystagename['FieldName']
+                    ]
+                    )
+            else:
+                qz48=Q('bool', must_not=[Q('match',**{opportunitystagename['FieldName']:opportunitystagename['FieldValue']})])
+            if opportunitybillingcity['FilterLogic'] == 'Includes':
+                qz49=Q(
+                    'multi_match',
+                    query=opportunitybillingcity['FieldValue'],
+                    fields=[
+                        opportunitybillingcity['FieldName']
+                    ],fuzziness='auto')
+
+            elif opportunitybillingcity['FilterLogic'] == 'Exclude':
+                qz50=Q('bool', must_not=[Q('match',**{opportunitybillingcity['FieldName']:opportunitybillingcity['FieldValue']})])
+            elif opportunitybillingcity['FilterLogic'] == 'Equal':
+                qz51=Q(
+                    'multi_match',
+                    query=opportunitybillingcity['FieldValue'],
+                    fields=[
+                        opportunitybillingcity['FieldName']
+                    ])
+            else:
+                qz52=Q('bool', must_not=[Q('match',**{opportunitybillingcity['FieldName']:opportunitybillingcity['FieldValue']})])
+            if opportunityavarageitemsold['FilterLogic'] == 'Equal':
+                qz53=Q(
+                    'multi_match',
+                    query=opportunityavarageitemsold['FieldValue'],
+                    fields=[
+                        opportunityavarageitemsold['FieldName']
+                    ])
+            elif opportunityavarageitemsold['FilterLogic'] == 'Greater than':
+                qz54=Q('range', **{opportunityavarageitemsold['FieldName']: {"gte":opportunityavarageitemsold['FieldValue']}})
+            elif opportunityavarageitemsold['FilterLogic'] == 'Lesser than':
+                qz55=Q('range', **{opportunityavarageitemsold['FieldName']: {"lte":opportunityavarageitemsold['FieldValue']}})
+            else:
+                qz56=Q('bool', must_not=[Q('match',**{opportunityavarageitemsold['FieldName']:opportunityavarageitemsold['FieldValue']})])
+        else:
+            if opportunitystagename['FilterLogic'] =='Equal':
+                qz57=Q(
+                    'multi_match',
+                    query=opportunitystagename['FieldValue'],
+                    fields=[
+                        opportunitystagename['FieldName']
+                    ]
+                    )
+            else:
+                qz58=Q('bool', must_not=[Q('match',**{opportunitystagename['FieldName']:opportunitystagename['FieldValue']})])
+            if opportunitybillingcity['FilterLogic'] == 'Includes':
+                qz59=Q(
+                    'multi_match',
+                    query=opportunitybillingcity['FieldValue'],
+                    fields=[
+                        opportunitybillingcity['FieldName']
+                    ],fuzziness='auto')
+
+            elif opportunitybillingcity['FilterLogic'] == 'Exclude':
+                qz60=Q('bool', must_not=[Q('match',**{opportunitybillingcity['FieldName']:opportunitybillingcity['FieldValue']})])
+            elif opportunitybillingcity['FilterLogic'] == 'Equal':
+                qz61=Q(
+                    'multi_match',
+                    query=opportunitybillingcity['FieldValue'],
+                    fields=[
+                        opportunitybillingcity['FieldName']
+                    ])
+            else:
+                qz62=Q('bool', must_not=[Q('match',**{opportunitybillingcity['FieldName']:opportunitybillingcity['FieldValue']})])
+            if opportunityavarageitemsold['FilterLogic'] == 'Equal':
+                qz63=Q(
+                    'multi_match',
+                    query=opportunityavarageitemsold['FieldValue'],
+                    fields=[
+                        opportunityavarageitemsold['FieldName']
+                    ])
+            elif opportunityavarageitemsold['FilterLogic'] == 'Greater than':
+                qz64=Q('range', **{opportunityavarageitemsold['FieldName']: {"gte":opportunityavarageitemsold['FieldValue']}})
+            elif opportunityavarageitemsold['FilterLogic'] == 'Lesser than':
+                qz65=Q('range', **{opportunityavarageitemsold['FieldName']: {"lte":opportunityavarageitemsold['FieldValue']}})
+            else:
+                qz66=Q('bool', must_not=[Q('match',**{opportunityavarageitemsold['FieldName']:opportunityavarageitemsold['FieldValue']})])
+        opportunity=OpportunityDocument.search().query()
+        serializer=OpportunitySerializersPost(opportunity,many=True)
+        # print(serializer.data)
+        
         xy=qz1&qz6&qz4&qz8&qz2&qz3&qz5&qz7&qz9&qz10&qz11|qz12|qz13|qz14|qz15|qz16|qz17|qz18|qz19|qz20|qz21|qz22&qz23&qz24&qz25&qz26&qz27&qz28|qz29|qz30|qz31|qz32|qz33|qz34&qz35&qz36&qz37&qz38&qz39&qz40|qz41|qz42|qz43|qz44|qz45|qz46|qz
         # print(xy)
         search=Interest_Junction_cDocument.search().query(xy)
@@ -1684,12 +1308,3 @@ class ClientFind(APIView):
         
         
             
-
-        return Response({"success":"seccess"})
-#  data=request.data.get('data')
-#         print(data)  
-#         for dicts in data:
-#             print(dicts)
-#             interestjunctionid=dicts['InterestJunctionID']
-#             linkwith=dicts['link_With']
-#             account=dicts['Account']
