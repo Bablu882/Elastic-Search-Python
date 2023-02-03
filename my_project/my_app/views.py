@@ -9,6 +9,7 @@ from my_app.documents import AccountDocument,ProductDocument,InterestDocument,In
 from elasticsearch_dsl import Q
 from django.http import JsonResponse
 from rest_framework import status
+import json
 
 
 # Testing
@@ -199,7 +200,7 @@ class SearchListOpportunity(APIView):
                 fuzziness='auto')
             search=OpportunityDocument().search().query(q)
             serial=OpportunitySerializersPost(search,many=True)
-        return Response(serial.data)
+        return Response(serial.data) 
 
 
 # ###-----------------------------SEARCH INTEREST JUNCTION API ---------------------------------###
@@ -855,6 +856,7 @@ class ClientFind(APIView):
         serializers=InterestJunctionFindClientSerializers(data,many=True)
         return Response(serializers.data)
     def post(self,request,format=None):
+        getaccountid=[]
         global qz1
         global qz2
         global qz3
@@ -902,6 +904,26 @@ class ClientFind(APIView):
         global qz44
         global qz45
         global qz46
+        global qz47
+        global qz48
+        global qz49
+        global qz50
+        global qz51
+        global qz52
+        global qz53
+        global qz54
+        global qz55
+        global qz56
+        global qz57
+        global qz58
+        global qz59
+        global qz60
+        global qz61
+        global qz62
+        global qz63
+        global qz64
+        global qz65
+        global qz66
         qz1=Q({"multi_match": {"query": "", "fields": [""]}})
         qz23=Q({"multi_match": {"query": "", "fields": [""]}})
         qz6=Q({"multi_match": {"query": "", "fields": [""]}})
@@ -949,6 +971,26 @@ class ClientFind(APIView):
         qz44=Q({"multi_match": {"query": "", "fields": [""]}})
         qz45=Q({"multi_match": {"query": "", "fields": [""]}})
         qz46=Q({"multi_match": {"query": "", "fields": [""]}})
+        qz47=Q('term',**{"StageName":"NULL"})
+        qz48=Q('term',**{"StageName":"NULL"})
+        qz49=Q('term',**{"StageName":"NULL"})
+        qz50=Q('term',**{"StageName":"NULL"})
+        qz51=Q('term',**{"StageName":"NULL"})
+        qz52=Q('term',**{"StageName":"NULL"})
+        qz53=Q('term',**{"StageName":"NULL"})
+        qz54=Q('term',**{"StageName":"NULL"})
+        qz55=Q('term',**{"StageName":"NULL"})
+        qz56=Q('term',**{"StageName":"NULL"})
+        qz57=Q('term',**{"StageName":"NULL"})
+        qz58=Q('term',**{"StageName":"NULL"})
+        qz59=Q('term',**{"StageName":"NULL"})
+        qz60=Q('term',**{"StageName":"NULL"})
+        qz61=Q('term',**{"StageName":"NULL"})
+        qz62=Q('term',**{"StageName":"NULL"})
+        qz63=Q('term',**{"StageName":"NULL"})
+        qz64=Q('term',**{"StageName":"NULL"})
+        qz65=Q('term',**{"StageName":"NULL"})
+        qz66=Q('term',**{"StageName":"NULL"})
 
         data=request.data.get('data')
         interestcondition=data[0]
@@ -1168,7 +1210,7 @@ class ClientFind(APIView):
                     )
 
             else:
-                qz40=Q('bool', must_not=[Q('match',**{'Interest.InterestType':accountintereststatus['FieldValue']})])
+                qz40=Q('bool', must_not=[Q('match',**{'Interest.InterestType':accountinteresttype['FieldValue']})])
         else:
             if accountinterestname['FilterLogic'] == 'Includes':
                 qz41=Q(
@@ -1206,13 +1248,7 @@ class ClientFind(APIView):
                 qz46=Q('bool', must_not=[Q('match',**{'Interest.InterestType':accountinteresttype['FieldValue']})])
         if opportunityfiltercondition['OpportunityFilterCondition'] == 'AND':
             if opportunitystagename['FilterLogic'] =='Equal':
-                qz47=Q(
-                    'multi_match',
-                    query=opportunitystagename['FieldValue'],
-                    fields=[
-                        opportunitystagename['FieldName']
-                    ]
-                    )
+                qz47=Q('bool', must=[Q('match',**{opportunitystagename['FieldName']:opportunitystagename['FieldValue']})])
             else:
                 qz48=Q('bool', must_not=[Q('match',**{opportunitystagename['FieldName']:opportunitystagename['FieldValue']})])
             if opportunitybillingcity['FilterLogic'] == 'Includes':
@@ -1226,25 +1262,19 @@ class ClientFind(APIView):
             elif opportunitybillingcity['FilterLogic'] == 'Exclude':
                 qz50=Q('bool', must_not=[Q('match',**{opportunitybillingcity['FieldName']:opportunitybillingcity['FieldValue']})])
             elif opportunitybillingcity['FilterLogic'] == 'Equal':
-                qz51=Q(
-                    'multi_match',
-                    query=opportunitybillingcity['FieldValue'],
-                    fields=[
-                        opportunitybillingcity['FieldName']
-                    ])
+                qz51=Q('bool', must=[Q('match',**{opportunitybillingcity['FieldName']:opportunitybillingcity['FieldValue']})])
             else:
                 qz52=Q('bool', must_not=[Q('match',**{opportunitybillingcity['FieldName']:opportunitybillingcity['FieldValue']})])
             if opportunityavarageitemsold['FilterLogic'] == 'Equal':
-                qz53=Q(
-                    'multi_match',
-                    query=opportunityavarageitemsold['FieldValue'],
-                    fields=[
-                        opportunityavarageitemsold['FieldName']
-                    ])
+                qz53=Q('bool', must=[Q('match',**{opportunityavarageitemsold['FieldName']:opportunityavarageitemsold['FieldValue']})])
             elif opportunityavarageitemsold['FilterLogic'] == 'Greater than':
-                qz54=Q('range', **{opportunityavarageitemsold['FieldName']: {"gte":opportunityavarageitemsold['FieldValue']}})
+                print(opportunityavarageitemsold['FieldValue'])
+                # qz54=Q('range', **{opportunityavarageitemsold['FieldName']: {"gte":opportunityavarageitemsold['FieldValue']}})
+                qz54=Q('bool', filter=[Q('range',**{opportunityavarageitemsold['FieldName']: {'gte':opportunityavarageitemsold['FieldValue']}})])
+
             elif opportunityavarageitemsold['FilterLogic'] == 'Lesser than':
-                qz55=Q('range', **{opportunityavarageitemsold['FieldName']: {"lte":opportunityavarageitemsold['FieldValue']}})
+                qz55=Q('bool', filter=[Q('range',**{opportunityavarageitemsold['FieldName']: {'lte':opportunityavarageitemsold['FieldValue']}})])
+
             else:
                 qz56=Q('bool', must_not=[Q('match',**{opportunityavarageitemsold['FieldName']:opportunityavarageitemsold['FieldValue']})])
         else:
@@ -1290,11 +1320,20 @@ class ClientFind(APIView):
                 qz65=Q('range', **{opportunityavarageitemsold['FieldName']: {"lte":opportunityavarageitemsold['FieldValue']}})
             else:
                 qz66=Q('bool', must_not=[Q('match',**{opportunityavarageitemsold['FieldName']:opportunityavarageitemsold['FieldValue']})])
-        opportunity=OpportunityDocument.search().query()
+        qqq=qz47&qz48&qz49&qz50&qz51&qz52&qz53&qz54&qz55&qz56|qz57|qz58|qz59|qz60|qz61|qz62|qz63|qz64|qz65|qz66                    
+        # print(qqq)
+        qqr=qz47&qz49&qz53   
+        opportunity=OpportunityDocument.search().query(qqq)
         serializer=OpportunitySerializersPost(opportunity,many=True)
-        # print(serializer.data)
-        
-        xy=qz1&qz6&qz4&qz8&qz2&qz3&qz5&qz7&qz9&qz10&qz11|qz12|qz13|qz14|qz15|qz16|qz17|qz18|qz19|qz20|qz21|qz22&qz23&qz24&qz25&qz26&qz27&qz28|qz29|qz30|qz31|qz32|qz33|qz34&qz35&qz36&qz37&qz38&qz39&qz40|qz41|qz42|qz43|qz44|qz45|qz46|qz
+        for x in serializer.data:
+           zz=x
+           od2 = json.loads(json.dumps(zz))
+           dictaccount=(od2['AccountId'])
+           getaccount=(dictaccount['Accountid'])
+           getaccountid.append(str(getaccount))
+        qz80=Q('terms',**{'Account.Accountid':getaccountid}) 
+        print(getaccountid)
+        xy=qz1&qz6&qz4&qz8&qz2&qz3&qz5&qz7&qz9&qz10&qz11|qz12|qz13|qz14|qz15|qz16|qz17|qz18|qz19|qz20|qz21|qz22&qz23&qz24&qz25&qz26&qz27&qz28|qz29|qz30|qz31|qz32|qz33|qz34&qz35&qz36&qz37&qz38&qz39&qz40|qz41|qz42|qz43|qz44|qz45|qz46|qz|qz80
         # print(xy)
         search=Interest_Junction_cDocument.search().query(xy)
         serial1=InterestJunctionFindClientSerializers(search,many=True)        
