@@ -29,7 +29,7 @@ class OpportunitySerializers(serializers.ModelSerializer):
         fields='__all__'
         
 class OpportunitySerializersPost(serializers.ModelSerializer):
-    account=AccountSerializers(many=False,read_only=True)
+    AccountId=AccountSerializers(many=False,read_only=True)
     class Meta:
         model=Opportunity
         fields=[
@@ -38,7 +38,7 @@ class OpportunitySerializersPost(serializers.ModelSerializer):
             'StageName',
             'Billing_City',
             'AverageitemSold',
-            'account',
+            'AccountId',
         ]
                 
 
