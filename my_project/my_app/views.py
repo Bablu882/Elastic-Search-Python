@@ -1247,10 +1247,13 @@ class ClientFind(APIView):
             else:
                 qz46=Q('bool', must_not=[Q('match',**{'Interest.InterestType':accountinteresttype['FieldValue']})])
         if opportunityfiltercondition['OpportunityFilterCondition'] == 'AND':
+            query_list=[]
             if opportunitystagename['FilterLogic'] =='Equal':
                 qz47=Q('bool', must=[Q('match',**{opportunitystagename['FieldName']:opportunitystagename['FieldValue']})])
+                query_list.append(qz47)
             else:
                 qz48=Q('bool', must_not=[Q('match',**{opportunitystagename['FieldName']:opportunitystagename['FieldValue']})])
+                query_list.append(qz48)
             if opportunitybillingcity['FilterLogic'] == 'Includes':
                 qz49=Q(
                     'multi_match',
@@ -1258,26 +1261,36 @@ class ClientFind(APIView):
                     fields=[
                         opportunitybillingcity['FieldName']
                     ],fuzziness='auto')
+                query_list.append(qz49)
 
             elif opportunitybillingcity['FilterLogic'] == 'Exclude':
                 qz50=Q('bool', must_not=[Q('match',**{opportunitybillingcity['FieldName']:opportunitybillingcity['FieldValue']})])
+                query_list.append(qz50)
             elif opportunitybillingcity['FilterLogic'] == 'Equal':
                 qz51=Q('bool', must=[Q('match',**{opportunitybillingcity['FieldName']:opportunitybillingcity['FieldValue']})])
+                query_list.append(qz1)
             else:
                 qz52=Q('bool', must_not=[Q('match',**{opportunitybillingcity['FieldName']:opportunitybillingcity['FieldValue']})])
+                query_list.append(qz52)
             if opportunityavarageitemsold['FilterLogic'] == 'Equal':
                 qz53=Q('bool', must=[Q('match',**{opportunityavarageitemsold['FieldName']:opportunityavarageitemsold['FieldValue']})])
+                query_list.append(qz53)
             elif opportunityavarageitemsold['FilterLogic'] == 'Greater than':
-                print(opportunityavarageitemsold['FieldValue'])
                 # qz54=Q('range', **{opportunityavarageitemsold['FieldName']: {"gte":opportunityavarageitemsold['FieldValue']}})
                 qz54=Q('bool', filter=[Q('range',**{opportunityavarageitemsold['FieldName']: {'gte':opportunityavarageitemsold['FieldValue']}})])
+                query_list.append(qz54)
 
             elif opportunityavarageitemsold['FilterLogic'] == 'Lesser than':
                 qz55=Q('bool', filter=[Q('range',**{opportunityavarageitemsold['FieldName']: {'lte':opportunityavarageitemsold['FieldValue']}})])
+                query_list.append(qz55)
 
             else:
                 qz56=Q('bool', must_not=[Q('match',**{opportunityavarageitemsold['FieldName']:opportunityavarageitemsold['FieldValue']})])
+                query_list.append(qz56)
+            final_query=Q('bool',should=query_list)  
+    
         else:
+            query_list=[]
             if opportunitystagename['FilterLogic'] =='Equal':
                 qz57=Q(
                     'multi_match',
@@ -1286,8 +1299,10 @@ class ClientFind(APIView):
                         opportunitystagename['FieldName']
                     ]
                     )
+                query_list.append(qz57)    
             else:
                 qz58=Q('bool', must_not=[Q('match',**{opportunitystagename['FieldName']:opportunitystagename['FieldValue']})])
+                query_list.append(qz58)
             if opportunitybillingcity['FilterLogic'] == 'Includes':
                 qz59=Q(
                     'multi_match',
@@ -1295,9 +1310,10 @@ class ClientFind(APIView):
                     fields=[
                         opportunitybillingcity['FieldName']
                     ],fuzziness='auto')
-
+                query_list.append(qz59) 
             elif opportunitybillingcity['FilterLogic'] == 'Exclude':
                 qz60=Q('bool', must_not=[Q('match',**{opportunitybillingcity['FieldName']:opportunitybillingcity['FieldValue']})])
+                query_list.append(qz60)
             elif opportunitybillingcity['FilterLogic'] == 'Equal':
                 qz61=Q(
                     'multi_match',
@@ -1305,8 +1321,10 @@ class ClientFind(APIView):
                     fields=[
                         opportunitybillingcity['FieldName']
                     ])
+                query_list.append(qz61)    
             else:
                 qz62=Q('bool', must_not=[Q('match',**{opportunitybillingcity['FieldName']:opportunitybillingcity['FieldValue']})])
+                query_list.append(qz62)
             if opportunityavarageitemsold['FilterLogic'] == 'Equal':
                 qz63=Q(
                     'multi_match',
@@ -1314,25 +1332,29 @@ class ClientFind(APIView):
                     fields=[
                         opportunityavarageitemsold['FieldName']
                     ])
+                query_list.append(qz63)    
             elif opportunityavarageitemsold['FilterLogic'] == 'Greater than':
                 qz64=Q('range', **{opportunityavarageitemsold['FieldName']: {"gte":opportunityavarageitemsold['FieldValue']}})
+                query_list.append(qz64)
             elif opportunityavarageitemsold['FilterLogic'] == 'Lesser than':
                 qz65=Q('range', **{opportunityavarageitemsold['FieldName']: {"lte":opportunityavarageitemsold['FieldValue']}})
+                query_list.append(qz65)
             else:
                 qz66=Q('bool', must_not=[Q('match',**{opportunityavarageitemsold['FieldName']:opportunityavarageitemsold['FieldValue']})])
-        qqq=qz47&qz48&qz49&qz50&qz51&qz52&qz53&qz54&qz55&qz56|qz57|qz58|qz59|qz60|qz61|qz62|qz63|qz64|qz65|qz66                    
-        # print(qqq)
-        qqr=qz47&qz49&qz53   
+                query_list.append(qz66)
+            final_query=Q('bool',should=query_list)  
+        qqq=final_query|qz57|qz58|qz59|qz60|qz61|qz62|qz63|qz64|qz65|qz66                    
         opportunity=OpportunityDocument.search().query(qqq)
         serializer=OpportunitySerializersPost(opportunity,many=True)
         for x in serializer.data:
            zz=x
+           print(zz)
            od2 = json.loads(json.dumps(zz))
            dictaccount=(od2['AccountId'])
            getaccount=(dictaccount['Accountid'])
            getaccountid.append(str(getaccount))
         qz80=Q('terms',**{'Account.Accountid':getaccountid}) 
-        print(getaccountid)
+        
         xy=qz1&qz6&qz4&qz8&qz2&qz3&qz5&qz7&qz9&qz10&qz11|qz12|qz13|qz14|qz15|qz16|qz17|qz18|qz19|qz20|qz21|qz22&qz23&qz24&qz25&qz26&qz27&qz28|qz29|qz30|qz31|qz32|qz33|qz34&qz35&qz36&qz37&qz38&qz39&qz40|qz41|qz42|qz43|qz44|qz45|qz46|qz|qz80
         # print(xy)
         search=Interest_Junction_cDocument.search().query(xy)
