@@ -7,7 +7,7 @@
 	"AccountFilters": {
 		"AccountFiltersCondition": "OR",
 		
-		"CategoryOfInterestFieldName": "CategoryOfInterest",
+		"CategoryOfInterestFieldName": "Account.CategoryOfInterest",
 		"CategoryOfInterestFieldValue": [
 			"Clock",
 			"Fine Art",
@@ -22,40 +22,40 @@
 		],
 		"CategoryOfInterestFilterLogic": "Includes/Exclude/Equal",
 
-		"YoungerAudienceFieldName": "YoungerAudience",
+		"YoungerAudienceFieldName": "Account.YoungerAudience",
 		"YoungerAudienceFieldValue": "True/False",
 		"YoungerAudienceFilterLogic": "Equal/Not Equal",
 
-		"LastPurchaseDateFieldName": "LastPurchaseDate",
+		"LastPurchaseDateFieldName": "Account.LastPurchaseDtae",
 		"LastPurchaseDateFieldValue": "1/13/2023",
 		"LastPurchaseDateFilterLogic": "Greater than/Lesser than/Equal/ Not Equal",
 
-		"HolidayCelebratedFieldName": "HolidayCelebrated",
+		"HolidayCelebratedFieldName": "Account.HolidayCelebrated",
 		"HolidayCelebratedFieldValue": "Christmas",
 		"HolidayCelebratedFilterLogic": "Equal/ Not Equal",
 
 		"EmailCondition": "AND",
 
-		"EmailFieldName": "Email",
+		"EmailFieldName": "Account.Email",
 		"EmailFieldValue": "test@gmail.com",
 		"EmailFilterLogic": "Equal/ Not Equal",
 
-		"ShippingCityFieldName": "ShippingCity",
+		"ShippingCityFieldName": "Account.ShippingCity",
 		"ShippingCityFieldValue": "New York",
 		"ShippingCityFilterLogic": "Includes/Exclude/Equal/ Not Equal"
 	},
-	"InterestFilter": {
+	"InterestFilters": {
 		"InterestFilterCondition": "AND",
 
-		"InterestTypeFieldName": "InterestType",
+		"InterestTypeFieldName": "Interest.InterestType",
 		"InterestTypeFieldValue": "General Interest/Client Looking For/Not Interested",
 		"InterestTypeFilterLogic": "Equal/ Not Equal",
 
-		"InterestNameFieldName": "InterestName",
+		"InterestNameFieldName": "Interest.InterestName",
 		"InterestNameFieldValue": "Ring/Diamond Ring",
 		"InterestNameFilterLogic": "Includes/Exclude/Equal/ Not Equal"
 	},
-	"OpportunityFilter": {
+	"OpportunityFilters": {
 		"OpportunityFilterCondition": "OR",
 
 		"StageNameFieldName": "StageName",
