@@ -41,6 +41,7 @@ urlpatterns=[
     path('api/get-delete-bulk-account/',AccountBulkDelete.as_view()),
     path('api/find/',ClientFind.as_view()),
     path('api/v2/find_client/',FindClientNewVersionApi.as_view()),
+    path('api/v3/find_client/',FindClientApiView.as_view()),
 ])),
 
 

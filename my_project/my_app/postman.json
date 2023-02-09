@@ -1,11 +1,11 @@
-{
-	"InterestCondition": "AND",
-	"InterestName": [
-		"Ring",
-		"Diamond"
-	],
+{   "InterestJunctionFilters":{
+		"InterestCondition": "AND",
+		"InterestName": [
+			"Ring",
+			"Diamond"
+		]},
+	"FiltersCondition": "OR",
 	"AccountFilters": {
-		"AccountFiltersCondition": "OR",
 		
 		"CategoryOfInterestFieldName": "Account.CategoryOfInterest",
 		"CategoryOfInterestFieldValue": [
@@ -62,7 +62,7 @@
 		"StageNameFieldValue": "Closed Won",
 		"StageNameFilterLogic": "Equal/ Not Equal",
 
-		"BillingCityFieldName": "BillingCity",
+		"BillingCityFieldName": "Billing_City",
 		"BillingCityFieldValue": "New York",
 		"BillingCityFilterLogic": "Includes/Exclude/Equal/ Not Equal",
 

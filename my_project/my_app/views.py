@@ -1369,7 +1369,8 @@ class ClientFind(APIView):
             
 def handle_filter(field_name, filter_logic, field_value):
     if filter_logic == 'Includes':
-        return Q('terms', **{field_name: field_value})
+        # return Q("terms", field=field_name, value=field_value)
+        return Q('bool', filter=[Q('terms', **{field_name: field_value})])
     elif filter_logic == 'Exclude':
         return Q('bool', must_not=[Q('terms',**{field_name: field_value})])
     elif filter_logic == 'Equal':
@@ -1381,7 +1382,7 @@ def handle_filter(field_name, filter_logic, field_value):
     elif filter_logic == 'Lesser than':
         return Q('bool', filter=[Q('range',**{field_name: {'lte': field_value, 'format':'dd-mm-yy'}})])
     else:
-        return Q('term',**{field_name:"NULL"})
+        return Q()
 
 def handle_filter_term(field_name, filter_logic, field_value):
     if filter_logic == 'Includes':
@@ -1402,7 +1403,7 @@ def handle_filter_term(field_name, filter_logic, field_value):
     elif filter_logic == 'Lesser than':
         return Q('bool', filter=[Q('range',**{field_name: {'lte': field_value, 'format':'dd-mm-yy'}})])
     else:
-        return Q('term',**{field_name:"NULL"})            
+        return Q()            
         
 class FindClientNewVersionApi(APIView):
     def get (self,request):
@@ -1412,11 +1413,11 @@ class FindClientNewVersionApi(APIView):
         
     def post(self,request):
         getaccountid=[]
-        interestcondition=request.data.get('InterestCondition')
-        interestname=request.data.get('InterestName')
-        accountfilters=request.data.get('AccountFilters')
-        interestfilters=request.data.get('InterestFilters')
-        opportunityfilters=request.data.get('OpportunityFilters')
+        interestcondition=request.data.get('InterestCondition',None)
+        interestname=request.data.get('InterestName',None)
+        accountfilters=request.data.get('AccountFilters',None)
+        interestfilters=request.data.get('InterestFilters',None)
+        opportunityfilters=request.data.get('OpportunityFilters',None)
 
         queries = [
         handle_filter(accountfilters['CategoryOfInterestFieldName'], accountfilters['CategoryOfInterestFilterLogic'], accountfilters['CategoryOfInterestFieldValue']),
@@ -1440,24 +1441,34 @@ class FindClientNewVersionApi(APIView):
         ]
         if interestcondition == 'AND':
             final_query0=Q('terms', **{'InterestName': interestname})
-        else:
+        elif interestcondition == 'OR':
             final_query0=Q('terms', **{'InterestName': interestname})    
+        else:
+            final_query0=Q()    
         if accountfilters['AccountFiltersCondition'] == 'AND':
             final_query = reduce(and_, queries)
-        else:
+        elif accountfilters['AccountFiltersCondition'] =='OR':
             final_query=reduce(or_,queries)    
+        else:
+            final_query=Q()    
         if accountfilters['EmailCondition'] == 'AND':
             final_query2=reduce(and_,queries2)
-        else:
+        elif accountfilters['EmailCondition'] == 'OR':
             final_query2=reduce(or_,queries2)
+        else:
+            final_query2=Q()    
         if interestfilters['InterestFilterCondition'] == 'AND':
             final_query3=reduce(and_,queries3)
-        else:
+        elif interestfilters['InterestFilterCondition'] =='OR':    
             final_query3=reduce(or_,queries3)
+        else:
+            final_query3=Q()    
         if opportunityfilters['OpportunityFilterCondition'] == 'AND':
             final_query4=reduce(and_,queries4)        
+        elif opportunityfilters['OpportunityFilterCondition'] =='OR':
+            final_query4=reduce(or_,queries4)   
         else:
-            final_query4=reduce(or_,queries4)    
+            final_query4=Q()     
         opportunity_search=OpportunityDocument.search().query(final_query4)
         serial=OpportunitySerializersPost(opportunity_search,many=True)
         for x in serial.data:
@@ -1466,7 +1477,73 @@ class FindClientNewVersionApi(APIView):
            getaccount=(dictaccount['Accountid'])
            getaccountid.append(str(getaccount))        
         opportunity_query=Q('terms' ,**{'Account.Accountid':getaccountid})
-        result_query=(final_query0&final_query&final_query2&final_query3) |(final_query0)|(final_query)|(final_query2)|(final_query3)|(opportunity_query)
+        result_query=(final_query0&final_query&final_query2&final_query3) |final_query0|final_query|final_query2|final_query3
         search=Interest_Junction_cDocument.search().query(result_query)
         serializer=InterestJunctionFindClientSerializers(search,many=True)
         return Response(serializer.data)
+    
+
+class FindClientApiView(APIView):
+    def get (self,request):
+        interestjunction=Interest_Junction_c.objects.all()
+        serializers=InterestJunctionFindClientSerializers(interestjunction,many=True)
+        return Response(serializers.data)
+    
+    def post(self,request):
+        conditions=[]
+        filters=request.data.get('filters')
+        filterdata=filter_data(filters,'0')
+        print(filterdata)
+        # search=Interest_Junction_cDocument.search().query()
+        serializer=InterestJunctionFindClientSerializers(filterdata,many=True)
+        return Response(serializer.data)
+    
+
+    
+# interestjunction_query=Q('terms', **{'InterestName': interestname})
+from elasticsearch_dsl import Search, Q
+
+def filter_data(filters, formula):
+    search = Search()
+    query_list = []
+    for i, filter in enumerate(filters):
+        for key in filter:
+            field_name = filter[key]['fieldName']
+            logic = filter[key]['logic']
+            print(logic)
+            values = filter[key]['value']
+
+            if logic == 'Equal':
+                query = Q('terms', **{field_name: values})
+            elif logic == 'NotEqual':
+                query = ~Q('terms', **{field_name: values})
+            elif logic == 'Contains':
+                query = Q('match', **{field_name: values[0]})
+            query_list.append((i, query))
+
+    final_query = build_query(query_list, formula)
+    search = Interest_Junction_cDocument.search().query(final_query)
+    return search
+
+def build_query(query_list, formula):
+    stack = []
+    for c in formula:
+        if c == ')':
+            temp = []
+            while stack[-1] != '(':
+                temp.append(stack.pop())
+            stack.pop()
+
+            if len(temp) == 1:
+                stack.append(temp[0])
+            else:
+                q = Q('bool', should=temp[::-1])
+                stack.append(q)
+        elif c == '(':
+            stack.append(c)
+        else:
+            i = int(c)
+            q = query_list[i][1]
+            stack.append(q)
+
+    return stack[0]
