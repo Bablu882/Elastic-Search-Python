@@ -68,6 +68,7 @@ class Interest_Junction_c(models.Model):
     InterestNameJunction=models.CharField(max_length=100,null=False,blank=False)
     InterestName=models.CharField(max_length=100,null=False,blank=False)
     InterestJunctionID=models.CharField(primary_key=True,max_length=100)
+    InterestType=models.CharField(max_length=100,null=True,blank=True)
     choices_with=(
         ('Account','Account'),
         ('Product','Product')
