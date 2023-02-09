@@ -1492,7 +1492,9 @@ class FindClientApiView(APIView):
     def post(self,request):
         conditions=[]
         filters=request.data.get('filters')
-        filterdata=filter_data(filters,'0')
+        formula=request.data.get('formula')
+        print(formula)
+        filterdata=filter_data(filters,formula)
         print(filterdata)
         # search=Interest_Junction_cDocument.search().query()
         serializer=InterestJunctionFindClientSerializers(filterdata,many=True)
@@ -1527,6 +1529,7 @@ def filter_data(filters, formula):
 
 def build_query(query_list, formula):
     stack = []
+    formula = formula.split()
     for c in formula:
         if c == ')':
             temp = []
@@ -1537,13 +1540,16 @@ def build_query(query_list, formula):
             if len(temp) == 1:
                 stack.append(temp[0])
             else:
-                q = Q('bool', should=temp[::-1])
+                q = Q('bool', should=temp[::-1]) if stack[-1] == 'OR' else Q('bool', must=temp[::-1])
+                stack.pop()
                 stack.append(q)
         elif c == '(':
             stack.append(c)
-        else:
+        elif c.isdigit():
             i = int(c)
             q = query_list[i][1]
             stack.append(q)
+        else:
+            stack.append(c)
 
     return stack[0]
