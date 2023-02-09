@@ -6,7 +6,7 @@ class Account(models.Model):
     Accountid=models.CharField(primary_key=True,max_length=100)
     AccountName=models.CharField(max_length=100,null=False,blank=False)
     State=models.CharField(max_length=100,null=False,blank=False)
-    LastPurchasedDtae=models.CharField(max_length=50,null=False,blank=False)
+    LastPurchasedDate=models.CharField(max_length=50,null=False,blank=False)
     TotalPurchase=models.CharField(max_length=100,null=False,blank=False)
     choices_opt=(
         ('OptIn','OptIn'),
@@ -17,7 +17,7 @@ class Account(models.Model):
     PeriodOfInterest=models.CharField(max_length=100,null=False,blank=False)
     TypeOfInterest=models.CharField(max_length=100,null=False,blank=False)
     YoungerAudience=models.CharField(max_length=100,null=False,blank=False)
-    Star5=models.IntegerField()
+    Star5=models.CharField(max_length=100,null=True,blank=True)
     AccountLastPurchaseDate=models.CharField(max_length=50,null=False,blank=False)
     HolidayCelebrated=models.CharField(max_length=100,null=False,blank=False)
     Email=models.EmailField()
