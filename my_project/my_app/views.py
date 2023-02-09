@@ -1527,7 +1527,50 @@ def filter_data(filters, formula):
     search = Interest_Junction_cDocument.search().query(final_query)
     return search
 
+
+
 def build_query(query_list, formula):
+    stack = []
+    for c in formula:
+        if c == ')':
+            temp = []
+            while stack[-1] != '(':
+                temp.append(stack.pop())
+            stack.pop()
+
+            if len(temp) == 1:
+                stack.append(temp[0])
+            else:
+                q = Q('bool', should=temp[::-1])
+                stack.append(q)
+        elif c == '(':
+            stack.append(c)
+        elif c == ' ':
+            continue
+        elif c == 'A':
+            stack.append("and")
+        elif c == 'O':
+            stack.append("or")
+        else:
+            i = int(c)
+            q = query_list[i][1]
+            stack.append(q)
+
+    final_stack = []
+    for item in stack:
+        if item == "and":
+            final_stack[-2:] = [Q("bool", must=[final_stack[-2], final_stack[-1]])]
+        elif item == "or":
+            final_stack[-2:] = [Q("bool", should=[final_stack[-2], final_stack[-1]])]
+        else:
+            final_stack.append(item)
+
+    return final_stack[0]
+
+
+
+
+def buildold_query(query_list, formula):
     stack = []
     formula = formula.split()
     for c in formula:
