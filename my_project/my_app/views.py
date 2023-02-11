@@ -12,7 +12,7 @@ from rest_framework import status
 import json
 from functools import reduce
 from operator import and_ ,or_      
-
+from elasticsearch import Elasticsearch
 
 # Testing
 def test(request):
@@ -1384,6 +1384,23 @@ def handle_filter(field_name, filter_logic, field_value):
     else:
         return Q()
 
+def handle_filter_array(field_name, filter_logic, field_value):
+    if filter_logic == 'Includes':
+        # return Q("terms", field=field_name, value=field_value)
+        return Q('bool', filter=[Q('terms', **{field_name: field_value})])
+    elif filter_logic == 'Exclude':
+        return Q('bool', must_not=[Q('terms',**{field_name: field_value})])
+    elif filter_logic == 'Equal':
+        return Q('terms',**{field_name:field_value})
+    elif filter_logic == 'Not Equal':
+        return Q('bool', must_not=[Q('terms',**{field_name: field_value})])
+    elif filter_logic == 'Greater than':
+        return Q('bool', filter=[Q('range',**{field_name: {'gte': field_value, 'format':'dd-mm-yy'}})])
+    elif filter_logic == 'Lesser than':
+        return Q('bool', filter=[Q('range',**{field_name: {'lte': field_value, 'format':'dd-mm-yy'}})])
+    else:
+        return Q()    
+
 def handle_filter_term(field_name, filter_logic, field_value):
     if filter_logic == 'Includes':
         return Q(
@@ -1395,7 +1412,7 @@ def handle_filter_term(field_name, filter_logic, field_value):
     elif filter_logic == 'Exclude':
         return Q('bool', must_not=[Q('terms',**{field_name: field_value})])
     elif filter_logic == 'Equal':
-        return Q('multi_match', query=field_value, fields=[field_name])
+        return Q('multi_match', query=field_value, fields=[field_name],type='phrase')
     elif filter_logic == 'Not Equal':
         return Q('bool', must_not=[Q('term',**{field_name: field_value})])
     elif filter_logic == 'Greater than':
@@ -1481,7 +1498,154 @@ class FindClientNewVersionApi(APIView):
         search=Interest_Junction_cDocument.search().query(result_query)
         serializer=InterestJunctionFindClientSerializers(search,many=True)
         return Response(serializer.data)
+
+
+
+class FindClientNew(APIView):
+    def get (self,request):
+        interestjunction=Interest_Junction_c.objects.all()
+        serializers=InterestJunctionFindClientSerializers(interestjunction,many=True)
+        return Response(serializers.data)
     
+    def post(self,request):
+        account_array=[]
+        interest_array=[]
+        junction_array=[]
+        opportunity_array=[]
+        get_account_id=[]
+        formula=request.data.get('Formula')
+        data=request.data.get('Filters')
+        for dicts in data:
+            fields=(dicts['Field'])
+            fieldname=fields['FieldName']
+            fieldvalue=fields['Value']
+            fieldlogic=fields['Logic']
+            if fieldname == 'InterestName':
+                query1=Q('terms',**{fieldname:fieldvalue})
+                junction_array.append(query1)
+                interest_array.append(query1)
+            elif fieldname == 'CategoryOfInterest':
+                query2=handle_filter_array(fieldname,fieldlogic,fieldvalue)
+                account_array.append(query2)
+            elif fieldname == 'HolidayCelebrated':
+                query3=handle_filter_term(fieldname,fieldlogic,fieldvalue)
+                account_array.append(query3)
+            elif fieldname == 'YoungerAudience':
+                query4=handle_filter_term(fieldname,fieldlogic,fieldvalue)    
+                account_array.append(query4)
+            elif fieldname == 'LastPurchaseDate':
+                query5=handle_filter_term(fieldname,fieldlogic,fieldvalue)    
+                account_array.append(query5)
+            elif fieldname == 'Email':
+                query6=handle_filter_term(fieldname,fieldlogic,fieldvalue)
+                account_array.append(query6)    
+            elif fieldname == 'ShippingCity':
+                query7=handle_filter_term(fieldname,fieldlogic,fieldvalue)    
+                account_array.append(query7)
+            elif fieldname == 'StageName':
+                query8=handle_filter_term(fieldname,fieldlogic,fieldvalue)    
+                opportunity_array.append(query8)
+            elif fieldname == 'Billing_City':
+                query9=handle_filter_term(fieldname,fieldlogic,fieldvalue)    
+                opportunity_array.append(query9)
+            elif fieldname == 'AvarageitemSold':
+                query10=handle_filter_term(fieldname,fieldlogic,fieldvalue)    
+                opportunity_array.append(query10)
+            elif fieldname == 'InterestType':
+                query11=handle_filter_term(fieldname,fieldlogic,fieldvalue)
+                interest_array.append(query11)    
+            else:
+                query12=Q()
+        # acc=(", ".join(account_array))
+        # print('hello',acc)       
+        account_query_must=Q('bool',must=account_array)
+        account_query_should=Q('bool',should=account_array)
+        junction_query_should=Q('bool',must=junction_array)
+        interest_query_should=Q('bool',should=interest_array)
+        interest_query_must=Q('bool',must=interest_array)
+        opportunity_query_should=Q('bool',should=opportunity_array)
+        opportunity_query_must=Q('bool',must=opportunity_array)
+        logic=get_tokens(formula)
+        if logic[3] == 'OR':
+            final_qery1=account_query_should
+        elif logic[3] =='AND':
+            final_qery1=account_query_must 
+            # print('HELLO----',final_qery1)  
+        # qz=Q('terms',**{'CategoryOfInterest':['diamond']})    
+        search1=AccountDocument.search().query(final_qery1)
+        serializers1=AccountSerializers(search1,many=True)
+        for x in serializers1.data:
+           od2 = json.loads(json.dumps(x))
+           getaccount=(od2['Accountid'])
+           get_account_id.append(str(getaccount))
+
+        if logic[3] == 'OR':
+            final_qery2=interest_query_should
+        else:
+            final_qery2=interest_query_must
+        search2=Interest_Junction_cDocument.search().query(final_qery2)
+        serializers2=InterestJunctionFindClientSerializers(search2,many=True)
+        for z in serializers2.data:
+           od2 = json.loads(json.dumps(z))
+           dictaccount=(od2['Account'])
+           getaccount=(dictaccount['Accountid'])
+        #    get_account_id.append(str(getaccount))
+   
+
+        if logic[3] == 'AND':
+            final_qery3=opportunity_query_must
+            print(final_qery3)
+        else:
+            final_qery3=opportunity_query_should 
+
+        search3=OpportunityDocument.search().query(final_qery3)
+        serializers3=OpportunitySerializersPost(search3,many=True)
+        for y in serializers3.data:
+           print(y)
+           od2 = json.loads(json.dumps(y))
+           dictaccount=(od2['AccountId'])
+           getaccount=(dictaccount['Accountid'])
+        #    get_account_id.append(str(getaccount))
+        # print('get_account------',get_account_id)   
+        account_id_query=Q('terms',**{'Account.Accountid':get_account_id})
+        # print('query',account_id_query)
+        if logic[1] == 'AND':
+            result_query=junction_query_should&account_id_query
+            # print('result',result_query)
+        else:
+            result_query=junction_query_should|account_id_query      
+        
+        q1=Q('terms',**{'Account.CategoryOfInterest':['diamond']})
+        # q2=Q('terms',**{"InterestName":['ring']})
+        search=Interest_Junction_cDocument.search().query(result_query)
+        serializers=InterestJunctionFindClientSerializers(search,many=True)
+        return Response(serializers.data)
+
+
+
+def get_tokens(expression):
+    tokens = []
+    current_token = ""
+    for char in expression:
+        if char in [" ", "AND", "OR", "(", ")"]:
+            if current_token:
+                tokens.append(current_token)
+                current_token = ""
+            if char in ["AND", "OR", "(", ")"]:
+                tokens.append(char)
+        else:
+            current_token += char
+    if current_token:
+        tokens.append(current_token)
+    return tokens
+
+print(get_tokens("0 AND 1 OR 2"))
+
+
+
+from django.http import JsonResponse
+from elasticsearch_dsl import Q
+from elasticsearch_dsl.connections import connections
 
 class FindClientApiView(APIView):
     def get (self,request):
@@ -1493,84 +1657,18 @@ class FindClientApiView(APIView):
         conditions=[]
         filters=request.data.get('filters')
         formula=request.data.get('formula')
-        print(formula)
+        # print(formula)
         filterdata=filter_data(filters,formula)
-        print(filterdata)
+        
+        # print(filterdata)
         # search=Interest_Junction_cDocument.search().query()
         serializer=InterestJunctionFindClientSerializers(filterdata,many=True)
         return Response(serializer.data)
-    
 
-    
-# interestjunction_query=Q('terms', **{'InterestName': interestname})
-from elasticsearch_dsl import Search, Q
-
-def filter_data(filters, formula):
-    search = Search()
-    query_list = []
-    for i, filter in enumerate(filters):
-        for key in filter:
-            field_name = filter[key]['fieldName']
-            logic = filter[key]['logic']
-            print(logic)
-            values = filter[key]['value']
-
-            if logic == 'Equal':
-                query = Q('terms', **{field_name: values})
-            elif logic == 'NotEqual':
-                query = ~Q('terms', **{field_name: values})
-            elif logic == 'Contains':
-                query = Q('match', **{field_name: values[0]})
-            query_list.append((i, query))
-
-    final_query = build_query(query_list, formula)
-    search = Interest_Junction_cDocument.search().query(final_query)
-    return search
 
 
 
 def build_query(query_list, formula):
-    stack = []
-    for c in formula:
-        if c == ')':
-            temp = []
-            while stack[-1] != '(':
-                temp.append(stack.pop())
-            stack.pop()
-
-            if len(temp) == 1:
-                stack.append(temp[0])
-            else:
-                q = Q('bool', should=temp[::-1])
-                stack.append(q)
-        elif c == '(':
-            stack.append(c)
-        elif c == ' ':
-            continue
-        elif c == 'A':
-            stack.append("and")
-        elif c == 'O':
-            stack.append("or")
-        else:
-            i = int(c)
-            q = query_list[i][1]
-            stack.append(q)
-
-    final_stack = []
-    for item in stack:
-        if item == "and":
-            final_stack[-2:] = [Q("bool", must=[final_stack[-2], final_stack[-1]])]
-        elif item == "or":
-            final_stack[-2:] = [Q("bool", should=[final_stack[-2], final_stack[-1]])]
-        else:
-            final_stack.append(item)
-
-    return final_stack[0]
-
-
-
-
-def buildold_query(query_list, formula):
     stack = []
     formula = formula.split()
     for c in formula:
@@ -1594,5 +1692,457 @@ def buildold_query(query_list, formula):
             stack.append(q)
         else:
             stack.append(c)
+    # print(stack)        
+    return stack
+
+
+from elasticsearch_dsl import Search, Q
+
+def filter_data(filters, formula):
+    search = Search()
+    query_list = []
+    for i, filter in enumerate(filters):
+        for key in filter:
+            field_name = filter[key]['fieldName']
+            logic = filter[key]['logic']
+            values = filter[key]['value']
+
+            if logic == 'Equal':
+                query = Q('terms', **{field_name: values})
+            elif logic == 'NotEqual':
+                query = ~Q('terms', **{field_name: values})
+            elif logic == 'Contains':
+                query = Q('match', **{field_name: values[0]})
+            query_list.append((i, query))
+
+    final_query = build_query(query_list, formula)
+    print(final_query)
+    # query1=final_query[0]
+    # query2=final_query[2]
+    # query3=final_query[4]
+    # query_result=query1&(query2|query3)
+    # print(query1,query2)
+    convert=convert_query(final_query)
+    search = Interest_Junction_cDocument.search().query(convert)
+    return search
+
+# def convert_stack_to_es_query(stack):
+#     query = Q()
+#     for item in stack:
+#         if isinstance(item, dict):
+#             if 'InterestName' in item:
+#                 query &= Q('terms', InterestName=item['InterestName'])
+#             elif 'CategoryOfInterest' in item:
+#                 query |= Q('terms', CategoryOfInterest=item['CategoryOfInterest'])
+#             elif 'TypeOfInterest' in item:
+#                 query |= Q('terms', TypeOfInterest=item['TypeOfInterest'])
+#         elif item == 'AND':
+#             query &= Q()
+#         elif item == 'OR':
+#             query |= Q()
+#     return query
+
+
+from elasticsearch_dsl import Q
+
+def convert_query(query):
+    def get_terms_query(field, values):
+        return Q('terms', **{field: values})
+
+    def build_query(q1, operator, q2):
+        if operator == 'AND':
+            return Q('bool', must=[q1, q2])
+        elif operator == 'OR':
+            return Q('bool', should=[q1, q2])
+
+    queries = []
+    operators = []
+    for item in query:
+        if isinstance(item, tuple) and item[0] == 'Terms':
+            queries.append(get_terms_query(item[1][0], item[1][1]))
+        else:
+            operators.append(item)
+
+    while len(queries) > 1:
+        q1 = queries.pop(0)
+        operator = operators.pop(0)
+        q2 = queries.pop(0)
+        queries.insert(0, build_query(q1, operator, q2))
+    # print(queries) 
+    return queries
+
+
+
+
+# query = [Terms(InterestName=['ring', 'abc']), 'AND', Terms(Account__CategoryOfInterest=['Clock', 'ring']), 'OR', Terms(Account__HolidayCelebrated=['chrismas'])]
+# dsl_query = convert_query(query)
+
+
+# from elasticsearch_dsl import Search, Q
+
+# def convert_query_to_es_dsl(query):
+#     # Initialize a search object
+#     search = Search()
+
+#     # Iterate through the query elements
+#     for element in query:
+#         # Check if the element is a Terms object
+#         if isinstance(element, dict) and 'Terms' in element:
+#             search = search.filter('terms', **element['Terms'])
+
+#         # Check if the element is the 'AND' operator
+#         elif element == 'AND':
+#             search = search.query('bool', must=[search.to_dict()])
+
+#         # Check if the element is the 'OR' operator
+#         elif element == 'OR':
+#             search = Interest_Junction_cDocument.search().query('bool', should=[search.to_dict()])
+
+#     return search
+
+
+# def build_query(query_list, formula):
+#     stack = []
+#     for c in formula:
+#         if c == ')':
+#             temp = []
+#             while stack[-1] != '(':
+#                 temp.append(stack.pop())
+#             stack.pop()
+
+#             if len(temp) == 1:
+#                 stack.append(temp[0])
+#             else:
+#                 q = Q('bool', should=temp[::-1]) if 'OR' in temp else Q('bool', must=temp[::-1])
+#                 stack.append(q)
+#         elif c == '(':
+#             stack.append(c)
+#         elif c == ' ':
+#             continue
+#         elif c == 'A':
+#             stack.append("AND")
+#         elif c == 'O':
+#             stack.append("OR")
+#         else:
+#             pass
+#             # i = int(c)
+#             # q = query_list[i][1]
+#             # stack.append(q)
+#     print(stack)    
 
     return stack[0]
+
+
+
+
+# class FindClientApiView(APIView):
+#     def get (self,request):
+#         interestjunction=Interest_Junction_c.objects.all()
+#         serializers=InterestJunctionFindClientSerializers(interestjunction,many=True)
+#         return Response(serializers.data)
+
+#     def post(self,request):
+#     # if request.method == 'POST':
+#         data = request.data
+
+#         filters = data.get('filters')
+#         formula = data.get('formula')
+
+#         client = connections.get_connection()
+
+#         query = Q()
+#         filter_queries = []
+
+#         for index, filter in enumerate(filters):
+#             for key, value in filter.items():
+#                 if key == 'Junction':
+#                     field_name = value.get('fieldName')
+#                     logic = value.get('logic')
+#                     values = value.get('value')
+#                     if logic == 'Equal':
+#                         filter_queries.append(Q("terms", **{field_name: values}))
+#                 if key == 'Account':
+#                     field_name = value.get('fieldName')
+#                     logic = value.get('logic')
+#                     values = value.get('value')
+#                     if logic == 'Equal':
+#                         filter_queries.append(Q("terms", **{field_name: values}))
+
+#         for filter_query in filter_queries:
+#             if 'OR' in formula:
+#                 query |= filter_query
+#             else:
+#                 query &= filter_query
+#         print(query)
+#         result = client.search(
+#             index='interest_junction_cs',
+#             body={
+#                 'query': query.to_dict()
+#             }
+#         )
+#         return JsonResponse(result, status=200, safe=False)
+    
+
+
+
+
+    # return JsonResponse({'error': 'Only POST method allowed'}, status=400)
+
+    # def post(self,request):
+    #     conditions=[]
+    #     filters=request.data.get('filters')
+    #     formula=request.data.get('formula')
+    #     # print(formula)
+    #     filterdata=apply_filters(filters,formula)
+    #     # print(filterdata)
+    #     return Response(filterdata)
+    
+
+# from elasticsearch_dsl import Q
+
+# def apply_filters(filters, formula):
+#     client = Elasticsearch(["http://localhost:9200"])
+
+#     formula = formula.replace("AND", "&").replace("OR", "|").replace("(", "").replace(")", "")
+#     formula_list = [int(x) for x in formula.split(" ") if x.isdigit()]
+
+#     queries = []
+#     for i, filter_dict in enumerate(filters):
+#         for filter_type, filter_obj in filter_dict.items():
+#             field_name = filter_obj["fieldName"]
+#             logic = filter_obj["logic"]
+#             value = filter_obj["value"]
+#             if filter_type == "Junction":
+#                 query = Q("terms", **{field_name: value})
+#             elif filter_type == "Account":
+#                 if logic == "Equal":
+#                     query = Q("term", **{field_name: value[0]})
+#                 elif logic == "NotEqual":
+#                     query = ~Q("term", **{field_name: value[0]})
+#                 else:
+#                     raise ValueError(f"Invalid logic: {logic}")
+#             else:
+#                 raise ValueError(f"Invalid filter type: {filter_type}")
+#             queries.append(query)
+
+#     final_query = Q("bool", must=[queries[formula_list[0]]])
+#     for i in range(1, len(formula_list)):
+#     if "(" in formula:
+#         start = formula.index("(")
+#         end = formula.index(")")
+#         sub_formula = formula[start + 1:end].strip()
+#         sub_formula_list = [int(x) for x in sub_formula.split(" ") if x.isdigit()]
+#         sub_final_query = Q("bool", should=[queries[sub_formula_list[0]]])
+#         for j in range(1, len(sub_formula_list)):
+#             if "&" in sub_formula:
+#                 sub_final_query &= queries[sub_formula_list[j]]
+#             elif "|" in sub_formula:
+#                 sub_final_query |= queries[sub_formula_list[j]]
+#             else:
+#                 raise ValueError("Invalid formula")
+#         final_query &= sub_final_query
+#     else:
+#         if "&" in formula:
+#             final_query &= queries[formula_list[i]]
+#         elif "|" in formula:
+#             final_query |= queries[formula_list[i]]
+#         else:
+#             raise ValueError("Invalid formula")
+#     print(final_query)
+#     results = client.search(index="interest_junction_cs", body={"query": final_query.to_dict()})
+
+#     return results["hits"]["hits"]
+# from .models import *
+# from django.db.models import Q
+
+# class FindClientV(APIView):
+#     def get (self,request):
+#         interestjunction=Interest_Junction_c.objects.all()
+#         serializers=InterestJunctionFindClientSerializers(interestjunction,many=True)
+#         return Response(serializers.data)
+    
+#     def post(self,request):
+#         data=request.data.get('filters')
+#         data2=request.data
+#         for dicts in data:
+#             account=(dicts.get('Account'))
+#             junction=(dicts.get('Junction'))
+#             print(account.get())
+    
+#         serializers = InterestJunctionFindClientSerializers( many=True)
+
+#         return Response(serializers.data)
+    
+
+# # from django.db.models import Q
+
+# # def filter_records(filters, formula):
+# #     query = Q()
+# #     formula = formula.replace('AND', '&').replace('OR', '|')
+# #     for i, filter in enumerate(filters):
+# #         filter_query = Q()
+# #         for key, value in filter.items():
+# #             if key == 'Junction':
+# #                 field_name = value['fieldName']
+# #                 logic = value.get('logic', 'Equal')
+# #                 if logic == 'Equal':
+# #                     filter_query &= Q(**{f'junction__{field_name}': value['value']})
+# #                 elif logic == 'NotEqual':
+# #                     filter_query &= ~Q(**{f'junction__{field_name}': value['value']})
+# #             elif key == 'Account':
+# #                 field_name = value['fieldName']
+# #                 logic = value.get('logic', 'Equal')
+# #                 if logic == 'Equal':
+# #                     filter_query &= Q(**{f'junction__account__{field_name}': value['value']})
+# #                 elif logic == 'NotEqual':
+# #                     filter_query &= ~Q(**{f'junction__account__{field_name}': value['value']})
+# #         formula = formula.replace(f'{i}', f'filter_query')
+# #     query = eval(formula)
+# #     return Interest_Junction_c.objects.filter(query)
+# from django.db.models import Q
+# from my_app.models import  Interest_Junction_c
+# def search_by_json(json_query):
+#     filters = json_query.get('filters', [])
+#     formula = json_query.get('formula', '')
+#     query = Q()
+#     print(Interest_Junction_c)
+#     for index, f in enumerate(filters):
+#         for key, value in f.items():
+#             field_name = value['fieldName']
+#             logic = value['logic']
+#             field_value = value['value']
+#             kwargs = {
+#                 f'{field_name}__{logic.lower()}': field_value
+#             }
+
+#             if key == 'Junction':
+#                 query &= Q(interest_junction_c__**kwargs)
+#             elif key == 'Account':
+#                 query &= Q(interest_junction_c__account__**kwargs)
+
+#     result = Interest_Junction_c.objects.filter(query)
+
+#     return result
+
+
+# # results= Interest_Junction_c.objects.filter(
+# #            Q(InterestName="ring", InterestType="abc") &
+# #                 (
+# #                     Q(Interest__InterestType="Not Interested", Interest__InterestName="ring") |
+# #                     (
+# #                         Q(account__CategoryOfInterest__contains="Clock") &
+# #                         Q(account__YoungerAudience="younger") &
+# #                         Q(account__LastPurchasedDate='12-12-2020') &
+# #                         Q(account__HolidayCelebrated="chrismas") &
+# #                         (
+# #                             Q(account__Email__icontains='test@123.com') &
+# #                             Q(account__ShippingCity__contains="New York")
+# #                         )
+# #                     )
+# #                 )
+# #             ).select_related('Interest', 'Account')
+
+
+
+# #         jsonq= search_by_json(data2) 
+
+# def filter_data(filters, formula):
+#     search = Search()
+#     query_list = []
+#     for i, filter in enumerate(filters):
+#         for key in filter:
+#             field_name = filter[key]['fieldName']
+#             logic = filter[key]['logic']
+            
+#             values = filter[key]['value']
+
+#             if logic == 'Equal':
+#                 query = Q('terms', **{field_name: values})
+#             elif logic == 'NotEqual':
+#                 query = ~Q('terms', **{field_name: values})
+#             elif logic == 'Contains':
+#                 query = Q('match', **{field_name: values[0]})
+#             query_list.append((i, query))
+
+#     final_query = build_query(query_list, formula)
+#     search = Interest_Junction_cDocument.search().query(final_query)
+#     return search
+
+
+
+# # def build_query(query_list, formula):
+# #     stack = []
+# #     for c in formula:
+# #         if c == ')':
+# #             temp = []
+# #             while stack[-1] != '(':
+# #                 temp.append(stack.pop())
+# #             stack.pop()
+
+# #             if len(temp) == 1:
+# #                 stack.append(temp[0])
+# #             else:
+# #                 q = Q('bool', should=temp[::-1])
+# #                 stack.append(q)
+# #         elif c == '(':
+# #             stack.append(c)
+# #         elif c == ' ':
+# #             continue
+# #         elif c == 'A':
+# #             stack.append("and")
+# #         elif c == 'O':
+# #             stack.append("or")
+# #         else:
+# #             i = int(c)
+# #             q = query_list[i][1]
+# #             stack.append(q)
+
+# #     final_stack = []
+# #     for item in stack:
+# #         if item == "and":
+# #             final_stack[-2:] = [Q("bool", must=[final_stack[-2], final_stack[-1]])]
+# #         elif item == "or":
+# #             final_stack[-2:] = [Q("bool", should=[final_stack[-2], final_stack[-1]])]
+# #         else:
+# #             final_stack.append(item)
+
+# #     return final_stack[0]
+
+# def build_query(query_list, formula):
+#     stack = []
+#     for c in formula:
+#         if c == ')':
+#             temp = []
+#             while stack[-1] != '(':
+#                 temp.append(stack.pop())
+#             stack.pop()
+
+#             if len(temp) == 1:
+#                 stack.append(temp[0])
+#             else:
+#                 q = Q('bool', should=temp[::-1])
+#                 stack.append(q)
+#         elif c == '(':
+#             stack.append(c)
+#         elif c == ' ':
+#             continue
+#         elif c == 'A':
+#             stack.append("and")
+#         elif c == 'O':
+#             stack.append("or")
+#         else:
+#             if c.isdigit():
+#                 i = int(c)
+#                 q = query_list[i][1]
+#                 stack.append(q)
+
+#     final_stack = []
+#     for item in stack:
+#         if item == "and":
+#             final_stack[-2:] = [Q("bool", must=[final_stack[-2], final_stack[-1]])]
+#         elif item == "or":
+#             final_stack[-2:] = [Q("bool", should=[final_stack[-2], final_stack[-1]])]
+#         else:
+#             final_stack.append(item)
+
+#     return final_stack[0]
