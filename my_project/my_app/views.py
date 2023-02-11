@@ -1566,10 +1566,15 @@ class FindClientNew(APIView):
         opportunity_query_should=Q('bool',should=opportunity_array)
         opportunity_query_must=Q('bool',must=opportunity_array)
         logic=get_tokens(formula)
-        if logic[3] == 'OR':
-            final_qery1=account_query_should
-        elif logic[3] =='AND':
-            final_qery1=account_query_must 
+        if len(logic) == 3:
+            final_qery1=account_query_must
+        else:
+            if logic[3] == 'OR':
+                final_qery1=account_query_should
+            elif logic[3] =='AND':
+                final_qery1=account_query_must 
+            else:
+                final_qery1=account_query_must    
             # print('HELLO----',final_qery1)  
         # qz=Q('terms',**{'CategoryOfInterest':['diamond']})    
         search1=AccountDocument.search().query(final_qery1)
@@ -1578,11 +1583,16 @@ class FindClientNew(APIView):
            od2 = json.loads(json.dumps(x))
            getaccount=(od2['Accountid'])
            get_account_id.append(str(getaccount))
-
-        if logic[3] == 'OR':
-            final_qery2=interest_query_should
-        else:
+        if len(logic) ==3:
             final_qery2=interest_query_must
+        else:    
+            if logic[3] == 'OR':
+                final_qery2=interest_query_should
+            elif not logic[3]:
+                final_qery2=interest_query_must    
+            else:
+                final_qery2=interest_query_must
+
         search2=Interest_Junction_cDocument.search().query(final_qery2)
         serializers2=InterestJunctionFindClientSerializers(search2,many=True)
         for z in serializers2.data:
@@ -1591,12 +1601,15 @@ class FindClientNew(APIView):
            getaccount=(dictaccount['Accountid'])
         #    get_account_id.append(str(getaccount))
    
-
-        if logic[3] == 'AND':
+        if len(logic)==3:
             final_qery3=opportunity_query_must
-            print(final_qery3)
-        else:
-            final_qery3=opportunity_query_should 
+        else:    
+            if logic[3] == 'AND':
+                final_qery3=opportunity_query_must
+            if not logic[3]:
+                final_qery3=opportunity_query_must    
+            else:
+                final_qery3=opportunity_query_should 
 
         search3=OpportunityDocument.search().query(final_qery3)
         serializers3=OpportunitySerializersPost(search3,many=True)
