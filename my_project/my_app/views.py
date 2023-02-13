@@ -1679,7 +1679,7 @@ class FindClientApiView(APIView):
 def filter_data(filters, formula):
     search = Search()
     query_list = []
-    limit = 2
+    limit = 20
     page = 1
     for i, filter in enumerate(filters):
         for key in filter:
