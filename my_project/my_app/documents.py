@@ -95,7 +95,7 @@ class Interest_Junction_cDocument(Document):
         'InterestID':fields.TextField(),
         'InterestName':fields.TextField(),
         'ApprovalStatus':fields.TextField(),
-        'InterestType':fields.TextField()
+        # 'InterestType':fields.TextField()
     })
     # type = fields.TextField(attr='type_to_string')
 
@@ -111,7 +111,8 @@ class Interest_Junction_cDocument(Document):
             'InterestNameJunction',
             'InterestName',
             'InterestJunctionID',
-            'link_With'
+            'link_With',
+            'InterestType'
 
          ]         
 

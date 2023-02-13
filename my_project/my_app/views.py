@@ -110,7 +110,7 @@ class SearchListInterest(APIView,LimitOffsetPagination):
                 fields=[
                     'InterestName',
                     'InterestID',
-                    'InterestType'
+                    # 'InterestType'
                 ],
                 fuzziness='auto')
             # search=InterestDocument.search().filter(Q('fuzzy',InterestID=datas)|Q('fuzzy',InterestType=datas)|Q('fuzzy',InterestName=datas)|Q('term',InterestID=datas)|Q('term',InterestName=datas))
@@ -223,13 +223,13 @@ class SearchInterestJunction(APIView):
                 query=query,
                 fields=[
                    'InterestJunctionID',
-                        'Category_of_Interest_c',
-                        'Maker_Artist_Interest_c',
-                        'Period_of_Interest_c',
-                        'Material_Theme_c',
+                        'InterestNameJunction',
+                        'InterestName',
+                        'link_With',
+                        'InterestType',
                        'Interest.InterestName',
                        'Interest.InterestID',
-                       'Interest.InterestType',
+                    #    'Interest.InterestType',
                         'Account.AccountName',
                         'Account.Accountid',
                         'Product.ProductName',
@@ -247,11 +247,11 @@ class SearchInterestJunction(APIView):
                     
                     query=query,
                     fields=[
+                       'InterestNameJunction',
+                        'InterestName',
                         'InterestJunctionID',
-                        'Category_of_Interest_c',
-                        'Maker_Artist_Interest_c',
-                        'Period_of_Interest_c',
-                        'Material_Theme_c',
+                        'link_With',
+                        'InterestType',
                        'Interest.InterestName',
                        'Interest.InterestID',
                        'Interest.InterestType',
@@ -466,19 +466,20 @@ class InterestApiVIew(APIView):
             Interestid=dicts['InterestID']
             interestname=dicts['InterestName']
             approvalstatus=dicts['ApprovalStatus']
-            interesttype=dicts['InterestType']
+            # interesttype=dicts['InterestType']
             if Interest.objects.filter(InterestID=Interestid).exists():
                 gets=Interest.objects.get(InterestID=Interestid)
                 gets.InterestName=interestname
                 gets.ApprovalStatus=approvalstatus
-                gets.InterestType=interesttype
+                # gets.InterestType=interesttype
                 gets.save()
                 update.append(str(gets))
             else:
                 prod=Interest.objects.create(InterestID=Interestid,
                 InterestName=interestname,
                 ApprovalStatus=approvalstatus,
-                InterestType=interesttype)
+                # InterestType=interesttype
+                )
                 create.append(str(prod))    
         return Response({'Interest updated !':'success','Interest created !':'success'})        
 
@@ -577,6 +578,7 @@ class InterstJunctionApiVIew(APIView):
             product=dicts['Product']
             interestnamejunction=dicts['InterestNameJunction']
             interestname=dicts['InterestName']
+            interesttype=dicts['InterestType']
 
             if Interest_Junction_c.objects.filter(InterestJunctionID=interestjunctionid).exists():
                 if linkwith == 'Account' and not interest:
@@ -589,6 +591,7 @@ class InterstJunctionApiVIew(APIView):
                         gets.link_With=linkwith
                         gets.InterestNameJunction=interestnamejunction
                         gets.InterestName=interestname
+                        gets.InterestType=interesttype
                         gets.Account=accou
                         gets.Product=None
                         gets.Interest=None
@@ -608,6 +611,7 @@ class InterstJunctionApiVIew(APIView):
                         gets1.link_With=linkwith
                         gets1.InterestNameJunction=interestnamejunction
                         gets1.InterestName=interestname
+                        gets1.InterestType=interesttype
                         gets1.Account=accou
                         gets1.Product=None
                         gets1.Interest=intre
@@ -623,6 +627,7 @@ class InterstJunctionApiVIew(APIView):
                         gets2.link_With=linkwith
                         gets2.InterestNameJunction=interestnamejunction
                         gets2.InterestName=interestname
+                        gets2.InterestType=interesttype
                         gets2.Account=None
                         gets2.Product=prod1
                         gets2.Interest=None
@@ -642,6 +647,7 @@ class InterstJunctionApiVIew(APIView):
                         gets3.link_With=linkwith
                         gets3.InterestNameJunction=interestnamejunction
                         gets3.InterestName=interestname
+                        gets3.InterestType=interesttype
                         gets3.Account=None
                         gets3.Product=prod3
                         gets3.Interest=intr3  
@@ -659,6 +665,7 @@ class InterstJunctionApiVIew(APIView):
                             link_With=linkwith,
                             InterestNameJunction=interestnamejunction,
                             InterestName=interestname,
+                            InterestType=interesttype,
                             Account=getaccou
                             )
                         create.append(str(produc))
@@ -677,6 +684,7 @@ class InterstJunctionApiVIew(APIView):
                             link_With=linkwith,
                             InterestNameJunction=interestnamejunction,
                             InterestName=interestname,
+                            InterestType=interesttype,
                             Interest=getintere1,
                             Account=getaccou1
                             )
@@ -692,6 +700,7 @@ class InterstJunctionApiVIew(APIView):
                             link_With=linkwith,
                             InterestNameJunction=interestnamejunction,
                             InterestName=interestname,
+                            InterestType=interesttype,
                             Product=getprod11
                             )
                         create.append(str(produc11))                        
@@ -710,6 +719,7 @@ class InterstJunctionApiVIew(APIView):
                             link_With=linkwith,
                             InterestNameJunction=interestnamejunction,
                             InterestName=interestname,
+                            InterestType=interesttype,
                             Interest=getintere22,
                             Product=getprod22
                             )
@@ -1652,7 +1662,6 @@ def get_tokens(expression):
         tokens.append(current_token)
     return tokens
 
-print(get_tokens("0 AND 1 OR 2"))
 
 
 
@@ -1683,29 +1692,32 @@ def filter_data(filters, formula):
     page = 1
     for i, filter in enumerate(filters):
         for key in filter:
+            # print('key------',key)
             field_name = filter[key]['fieldName']
             logic = filter[key]['logic']
             values = filter[key]['value']
-            if isinstance(values, list):
-                query = handle_filter_list(field_name, logic, values)
+            if not key == 'Opportunity':
+                if isinstance(values, list):
+                    query = handle_filter_list(field_name, logic, values)  
+                else:
+                    query = handle_filter_str(field_name, logic, values)
             else:
-                query = handle_filter_str(field_name, logic, values)
-
+                query=opportunity_search(field_name,logic,values)
             query_list.append(query)
     client = Elasticsearch()
     s = Search(using=client, index='interest_junction_cs')
 
     expression = create_query_string(formula,query_list)
-    print("start--> \n")
-    print(expression,"\n")
+    # print("start--> \n")
+    # print(expression,"\n")
     combined_query = (eval(expression))
     s = s.query(combined_query)
     s = s[(page - 1) * limit:page * limit]  # Implement pagination
     query_dict = s.to_dict()
-    print('\combined_query---->',combined_query)
-    print('\nquery_dict---->',query_dict)
+    # print('\combined_query---->',combined_query)
+    # print('\nquery_dict---->',query_dict)
     response = s.execute()
-    print(response)
+    # print(response)
     return response
 
 def create_query_string(formula, query_list):
@@ -1721,7 +1733,7 @@ def create_query_string(formula, query_list):
 def handle_filter_str(field_name, filter_logic, field_value):
     if filter_logic == 'Includes':
         # return Q("terms", field=field_name, value=field_value)
-        return Q('bool', filter=[Q('terms', **{field_name: field_value})])
+        return Q('bool', filter=[Q('term', **{field_name: field_value})])
     elif filter_logic == 'Exclude':
         return Q('bool', must_not=[Q('terms',**{field_name: field_value})])
     elif filter_logic == 'Equal':
@@ -1756,6 +1768,35 @@ def handle_filter_list(field_name, filter_logic, field_value):
         return Q('bool', filter=[Q('range',**{field_name: {'lte': field_value, 'format':'dd-mm-yy'}})])
     else:
         return Q()
+    
+
+def opportunity_search(field_name,logic,values):
+    query_list=[] 
+    getaccount_id=[]  
+    print('opportunity------',field_name,logic,values) 
+    if type(values) == list:
+        querys=handle_filter_array(field_name,logic,values)
+        # querys=Q('terms',**{field_name:values})
+    else:
+        querys=handle_filter_term(field_name,logic,values)    
+        # querys=Q('term',**{field_name:values})
+    print('QUERY---',querys)
+    qzx=Q('bool', should=[Q('term', **{field_name:'Noida'})])
+    print('bool----',qzx)
+    opportunity_search=OpportunityDocument.search().query(querys)
+    serializers=OpportunitySerializersPost(opportunity_search,many=True)
+    for y in serializers.data:
+           print(y)
+           od2 = json.loads(json.dumps(y))
+           dictaccount=(od2['AccountId'])
+           getaccount=(dictaccount['Accountid'])
+           getaccount_id.append(getaccount)
+    query1=Q('terms',**{"Account.Accountid":getaccount_id})
+    print('query---->',query1)       
+    return query1
+
+           
+
 # class FindClientApiView(APIView):
 #     def get (self,request):
 #         interestjunction=Interest_Junction_c.objects.all()
