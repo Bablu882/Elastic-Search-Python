@@ -1657,87 +1657,183 @@ print(get_tokens("0 AND 1 OR 2"))
 
 
 from django.http import JsonResponse
-from elasticsearch_dsl import Q
+from elasticsearch_dsl import Q,Search
 from elasticsearch_dsl.connections import connections
+
+
 
 class FindClientApiView(APIView):
     def get (self,request):
         interestjunction=Interest_Junction_c.objects.all()
         serializers=InterestJunctionFindClientSerializers(interestjunction,many=True)
         return Response(serializers.data)
-    
+
     def post(self,request):
         conditions=[]
-        filters=request.data.get('filters')
-        formula=request.data.get('formula')
-        # print(formula)
+        filters=request.data.get('Filters')
+        formula=request.data.get('Formula')
         filterdata=filter_data(filters,formula)
-        
-        # print(filterdata)
-        # search=Interest_Junction_cDocument.search().query()
-        serializer=InterestJunctionFindClientSerializers(filterdata,many=True)
-        return Response(serializer.data)
-
-
-
-
-def build_query(query_list, formula):
-    stack = []
-    formula = formula.split()
-    for c in formula:
-        if c == ')':
-            temp = []
-            while stack[-1] != '(':
-                temp.append(stack.pop())
-            stack.pop()
-
-            if len(temp) == 1:
-                stack.append(temp[0])
-            else:
-                q = Q('bool', should=temp[::-1]) if stack[-1] == 'OR' else Q('bool', must=temp[::-1])
-                stack.pop()
-                stack.append(q)
-        elif c == '(':
-            stack.append(c)
-        elif c.isdigit():
-            i = int(c)
-            q = query_list[i][1]
-            stack.append(q)
-        else:
-            stack.append(c)
-    # print(stack)        
-    return stack
-
-
-from elasticsearch_dsl import Search, Q
+        results = [hit.to_dict() for hit in filterdata]
+        return JsonResponse(results, safe=False)
 
 def filter_data(filters, formula):
     search = Search()
     query_list = []
+    limit = 2
+    page = 1
     for i, filter in enumerate(filters):
         for key in filter:
-            field_name = filter[key]['fieldName']
-            logic = filter[key]['logic']
-            values = filter[key]['value']
+            field_name = filter[key]['FieldName']
+            logic = filter[key]['Logic']
+            values = filter[key]['Value']
+            if isinstance(values, list):
+                query = handle_filter_list(field_name, logic, values)
+            else:
+                query = handle_filter_str(field_name, logic, values)
 
-            if logic == 'Equal':
-                query = Q('terms', **{field_name: values})
-            elif logic == 'NotEqual':
-                query = ~Q('terms', **{field_name: values})
-            elif logic == 'Contains':
-                query = Q('match', **{field_name: values[0]})
-            query_list.append((i, query))
+            query_list.append(query)
+    client = Elasticsearch()
+    s = Search(using=client, index='interest_junction_cs')
 
-    final_query = build_query(query_list, formula)
-    print(final_query)
-    # query1=final_query[0]
-    # query2=final_query[2]
-    # query3=final_query[4]
-    # query_result=query1&(query2|query3)
-    # print(query1,query2)
-    convert=convert_query(final_query)
-    search = Interest_Junction_cDocument.search().query(convert)
-    return search
+    expression = create_query_string(formula,query_list)
+    print("start--> \n")
+    print(expression,"\n")
+    combined_query = (eval(expression))
+    s = s.query(combined_query)
+    s = s[(page - 1) * limit:page * limit]  # Implement pagination
+    query_dict = s.to_dict()
+    print('\combined_query---->',combined_query)
+    print('\nquery_dict---->',query_dict)
+    response = s.execute()
+    print(response)
+    return response
+
+def create_query_string(formula, query_list):
+    formula = formula.replace("AND", "&").replace("OR", "|")
+    query_string = ""
+    for char in formula:
+        if char.isdigit():
+            query_string += "Q(query_list[" + char + "])"
+        else:
+            query_string += char
+    return query_string
+
+def handle_filter_str(field_name, filter_logic, field_value):
+    if filter_logic == 'Includes':
+        # return Q("terms", field=field_name, value=field_value)
+        return Q('bool', filter=[Q('terms', **{field_name: field_value})])
+    elif filter_logic == 'Exclude':
+        return Q('bool', must_not=[Q('terms',**{field_name: field_value})])
+    elif filter_logic == 'Equal':
+       # return Q('multi_match', query=field_value, fields=[field_name])
+        return Q('match', query=field_value, fields=[field_name])
+    elif filter_logic == 'Not Equal':
+        return Q('bool', must_not=[Q('term',**{field_name: field_value})])
+    elif filter_logic == 'Greater than':
+        return Q('bool', filter=[Q('range',**{field_name: {'gte': field_value, 'format':'dd-mm-yy'}})])
+    elif filter_logic == 'Lesser than':
+        return Q('bool', filter=[Q('range',**{field_name: {'lte': field_value, 'format':'dd-mm-yy'}})])
+    else:
+        return Q()
+
+
+def handle_filter_list(field_name, filter_logic, field_value):
+    if filter_logic == 'Includes':
+        # return Q("terms", field=field_name, value=field_value)
+        return Q('bool', filter=[Q('terms', **{field_name: field_value})])
+    elif filter_logic == 'Exclude':
+        return Q('bool', must_not=[Q('terms',**{field_name: field_value})])
+    elif filter_logic == 'Contains':
+        match_phrase_queries = [Q('match_phrase', **{field_name: value}) for value in field_value]
+        return Q('bool', should=match_phrase_queries)
+    elif filter_logic == 'Equal':
+        return Q('terms',**{field_name:field_value})
+    elif filter_logic == 'Not Equal':
+        return Q('bool', must_not=[Q('terms',**{field_name: field_value})])
+    elif filter_logic == 'Greater than':
+        return Q('bool', filter=[Q('range',**{field_name: {'gte': field_value, 'format':'dd-mm-yy'}})])
+    elif filter_logic == 'Lesser than':
+        return Q('bool', filter=[Q('range',**{field_name: {'lte': field_value, 'format':'dd-mm-yy'}})])
+    else:
+        return Q()
+# class FindClientApiView(APIView):
+#     def get (self,request):
+#         interestjunction=Interest_Junction_c.objects.all()
+#         serializers=InterestJunctionFindClientSerializers(interestjunction,many=True)
+#         return Response(serializers.data)
+    
+#     def post(self,request):
+#         conditions=[]
+#         filters=request.data.get('filters')
+#         formula=request.data.get('formula')
+#         # print(formula)
+#         filterdata=filter_data(filters,formula)
+        
+#         # print(filterdata)
+#         # search=Interest_Junction_cDocument.search().query()
+#         serializer=InterestJunctionFindClientSerializers(filterdata,many=True)
+#         return Response(serializer.data)
+
+
+
+
+# def build_query(query_list, formula):
+#     stack = []
+#     formula = formula.split()
+#     for c in formula:
+#         if c == ')':
+#             temp = []
+#             while stack[-1] != '(':
+#                 temp.append(stack.pop())
+#             stack.pop()
+
+#             if len(temp) == 1:
+#                 stack.append(temp[0])
+#             else:
+#                 q = Q('bool', should=temp[::-1]) if stack[-1] == 'OR' else Q('bool', must=temp[::-1])
+#                 stack.pop()
+#                 stack.append(q)
+#         elif c == '(':
+#             stack.append(c)
+#         elif c.isdigit():
+#             i = int(c)
+#             q = query_list[i][1]
+#             stack.append(q)
+#         else:
+#             stack.append(c)
+#     # print(stack)        
+#     return stack
+
+
+# from elasticsearch_dsl import Search, Q
+
+# def filter_data(filters, formula):
+#     search = Search()
+#     query_list = []
+#     for i, filter in enumerate(filters):
+#         for key in filter:
+#             field_name = filter[key]['fieldName']
+#             logic = filter[key]['logic']
+#             values = filter[key]['value']
+
+#             if logic == 'Equal':
+#                 query = Q('terms', **{field_name: values})
+#             elif logic == 'NotEqual':
+#                 query = ~Q('terms', **{field_name: values})
+#             elif logic == 'Contains':
+#                 query = Q('match', **{field_name: values[0]})
+#             query_list.append((i, query))
+
+#     final_query = build_query(query_list, formula)
+#     print(final_query)
+#     # query1=final_query[0]
+#     # query2=final_query[2]
+#     # query3=final_query[4]
+#     # query_result=query1&(query2|query3)
+#     # print(query1,query2)
+#     convert=convert_query(final_query)
+#     search = Interest_Junction_cDocument.search().query(convert)
+#     return search
 
 # def convert_stack_to_es_query(stack):
 #     query = Q()
@@ -1843,7 +1939,7 @@ def convert_query(query):
 #             # stack.append(q)
 #     print(stack)    
 
-    return stack[0]
+    # return stack[0]
 
 
 
