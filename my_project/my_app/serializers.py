@@ -54,6 +54,7 @@ class InterestJunctionFindClientSerializers(serializers.ModelSerializer):
             "InterestNameJunction",
             "InterestName",
             "InterestJunctionID",
+            "InterestType",
             "link_With",
             "Product",
             "Interest",
