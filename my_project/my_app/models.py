@@ -41,7 +41,7 @@ class Interest(models.Model):
 
     )
     ApprovalStatus=models.CharField(max_length=20,choices=Approvel_choices)
-    InterestType=models.CharField(max_length=100,null=False,blank=False)
+    # InterestType=models.CharField(max_length=100,null=False,blank=False)
 
 
 

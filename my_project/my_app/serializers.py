@@ -68,6 +68,7 @@ class InterestJunctionSerializers(serializers.ModelSerializer):
             "InterestName",
             "InterestJunctionID",
             "link_With",
+            "InterestType",
             "Product",
             "Interest",
             "Account",
