@@ -1670,8 +1670,8 @@ class FindClientApiView(APIView):
 
     def post(self,request):
         conditions=[]
-        filters=request.data.get('Filters')
-        formula=request.data.get('Formula')
+        filters=request.data.get('filters')
+        formula=request.data.get('formula')
         filterdata=filter_data(filters,formula)
         results = [hit.to_dict() for hit in filterdata]
         return JsonResponse(results, safe=False)
@@ -1683,9 +1683,9 @@ def filter_data(filters, formula):
     page = 1
     for i, filter in enumerate(filters):
         for key in filter:
-            field_name = filter[key]['FieldName']
-            logic = filter[key]['Logic']
-            values = filter[key]['Value']
+            field_name = filter[key]['fieldName']
+            logic = filter[key]['logic']
+            values = filter[key]['value']
             if isinstance(values, list):
                 query = handle_filter_list(field_name, logic, values)
             else:
