@@ -197,7 +197,25 @@ class SearchListOpportunity(APIView):
                 fields=[
                     'OpportunityId',
                     'OpportunityName',
-                    'AccouontId.Accountid',
+                    'StageName',
+                    'Billing_City',
+                    'AverageitemSold',
+                    'AccountId.Accountid',
+                    'AccountId.AccountName',
+                    'AccountId.State',
+                    'AccountId.LastPurchasedDate',
+                    'AccountId.TotalPurchase',
+                    'AccountId.PersonHasOptedOutOfEmail',
+                    'AccountId.CategoryOfInterest',
+                    'AccountId.PeriodOfInterest',
+                    'AccountId.TypeOfInterest',
+                    'AccountId.YoungerAudience',
+                    'AccountId.Star5',
+                    'AccountId.AccountLastPurchaseDate',
+                    'AccountId.HolidayCelebrated',
+                    'AccountId.Email',
+                    'AccountId.ShippingCity',
+                    'AccountId.FindClients_visible'
                 ],
                 fuzziness='auto')
             search=OpportunityDocument().search().query(q)
@@ -214,7 +232,7 @@ class SearchInterestJunction(APIView):
     def post(self,request,format=None):
         serializers= ClientInterestSearchSerializer(data=request.data)
         if serializers.is_valid(raise_exception=True):
-            datas=serializers.data.get('findclient')
+            datas=serializers.data.get('JunctionField')
             exact=serializers.data.get('ExactMatch')
             query=datas
             if exact=='No' or exact == 'no':
@@ -232,14 +250,27 @@ class SearchInterestJunction(APIView):
                     #    'Interest.InterestType',
                         'Account.AccountName',
                         'Account.Accountid',
+                        'Account.State',
+                        'Account.LastPurchasedDate',
+                        'Account.TotalPurchase',
+                        'Account.PersonHasOptedOutOfEmail',
+                        'Account.CategoryOfInterest',
+                        'Account.PeriodOfInterest',
+                        'Account.TypeOfInterest',
+                        'Account.YoungerAudience',
+                        'Account.Star5',
+                        'Account.AccountLastPurchaseDate',
+                        'Account.HolidayCelebrated',
+                        'Account.Email',
+                        'Account.ShippingCity',
+                        'Account.FindClients_visible',
                         'Product.ProductName',
                         'Product.Productid',
-                        'Contact.ContactName',
-                        'Contact.Contactid'
+                        
                 ],
                 fuzziness='auto')
                 search=Interest_Junction_cDocument.search().query(q)
-                serial=InterestJunctionSerializers(search,many=True)
+                serial=InterestJunctionFindClientSerializers(search,many=True)
                 return Response(serial.data)
             elif exact == 'Yes' or exact == 'yes':
                 p = Q(
@@ -257,14 +288,27 @@ class SearchInterestJunction(APIView):
                        'Interest.InterestType',
                         'Account.AccountName',
                         'Account.Accountid',
+                        'Account.State',
+                        'Account.LastPurchasedDate',
+                        'Account.TotalPurchase',
+                        'Account.PersonHasOptedOutOfEmail',
+                        'Account.CategoryOfInterest',
+                        'Account.PeriodOfInterest',
+                        'Account.TypeOfInterest',
+                        'Account.YoungerAudience',
+                        'Account.Star5',
+                        'Account.AccountLastPurchaseDate',
+                        'Account.HolidayCelebrated',
+                        'Account.Email',
+                        'Account.ShippingCity',
+                        'Account.FindClients_visible',
                         'Product.ProductName',
                         'Product.Productid',
-                        'Contact.ContactName',
-                        'Contact.Contactid'
+                        
                     ],
                     )
                 search=Interest_Junction_cDocument.search().query(p)
-                serial=InterestJunctionSerializers(search,many=True)
+                serial=InterestJunctionFindClientSerializers(search,many=True)
                 return Response(serial.data)
             else:
                 return Response({'Error':'Please choose Yes or No only !'})
@@ -395,7 +439,7 @@ class AccountApiVIew(APIView):
             accountid=dicts['Accountid']
             accountname=dicts['AccountName']
             state=dicts['State']
-            lastpuchasedate=dicts['LastPurchasedDtae']
+            lastpuchasedate=dicts['LastPurchasedDate']
             totalpurchase=dicts['TotalPurchase']
             personhasoptedemail=dicts['PersonHasOptedOutOfEmail']
             categoryofinterest=dicts['CategoryOfInterest']
@@ -412,7 +456,7 @@ class AccountApiVIew(APIView):
                 gets=Account.objects.get(Accountid=accountid)
                 gets.AccountName=accountname
                 gets.State=state
-                gets.LastPurchasedDtae=lastpuchasedate
+                gets.LastPurchasedDate=lastpuchasedate
                 gets.TotalPurchase=totalpurchase
                 gets.PersonHasOptedOutOfEmail=personhasoptedemail
                 gets.CategoryOfInterest=categoryofinterest
@@ -432,7 +476,7 @@ class AccountApiVIew(APIView):
                     Accountid=accountid,
                     AccountName=accountname,
                     State=state,
-                    LastPurchasedDtae=lastpuchasedate,
+                    LastPurchasedDate=lastpuchasedate,
                     TotalPurchase=totalpurchase,
                     PersonHasOptedOutOfEmail=personhasoptedemail,
                     CategoryOfInterest=categoryofinterest,
@@ -1068,17 +1112,17 @@ class ClientFind(APIView):
                     'multi_match',
                     query=lastpurchasedatefilter['FieldValue'],
                     fields=[
-                        'Account.LastPurchasedDtae',
+                        'Account.LastPurchasedDate',
                     ]
                     )
             elif lastpurchasedatefilter['FilterLogic'] == 'Not Equal':
-                qz9=Q('bool', must_not=[Q('term',**{'Account.LastPurchaseDtae':lastpurchasedatefilter['FieldValue']})])
+                qz9=Q('bool', must_not=[Q('term',**{'Account.LastPurchasedDate':lastpurchasedatefilter['FieldValue']})])
 
             elif lastpurchasedatefilter['FilterLogic'] == 'Greater than':
-                qz10=Q('bool', filter=[Q('range',**{'Account.LastPurchasedDtae': {'gte':lastpurchasedatefilter['FieldValue'],'format':'dd-mm-yy'}})])
+                qz10=Q('bool', filter=[Q('range',**{'Account.LastPurchasedDate': {'gte':lastpurchasedatefilter['FieldValue'],'format':'dd-mm-yy'}})])
 
             else:
-                qz11=Q('bool', filter=[Q('range',**{'Account.LastPurchasedDtae': {'lte':lastpurchasedatefilter['FieldValue'],'format':'dd-mm-yy'}})])
+                qz11=Q('bool', filter=[Q('range',**{'Account.LastPurchasedDate': {'lte':lastpurchasedatefilter['FieldValue'],'format':'dd-mm-yy'}})])
         else:
             if categoryofinterestfilter['FilterLogic'] =='Includes':
                 qz12=Q('terms', **{'Account.CategoryOfInterest':categoryofinterestfilter['FieldValue']})
@@ -1111,18 +1155,18 @@ class ClientFind(APIView):
                     'multi_match',
                     query=lastpurchasedatefilter['FieldValue'],
                     fields=[
-                        'Account.LastPurchasedDtae',
+                        'Account.LastPurchasedDate',
                     ]
                     )
             elif lastpurchasedatefilter['FilterLogic'] == 'NotEqual':
-                qz20=Q('bool', must_not=[Q('match',**{'Account.LastPurchaseDtae':lastpurchasedatefilter['FieldValue']})])
+                qz20=Q('bool', must_not=[Q('match',**{'Account.LastPurchasedDate':lastpurchasedatefilter['FieldValue']})])
 
             elif lastpurchasedatefilter['FilterLogic'] == 'Greater than':
                 # qz10=Q('bool', must=[Q('range',**{'Account.LastPurchaseDtae':{"gte":{lastpurchasedatefilter['FieldValue']}}})])
-                qz21=Q('range', **{'Account.LastPurchaseDtae': {"gte":lastpurchasedatefilter['FieldValue']}})
+                qz21=Q('range', **{'Account.LastPurchasedDate': {"gte":lastpurchasedatefilter['FieldValue']}})
 
             else:
-                qz22=Q('range', **{'Account.LastPurchaseDtae': {"lte":lastpurchasedatefilter['FieldValue']}})
+                qz22=Q('range', **{'Account.LastPurchasedDate': {"lte":lastpurchasedatefilter['FieldValue']}})
         if emailcondition['EmailCondition'] =='AND':
             if email['FilterLogic'] =='Equal':
                 qz23=Q(
@@ -1450,7 +1494,7 @@ class FindClientNewVersionApi(APIView):
         handle_filter(accountfilters['CategoryOfInterestFieldName'], accountfilters['CategoryOfInterestFilterLogic'], accountfilters['CategoryOfInterestFieldValue']),
         handle_filter(accountfilters['YoungerAudienceFieldName'], accountfilters['YoungerAudienceFilterLogic'], accountfilters['YoungerAudienceFieldValue']),
         handle_filter(accountfilters['HolidayCelebratedFieldName'], accountfilters['HolidayCelebratedFilterLogic'], accountfilters['HolidayCelebratedFieldValue']),
-        handle_filter(accountfilters['LastPurchaseDateFieldName'], accountfilters['LastPurchaseDateFilterLogic'], accountfilters['LastPurchaseDateFieldValue'])
+        handle_filter(accountfilters['LastPurchasedDateFieldName'], accountfilters['LastPurchasedDateFilterLogic'], accountfilters['LastPurchasedDateFieldValue'])
         ]
         queries2= [
         handle_filter_term(accountfilters['EmailFieldName'], accountfilters['EmailFilterLogic'], accountfilters['EmailFieldValue']),
@@ -1543,7 +1587,7 @@ class FindClientNew(APIView):
             elif fieldname == 'YoungerAudience':
                 query4=handle_filter_term(fieldname,fieldlogic,fieldvalue)    
                 account_array.append(query4)
-            elif fieldname == 'LastPurchaseDate':
+            elif fieldname == 'LastPurchasedDate':
                 query5=handle_filter_term(fieldname,fieldlogic,fieldvalue)    
                 account_array.append(query5)
             elif fieldname == 'Email':
