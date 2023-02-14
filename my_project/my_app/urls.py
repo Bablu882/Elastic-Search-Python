@@ -21,7 +21,7 @@ urlpatterns=[
     path('api/save-interests/',InterestList.as_view()),
     path('api/save-interestjunctions/',InterestJunctionList.as_view()),
     path('api/save-products/',ProductList.as_view()),
-    # path('api/search-search/',SearchInterest.as_view()),
+    path('api/search_junction/',SearchInterestJunction.as_view()),
     path('api/search_interest/',SearchListInterest.as_view()),
     path('api/search_account/',SearchListAccount.as_view()),
     path('api/search_product/',SearchListProduct.as_view()),
