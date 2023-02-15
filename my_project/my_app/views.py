@@ -1893,10 +1893,9 @@ def opportunity_search(field_name,logic,values):
     print('opportunity------',field_name,logic,values) 
     if type(values) == list:
         querys=handle_filter_contain(field_name,logic,values)
-        # querys=Q('terms',**{field_name:values})
     else:
         querys=handle_filter_term(field_name,logic,values)    
-    qzx=Q('bool', should=[Q('term', **{field_name:'Noida'})])
+    # qzx=Q('bool', should=[Q('term', **{field_name:'Noida'})])
     opportunity_search=OpportunityDocument.search().query(querys)
     serializers=OpportunitySerializersPost(opportunity_search,many=True)
     for y in serializers.data:
@@ -1905,9 +1904,11 @@ def opportunity_search(field_name,logic,values):
            dictaccount=(od2['AccountId'])
            getaccount=(dictaccount['Accountid'])
            getaccount_id.append(getaccount)
-    query1=Q('terms',**{"Account.Accountid":getaccount_id})
-    print('query---->',query1)       
-    return query1
+    # query1=Q('terms',**{"Account.Accountid":getaccount_id})
+    match_phrase_queries = [Q('match_phrase', **{field_name: value}) for value in query_list]
+    return Q('bool', should=match_phrase_queries)
+    # print('query---->',query1)       
+    # return query1
 
            
 ######-------------------------------BACKUP CODE-----------------------------------------#####
