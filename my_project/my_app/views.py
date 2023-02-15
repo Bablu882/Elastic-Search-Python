@@ -26,8 +26,8 @@ class AccountList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.Generic
     queryset=Account.objects.all()
     serializer_class=AccountSerializers
 
-    def get(self,request,*args,**kwargs):
-        return self.list(request,*args,**kwargs)
+    # def get(self,request,*args,**kwargs):
+    #     return self.list(request,*args,**kwargs)
 
     def post(self,request,*args,**kwargs):
         return self.create(request,*args,**kwargs) 
@@ -58,8 +58,8 @@ class InterestList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.Generi
     queryset=Interest.objects.all()
     serializer_class=InterestSerializers
 
-    def get(self,request,*args,**kwargs):
-        return self.list(request,*args,**kwargs)
+    # def get(self,request,*args,**kwargs):
+    #     return self.list(request,*args,**kwargs)
 
     def post(self,request,*args,**kwargs):
         return self.create(request,*args,**kwargs) 
@@ -70,8 +70,8 @@ class InterestJunctionList(mixins.ListModelMixin,mixins.CreateModelMixin,generic
     queryset=Interest_Junction_c.objects.all()
     serializer_class=JunctionSerializers
 
-    def get(self,request,*args,**kwargs):
-        return self.list(request,*args,**kwargs)
+    # def get(self,request,*args,**kwargs):
+    #     return self.list(request,*args,**kwargs)
 
     def post(self,request,*args,**kwargs):
         return self.create(request,*args,**kwargs) 
@@ -82,8 +82,8 @@ class ProductList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.Generic
     queryset=Product.objects.all()
     serializer_class=ProductSerializers
 
-    def get(self,request,*args,**kwargs):
-        return self.list(request,*args,**kwargs)
+    # def get(self,request,*args,**kwargs):
+    #     return self.list(request,*args,**kwargs)
 
     def post(self,request,*args,**kwargs):
         return self.create(request,*args,**kwargs) 
@@ -94,26 +94,26 @@ class ProductList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.Generic
 from rest_framework.pagination import LimitOffsetPagination
 
 class SearchListInterest(APIView,LimitOffsetPagination):
-    def get(self,request,format=None):
-        interest=Interest.objects.all()
-        serializer=InterestSerializers(interest,many=True)
-        return Response(serializer.data)
+    # def get(self,request,format=None):
+    #     interest=Interest.objects.all()
+    #     serializer=InterestSerializers(interest,many=True)
+    #     return Response(serializer.data)
 
     def post(self,request,format=None):
         serializer=InterestSearchSerialiizers(data=request.data)
         if serializer.is_valid(raise_exception=True):
             datas=serializer.data.get('searchinterest')
             query=datas
+            #making query for fuzzy search in elasticsearch 
             q = Q(
                 'multi_match',
                 query=query,
                 fields=[
                     'InterestName',
                     'InterestID',
-                    # 'InterestType'
                 ],
                 fuzziness='auto')
-            # search=InterestDocument.search().filter(Q('fuzzy',InterestID=datas)|Q('fuzzy',InterestType=datas)|Q('fuzzy',InterestName=datas)|Q('term',InterestID=datas)|Q('term',InterestName=datas))
+            #search the fields in InterestDocument in elasticsearch 
             search=InterestDocument().search().query(q)
             print([data for data in search])
             serial=InterestSerializers(search,many=True)
@@ -123,29 +123,41 @@ class SearchListInterest(APIView,LimitOffsetPagination):
 # ###---------------------------------SEARCH ACCOUNT API-----------------------------------------###
 
 class SearchListAccount(APIView):
-    def get(self,request,format=None):
-        account=Account.objects.all()
-        serializers=AccountSerializers(account,many=True)
-        return Response(serializers.data)
+    # def get(self,request,format=None):
+    #     account=Account.objects.all()
+    #     serializers=AccountSerializers(account,many=True)
+    #     return Response(serializers.data)
 
     def post(self,request,format=None):
         serializers=AccountSearchSerializer(data=request.data)
         if serializers.is_valid(raise_exception=True):
             datas=serializers.data.get('searchaccount')
             query=datas
+            #making query for account search in account document for fuzzy match
             q = Q(
                 'multi_match',
                 query=query,
                 fields=[
-                    'AccountName',
                     'Accountid',
+                    'AccountName',
+                    'State',
+                    'LastPurchasedDate',
+                    'TotalPurchase',
                     'PersonHasOptedOutOfEmail',
-                    'CategoryOfInterest'
+                    'CategoryOfInterest',
+                    'PeriodOfInterest',
+                    'TypeOfInterest',
+                    'YoungerAudience',
+                    'Star5',
+                    'AccountLastPurchaseDate',
+                    'HolidayCelebrated',
+                    'Email',
+                    'ShippingCity',
+                    'FindClients_visible'
                 ],
                 fuzziness='auto')
+            #search above fields in account documents in elasticsearch
             search=AccountDocument().search().query(q)
-    
-            # search=AccountDocument.search().filter(Q('fuzzy',Accountid=datas)|Q('fuzzy',AccountName=datas))
             print([result for result in search])
             serial=AccountSerializers(search,many=True)
         return Response(serial.data)
@@ -154,16 +166,17 @@ class SearchListAccount(APIView):
 # ###-----------------------------SEARCH PRODUCT API-----------------------------------------###
 
 class SearchListProduct(APIView):
-    def get(self,request,format=None):
-        product=Product.objects.all()
-        serializers=ProductSerializers(product,many=True)        
-        return Response(serializers.data)
+    # def get(self,request,format=None):
+    #     product=Product.objects.all()
+    #     serializers=ProductSerializers(product,many=True)        
+    #     return Response(serializers.data)
 
     def post(self,request,format=None):
         serializers=ProductSearchSerializer(data=request.data)
         if serializers.is_valid(raise_exception=True):
             datas=serializers.data.get('searchproduct')
             query=datas
+            #making query for fuzzy match
             q = Q(
                 'multi_match',
                 query=query,
@@ -172,8 +185,8 @@ class SearchListProduct(APIView):
                     'Productid'
                 ],
                 fuzziness='auto')
+            #searching above query in product document in elsticsearch
             search=ProductDocument().search().query(q)
-            # search=ProductDocument.search().filter(Q('fuzzy',Productid=datas)|Q('fuzzy',ProductName=datas))
             print([result for result in search])
             serial=ProductSerializers(search,many=True)
         return Response(serial.data)
@@ -181,16 +194,17 @@ class SearchListProduct(APIView):
 ###---------------------------OPPORTUNITY SEARCH API---------------------------------------###
 
 class SearchListOpportunity(APIView):
-    def get(self,request,format=None):
-        opportunity=Opportunity.objects.all()
-        serializers=OpportunitySerializers(opportunity,many=True)        
-        return Response(serializers.data)
+    # def get(self,request,format=None):
+    #     opportunity=Opportunity.objects.all()
+    #     serializers=OpportunitySerializers(opportunity,many=True)        
+    #     return Response(serializers.data)
 
     def post(self,request,format=None):
         serializers=OpportunitySearchSerializers(data=request.data)
         if serializers.is_valid(raise_exception=True):
             datas=serializers.data.get('searchopportunity')
             query=datas
+            #making quries for opportunity fields and account fields ,opportunity has foreign key relation of account
             q = Q(
                 'multi_match',
                 query=query,
@@ -218,6 +232,7 @@ class SearchListOpportunity(APIView):
                     'AccountId.FindClients_visible'
                 ],
                 fuzziness='auto')
+            #search above query in Opportunity documents in elasticsearch    
             search=OpportunityDocument().search().query(q)
             serial=OpportunitySerializersPost(search,many=True)
         return Response(serial.data) 
@@ -225,10 +240,10 @@ class SearchListOpportunity(APIView):
 
 # ###-----------------------------SEARCH INTEREST JUNCTION API ---------------------------------###
 class SearchInterestJunction(APIView):
-    def get(self,request,format=None):
-        data=Interest_Junction_c.objects.all()
-        serializers=InterestJunctionSerializers(data,many=True)
-        return Response(serializers.data)
+    # def get(self,request,format=None):
+    #     data=Interest_Junction_c.objects.all()
+    #     serializers=InterestJunctionSerializers(data,many=True)
+    #     return Response(serializers.data)
     def post(self,request,format=None):
         serializers= ClientInterestSearchSerializer(data=request.data)
         if serializers.is_valid(raise_exception=True):
@@ -239,6 +254,7 @@ class SearchInterestJunction(APIView):
                 q = Q(
                 'multi_match',
                 query=query,
+                #making query for fuzzy match to all fields in interestjunctuion,account,interest,product
                 fields=[
                    'InterestJunctionID',
                         'InterestNameJunction',
@@ -247,7 +263,6 @@ class SearchInterestJunction(APIView):
                         'InterestType',
                        'Interest.InterestName',
                        'Interest.InterestID',
-                    #    'Interest.InterestType',
                         'Account.AccountName',
                         'Account.Accountid',
                         'Account.State',
@@ -267,8 +282,8 @@ class SearchInterestJunction(APIView):
                         'Product.ProductName',
                         'Product.Productid',
                         
-                ],
-                fuzziness='auto')
+                ],fuzziness='auto')
+                #search above query in elasticsearch in Interest junction documents
                 search=Interest_Junction_cDocument.search().query(q)
                 serial=InterestJunctionFindClientSerializers(search,many=True)
                 return Response(serial.data)
@@ -307,6 +322,7 @@ class SearchInterestJunction(APIView):
                         
                     ],
                     )
+                #making query for fuzzy match to all fields in interestjunctuion,account,interest,product
                 search=Interest_Junction_cDocument.search().query(p)
                 serial=InterestJunctionFindClientSerializers(search,many=True)
                 return Response(serial.data)
@@ -331,7 +347,7 @@ class OpportunityList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.Gen
 
 
 ###-------------------------------------CREATE SINGLE API -------------------------------------------####
-
+## Currently these section of apis is not working 
 from rest_framework import viewsets
 
 class AccountView(viewsets.ModelViewSet):
@@ -395,12 +411,16 @@ class OpportunityView(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 ###---------------------------------PRODUCT BULK SAVE API-----------------------------------###
-
+from django.core.paginator import Paginator
 
 class ProductApiVIew(APIView):
+    PAGE_SIZE=1000
     def get(self,request,format=None):
+        page_num=request.query_params.get('page',1)
         product=Product.objects.all()
-        serializers=ProductSerializers(product,many=True)
+        paginator=Paginator(product,self.PAGE_SIZE)
+        page=paginator.get_page(page_num)
+        serializers=ProductSerializers(page,many=True)
         return Response(serializers.data)
 
     def post(self,request,format=None):
@@ -411,6 +431,7 @@ class ProductApiVIew(APIView):
             print(dicts)
             productid=dicts['Productid']
             productname=dicts['ProductName']
+            #check if Product is exists in database then update
             if Product.objects.filter(Productid=productid).exists():
                 gets=Product.objects.get(Productid=productid)
                 gets.ProductName=productname
@@ -419,6 +440,7 @@ class ProductApiVIew(APIView):
             else:
                 prod=Product.objects.create(Productid=productid,ProductName=productname)
                 create.append(str(prod))
+                #if product is not exist in database then created new
 
         return Response({'Product updated !':'success','Product created !':'success'})        
 
@@ -452,6 +474,7 @@ class AccountApiVIew(APIView):
             email=dicts['Email']
             shippingcity=dicts['ShippingCity']
             findclientvisible=dicts['FindClients_visible']
+            #check if account is exists in database then update it 
             if Account.objects.filter(Accountid=accountid).exists():
                 gets=Account.objects.get(Accountid=accountid)
                 gets.AccountName=accountname
@@ -490,7 +513,8 @@ class AccountApiVIew(APIView):
                     ShippingCity=shippingcity,
                     FindClients_visible=findclientvisible
                 ) 
-                create.append(str(prod))   
+                create.append(str(prod))
+                #if account is not exists in database then created new   
         return Response({'Account updated !':'success','Account created !':'success'})        
 
 ###-------------------------------------INTEREST BULK SAVE API--------------------------------###
@@ -510,21 +534,20 @@ class InterestApiVIew(APIView):
             Interestid=dicts['InterestID']
             interestname=dicts['InterestName']
             approvalstatus=dicts['ApprovalStatus']
-            # interesttype=dicts['InterestType']
+            #check if interest is exists in database then update it
             if Interest.objects.filter(InterestID=Interestid).exists():
                 gets=Interest.objects.get(InterestID=Interestid)
                 gets.InterestName=interestname
                 gets.ApprovalStatus=approvalstatus
-                # gets.InterestType=interesttype
                 gets.save()
                 update.append(str(gets))
             else:
                 prod=Interest.objects.create(InterestID=Interestid,
                 InterestName=interestname,
                 ApprovalStatus=approvalstatus,
-                # InterestType=interesttype
                 )
-                create.append(str(prod))    
+                create.append(str(prod)) 
+                #if interest is not exists in the database then create new    
         return Response({'Interest updated !':'success','Interest created !':'success'})        
 
 ###--------------------------------------OPPORTUNITY BULK SAVE API-------------------------------###
@@ -548,7 +571,7 @@ class OpportunityApiVIew(APIView):
             billingcity=dicts['Billing_City']
             avarageitemsold=dicts['AverageitemSold']
             accountid=dicts['AccountId']
-
+            #check if opportunity is exists in the database then update and manage account id given or not 
             if Opportunity.objects.filter(OpportunityId=opportunityid).exists():
                 if not accountid:
                     gets=Opportunity.objects.get(OpportunityId=opportunityid)
@@ -560,6 +583,7 @@ class OpportunityApiVIew(APIView):
                     gets.save()
                     update.append(str(gets))
                 else:
+                    #check account id in database that is exists or not
                     if not Account.objects.filter(Accountid=accountid).exists():
                         fail=({"Failed to update !":"Accountid does not exists in Account table ",'Accountid':accountid,'Opportunityid':opportunityid})
                         failed.append(fail)
@@ -598,6 +622,7 @@ class OpportunityApiVIew(APIView):
                         AccountId=accou
                         ) 
                         create.append(str(prod))
+                        #if not exists in the database then cteated new 
         return Response({'Opportunity updated !':'success','Opportunity created !':'success','Opportunity failed':failed}) 
 
 ###------------------------------INTEREST JUNCTION BULK SAVE API--------------------------------###
@@ -623,8 +648,9 @@ class InterstJunctionApiVIew(APIView):
             interestnamejunction=dicts['InterestNameJunction']
             interestname=dicts['InterestName']
             interesttype=dicts['InterestType']
-
+            #check interest junction is exists in the database then update 
             if Interest_Junction_c.objects.filter(InterestJunctionID=interestjunctionid).exists():
+                #check link with account or product and also check that is exist in database or not 
                 if linkwith == 'Account' and not interest:
                     if not Account.objects.filter(Accountid=account).exists():
                         fail0=({'Failed to update !':'Account object does not exist in account','Accountid':account,'InterestJunctionID':interestjunctionid})
@@ -698,6 +724,7 @@ class InterstJunctionApiVIew(APIView):
                         gets3.save()
                         update.append(str(gets3)) 
             else:
+                #if interst junction is not exists in database then create new with check account and interest and product
                 if linkwith == 'Account' and  not interest:
                     if not Account.objects.filter(Accountid=account).exists():
                         fail6=({'Failed to Create !':'Account object does not exists in account','Accountid':account,'InterestJunctionID':interestjunctionid})
@@ -786,6 +813,7 @@ class AccountDelete(APIView):
         for dicts in data:
             accountid=dicts['Accountid']
             print(accountid)
+            #check if account is exists in database then delete it else show error msg
             if not Account.objects.filter(Accountid=accountid).exists():
                 fail=({'Error':'Account does not exist with this id ','Accountid':accountid})
                 failed.append(fail)
@@ -808,6 +836,7 @@ class InterestDelete(APIView):
         for dicts in data:
             interestid=dicts['InterestID']
             print(interestid)
+            #check if interest is exists in the database then delete else show error msg
             if not Interest.objects.filter(InterestID=interestid).exists():
                 fail=({'Error':'Interest does not exists with this id','InterestID':interestid})
                 failed.append(fail)
@@ -830,6 +859,7 @@ class ProductDelete(APIView):
         for dicts in data:
             productid=dicts['Productid']
             print(productid)
+            #check if product is exists in the database then delete it else show error msg
             if not Product.objects.filter(Productid=productid).exists():
                 fail=({'Error':'Product not exists with this id','Productid':productid})
                 failed.append(fail)
@@ -852,6 +882,7 @@ class OpportunityDelete(APIView):
         for dicts in data:
             opportunityid=dicts['OpportunityId']
             print(opportunityid)
+            #check if opportunity is exists in the database then delete else show error msg
             if not Opportunity.objects.filter(OpportunityId=opportunityid).exists():
                 fail=({'Error':'Opportunity not exists with this id','Opportunityid':opportunityid})
                 failed.append(fail)
@@ -874,6 +905,7 @@ class InterestJunctionDelete(APIView):
         for dicts in data:
             junctionid=dicts['InterestJunctionID']
             print(junctionid)
+            #check if interest jucntion is exists in the database then delete it else show error msg
             if not Interest_Junction_c.objects.filter(InterestJunctionID=junctionid).exists():
                 fail=({'error':'InterstJunction not exists with this id','InterestJunctionid':junctionid})
                 failed.append(fail)
@@ -885,7 +917,7 @@ class InterestJunctionDelete(APIView):
 
 
 ###-------------------------------------ACCOUNT BULK DELETE API--------------------------------###
-
+##currently this api is not working instead of it AccountDelete above is working 
 class AccountBulkDelete(APIView):
     def get(self,request,format=None):
         get=Account.objects.all()
@@ -905,7 +937,7 @@ class AccountBulkDelete(APIView):
 
 
 ###---------------------------------------FIND CLIENT API------------------------------------------###
-
+##this api is used for find client first version 
 class ClientFind(APIView):
     def get(self,request,format=None):
         data=Interest_Junction_c.objects.all()
@@ -913,6 +945,7 @@ class ClientFind(APIView):
         return Response(serializers.data)
     def post(self,request,format=None):
         getaccountid=[]
+        #difining globle variable for not getting error of local variable refrence
         global qz1
         global qz2
         global qz3
@@ -980,6 +1013,7 @@ class ClientFind(APIView):
         global qz64
         global qz65
         global qz66
+        #defining null values for global variables 
         qz1=Q({"multi_match": {"query": "", "fields": [""]}})
         qz23=Q({"multi_match": {"query": "", "fields": [""]}})
         qz6=Q({"multi_match": {"query": "", "fields": [""]}})
@@ -1047,7 +1081,7 @@ class ClientFind(APIView):
         qz64=Q('term',**{"StageName":"NULL"})
         qz65=Q('term',**{"StageName":"NULL"})
         qz66=Q('term',**{"StageName":"NULL"})
-
+        #getting json body by indexing
         data=request.data.get('data')
         interestcondition=data[0]
         interestname=data[1]
@@ -1068,16 +1102,14 @@ class ClientFind(APIView):
         accountinteresttype=interestfiltername[0]
         accountinterestname=interestfiltername[1]
         opportunityfiltercondition=data[6]
-        # print(opportunityfiltercondition)
         opportunityfilter=data[7]
         opportunitycolumn=opportunityfilter['OpportunityFilter']
         opportunitystagename=opportunitycolumn[0]
         opportunitybillingcity=opportunitycolumn[1]
         opportunityavarageitemsold=opportunitycolumn[2]
-        # print(opportunityavarageitemsold)
-        # print(opportunitystagename)
-        # print(opportunitybillingcity)
         interestitem=interestname['InterestName']
+        #making queries for all fields to check logic and field name and field value
+        #and also check condition AND and OR if and condition then make for AND query else OR query 
         qz=Q('terms',**interestname)
         if accountfiltercondition['AccountFiltersCondition'] == 'AND':
             if categoryofinterestfilter['FilterLogic'] =='Includes':
@@ -1398,7 +1430,8 @@ class ClientFind(APIView):
             else:
                 qz66=Q('bool', must_not=[Q('match',**{opportunityavarageitemsold['FieldName']:opportunityavarageitemsold['FieldValue']})])
                 query_list.append(qz66)
-            final_query=Q('bool',should=query_list)  
+            final_query=Q('bool',should=query_list) 
+        #concatinate query for search opportunity in opportunity table and extract account id,store in array      
         qqq=final_query|qz57|qz58|qz59|qz60|qz61|qz62|qz63|qz64|qz65|qz66                    
         opportunity=OpportunityDocument.search().query(qqq)
         serializer=OpportunitySerializersPost(opportunity,many=True)
@@ -1410,9 +1443,8 @@ class ClientFind(APIView):
            getaccount=(dictaccount['Accountid'])
            getaccountid.append(str(getaccount))
         qz80=Q('terms',**{'Account.Accountid':getaccountid}) 
-        
+        #Concatinating all fields query and search in interestjunction documents in elasticsearch 
         xy=qz1&qz6&qz4&qz8&qz2&qz3&qz5&qz7&qz9&qz10&qz11|qz12|qz13|qz14|qz15|qz16|qz17|qz18|qz19|qz20|qz21|qz22&qz23&qz24&qz25&qz26&qz27&qz28|qz29|qz30|qz31|qz32|qz33|qz34&qz35&qz36&qz37&qz38&qz39&qz40|qz41|qz42|qz43|qz44|qz45|qz46|qz|qz80
-        # print(xy)
         search=Interest_Junction_cDocument.search().query(xy)
         serial1=InterestJunctionFindClientSerializers(search,many=True)        
         return Response(serial1.data) 
@@ -1420,7 +1452,8 @@ class ClientFind(APIView):
         
 
  ###-----------------------------------FIND CLIENT VERSION 2-------------------------------------------###       
-            
+ ##making this function for handle to make query it will make autometically query according to condition           
+ ##only provide field name,logic,value in the parameter ,this func is not for array search
 def handle_filter(field_name, filter_logic, field_value):
     if filter_logic == 'Includes':
         # return Q("terms", field=field_name, value=field_value)
@@ -1437,7 +1470,9 @@ def handle_filter(field_name, filter_logic, field_value):
         return Q('bool', filter=[Q('range',**{field_name: {'lte': field_value, 'format':'dd-mm-yy'}})])
     else:
         return Q()
-
+    
+##making this function for handle to make query it will make autometically query according to condition           
+##only provide field name,logic,value in the parameter ,this func is for array search
 def handle_filter_array(field_name, filter_logic, field_value):
     if filter_logic == 'Includes':
         # return Q("terms", field=field_name, value=field_value)
@@ -1489,7 +1524,7 @@ class FindClientNewVersionApi(APIView):
         accountfilters=request.data.get('AccountFilters',None)
         interestfilters=request.data.get('InterestFilters',None)
         opportunityfilters=request.data.get('OpportunityFilters',None)
-
+        ##to making query call the above function that is auto create query for all 
         queries = [
         handle_filter(accountfilters['CategoryOfInterestFieldName'], accountfilters['CategoryOfInterestFilterLogic'], accountfilters['CategoryOfInterestFieldValue']),
         handle_filter(accountfilters['YoungerAudienceFieldName'], accountfilters['YoungerAudienceFilterLogic'], accountfilters['YoungerAudienceFieldValue']),
@@ -1510,6 +1545,9 @@ class FindClientNewVersionApi(APIView):
         handle_filter_term(opportunityfilters['AverageItemSoldFieldName'], opportunityfilters['AverageItemSoldFilterLogic'], opportunityfilters['AverageItemSoldFieldValue']),
 
         ]
+        #checking condition for the fields if AND then concatinate all queries with same and 
+        #if OR condition then concatinate all queries with same or
+        #and make final query for searching in interestjunction
         if interestcondition == 'AND':
             final_query0=Q('terms', **{'InterestName': interestname})
         elif interestcondition == 'OR':
@@ -1539,7 +1577,10 @@ class FindClientNewVersionApi(APIView):
         elif opportunityfilters['OpportunityFilterCondition'] =='OR':
             final_query4=reduce(or_,queries4)   
         else:
-            final_query4=Q()     
+            final_query4=Q() 
+        ##first search opportunity on opportunity documents and extract account id 
+        ##with opportunity query and store it in array to make another query for array and search
+        ##that array query in interest junction         
         opportunity_search=OpportunityDocument.search().query(final_query4)
         serial=OpportunitySerializersPost(opportunity_search,many=True)
         for x in serial.data:
@@ -1548,6 +1589,7 @@ class FindClientNewVersionApi(APIView):
            getaccount=(dictaccount['Accountid'])
            getaccountid.append(str(getaccount))        
         opportunity_query=Q('terms' ,**{'Account.Accountid':getaccountid})
+        #making final query for all fields and opportunity also 
         result_query=(final_query0&final_query&final_query2&final_query3) |final_query0|final_query|final_query2|final_query3
         search=Interest_Junction_cDocument.search().query(result_query)
         serializer=InterestJunctionFindClientSerializers(search,many=True)
@@ -1707,14 +1749,15 @@ def get_tokens(expression):
     return tokens
 
 
-
+###------------------------FIND CLIENT V2 API CURRENTLY WORKING-----------------------------###
 
 from django.http import JsonResponse
 from elasticsearch_dsl import Q,Search
 from elasticsearch_dsl.connections import connections
 
 
-
+##This is main class for v2 findclient we get json from here and call the filter data 
+##and pass the array and formula
 class FindClientApiView(APIView):
     def get (self,request):
         interestjunction=Interest_Junction_c.objects.all()
@@ -1729,6 +1772,9 @@ class FindClientApiView(APIView):
         results = [hit.to_dict() for hit in filterdata]
         return JsonResponse(results, safe=False)
 
+
+##this function makes query and manage all fields concatination according to formula 
+##to provide to parameters array of fields and formula
 def filter_data(filters, formula):
     search = Search()
     query_list = []
@@ -1764,6 +1810,9 @@ def filter_data(filters, formula):
     # print(response)
     return response
 
+
+##this function used for replace &,| on the place of AND,OR
+##according to formula 
 def create_query_string(formula, query_list):
     formula = formula.replace("AND", "&").replace("OR", "|")
     query_string = ""
@@ -1774,6 +1823,9 @@ def create_query_string(formula, query_list):
             query_string += char
     return query_string
 
+
+##making this function for handle to make query it will make autometically query according to condition           
+##only provide field name,logic,value in the parameter ,this func is not for array search
 def handle_filter_str(field_name, filter_logic, field_value):
     if filter_logic == 'Includes':
         # return Q("terms", field=field_name, value=field_value)
@@ -1792,7 +1844,8 @@ def handle_filter_str(field_name, filter_logic, field_value):
     else:
         return Q()
 
-
+##making this function for handle to make query it will make autometically query according to condition           
+##only provide field name,logic,value in the parameter ,this func is for array search
 def handle_filter_list(field_name, filter_logic, field_value):
     if filter_logic == 'Includes':
         # return Q("terms", field=field_name, value=field_value)
@@ -1813,20 +1866,37 @@ def handle_filter_list(field_name, filter_logic, field_value):
     else:
         return Q()
     
-
+def handle_filter_contain(field_name, filter_logic, field_value):
+    if filter_logic == 'Includes':
+        # return Q("terms", field=field_name, value=field_value)
+        return Q('bool', filter=[Q('terms', **{field_name: field_value})])
+    elif filter_logic == 'Exclude':
+        return Q('bool', must_not=[Q('terms',**{field_name: field_value})])
+    elif filter_logic == 'Contains':
+        match_phrase_queries = [Q('match_phrase', **{field_name: value}) for value in field_value]
+        return Q('bool', should=match_phrase_queries)
+    elif filter_logic == 'Equal':
+        return Q('terms',**{field_name:field_value})
+    elif filter_logic == 'Not Equal':
+        return Q('bool', must_not=[Q('terms',**{field_name: field_value})])
+    elif filter_logic == 'Greater than':
+        return Q('bool', filter=[Q('range',**{field_name: {'gte': field_value, 'format':'dd-mm-yy'}})])
+    elif filter_logic == 'Lesser than':
+        return Q('bool', filter=[Q('range',**{field_name: {'lte': field_value, 'format':'dd-mm-yy'}})])
+    else:
+        return Q()
+##this function is used for search opportunity and return query 
+##only provide 3 parameter fieldname,ligic,values 
 def opportunity_search(field_name,logic,values):
     query_list=[] 
     getaccount_id=[]  
     print('opportunity------',field_name,logic,values) 
     if type(values) == list:
-        querys=handle_filter_array(field_name,logic,values)
+        querys=handle_filter_contain(field_name,logic,values)
         # querys=Q('terms',**{field_name:values})
     else:
         querys=handle_filter_term(field_name,logic,values)    
-        # querys=Q('term',**{field_name:values})
-    print('QUERY---',querys)
     qzx=Q('bool', should=[Q('term', **{field_name:'Noida'})])
-    print('bool----',qzx)
     opportunity_search=OpportunityDocument.search().query(querys)
     serializers=OpportunitySerializersPost(opportunity_search,many=True)
     for y in serializers.data:
@@ -1840,7 +1910,8 @@ def opportunity_search(field_name,logic,values):
     return query1
 
            
-
+######-------------------------------BACKUP CODE-----------------------------------------#####
+##this code is currently not working but keep as a backup may be used for future
 # class FindClientApiView(APIView):
 #     def get (self,request):
 #         interestjunction=Interest_Junction_c.objects.all()
@@ -2340,3 +2411,4 @@ def convert_query(query):
 #             final_stack.append(item)
 
 #     return final_stack[0]
+#####----------------------------------------------------------------------------------#######
