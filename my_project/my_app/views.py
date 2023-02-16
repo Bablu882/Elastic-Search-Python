@@ -1905,7 +1905,7 @@ def opportunity_search(field_name,logic,values):
            getaccount=(dictaccount['Accountid'])
            getaccount_id.append(getaccount)
     # query1=Q('terms',**{"Account.Accountid":getaccount_id})
-    match_phrase_queries = [Q('match_phrase', **{field_name: value}) for value in query_list]
+    match_phrase_queries = [Q('match_phrase', **{"Account.Accountid": value}) for value in getaccount_id]
     return Q('bool', should=match_phrase_queries)
     # print('query---->',query1)       
     # return query1
