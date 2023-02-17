@@ -1509,10 +1509,10 @@ def handle_filter_term(field_name, filter_logic, field_value):
     elif filter_logic == 'Not Equal':
         return Q('bool', must_not=[Q('match_phrase', **{field_name:field_value})])
     elif filter_logic == 'Greater than':
-        queries=[Q('range', **{field_name: {'gt': field_value}})]
+        queries=[Q('constant_score', filter=Q('range', **{field_name: {'gte': field_value}}))]
         return Q('bool',should=queries)
     elif filter_logic == 'Lesser than':
-        queries=[Q('range', **{field_name: {'gt': field_value}})]
+        queries=[Q('constant_score', filter=Q('range', **{field_name: {'lte': field_value}}))]
         return Q('bool',should=queries)
     else:
         return Q()           
@@ -1883,7 +1883,7 @@ def handle_filter_list(field_name, filter_logic, field_value):
         return Q('bool',should=queries)
     else:
         return Q()
-        
+
 def handle_filter_contain(field_name, filter_logic, field_value):
     if filter_logic == 'Includes':
         return Q('match', **{field_name: {'query': ' '.join(field_value), 'operator': 'or'}})
