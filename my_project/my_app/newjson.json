@@ -1,0 +1,15 @@
+{
+    "InterestJunction":{
+        "JunctionCondition":"AND",
+        "InterestName":[
+            "ring",
+            "diamond"
+
+        ]
+    },
+    "FilterFields":{
+        "FilterCondition":"AND"
+
+
+    }
+}

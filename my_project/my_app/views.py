@@ -1492,6 +1492,7 @@ def handle_filter_array(field_name, filter_logic, field_value):
 
 def handle_filter_term(field_name, filter_logic, field_value):
     if filter_logic == 'Includes':
+        # return Q("terms", field=field_name, value=field_value)
         return Q(
             'multi_match',
             query=field_value,
@@ -1499,17 +1500,22 @@ def handle_filter_term(field_name, filter_logic, field_value):
                 field_name
             ],fuzziness='auto')
     elif filter_logic == 'Exclude':
-        return Q('bool', must_not=[Q('terms',**{field_name: field_value})])
+        return Q('bool', must_not=[Q('match_phrase',**{field_name: field_value})])
     elif filter_logic == 'Equal':
-        return Q('multi_match', query=field_value, fields=[field_name],type='phrase')
+        match_phrase_queries = [Q('match_phrase', **{field_name:field_value})]
+        return Q('bool', should=match_phrase_queries)
+    #    return Q('term', query=field_value, fields=[field_name])
+        # return Q('match', query=field_value, fields=[field_name])
     elif filter_logic == 'Not Equal':
-        return Q('bool', must_not=[Q('term',**{field_name: field_value})])
+        return Q('bool', must_not=[Q('match_phrase', **{field_name:field_value})])
     elif filter_logic == 'Greater than':
-        return Q('bool', filter=[Q('range',**{field_name: {'gte': field_value, 'format':'dd-mm-yy'}})])
+        queries=[Q('range', **{field_name: {'gt': field_value}})]
+        return Q('bool',should=queries)
     elif filter_logic == 'Lesser than':
-        return Q('bool', filter=[Q('range',**{field_name: {'lte': field_value, 'format':'dd-mm-yy'}})])
+        queries=[Q('range', **{field_name: {'gt': field_value}})]
+        return Q('bool',should=queries)
     else:
-        return Q()            
+        return Q()           
         
 class FindClientNewVersionApi(APIView):
     def get (self,request):
@@ -1799,12 +1805,12 @@ def filter_data(filters, formula):
 
     expression = create_query_string(formula,query_list)
     # print("start--> \n")
-    # print(expression,"\n")
+    print(expression,"\n")
     combined_query = (eval(expression))
     s = s.query(combined_query)
     s = s[(page - 1) * limit:page * limit]  # Implement pagination
     query_dict = s.to_dict()
-    # print('\combined_query---->',combined_query)
+    print('\combined_query---->',combined_query)
     # print('\nquery_dict---->',query_dict)
     response = s.execute()
     # print(response)
@@ -1829,18 +1835,27 @@ def create_query_string(formula, query_list):
 def handle_filter_str(field_name, filter_logic, field_value):
     if filter_logic == 'Includes':
         # return Q("terms", field=field_name, value=field_value)
-        return Q('bool', filter=[Q('term', **{field_name: field_value})])
+        return Q(
+            'multi_match',
+            query=field_value,
+            fields=[
+                field_name
+            ],fuzziness='auto')
     elif filter_logic == 'Exclude':
-        return Q('bool', must_not=[Q('terms',**{field_name: field_value})])
+        return Q('bool', must_not=[Q('match_phrase',**{field_name: field_value})])
     elif filter_logic == 'Equal':
-       # return Q('multi_match', query=field_value, fields=[field_name])
-        return Q('match', query=field_value, fields=[field_name])
+        match_phrase_queries = [Q('match_phrase', **{field_name:field_value})]
+        return Q('bool', should=match_phrase_queries)
+    #    return Q('term', query=field_value, fields=[field_name])
+        # return Q('match', query=field_value, fields=[field_name])
     elif filter_logic == 'Not Equal':
-        return Q('bool', must_not=[Q('term',**{field_name: field_value})])
+        return Q('bool', must_not=[Q('match_phrase', **{field_name:field_value})])
     elif filter_logic == 'Greater than':
-        return Q('bool', filter=[Q('range',**{field_name: {'gte': field_value, 'format':'dd-mm-yy'}})])
+        queries=[Q('range', **{field_name: {'gt': field_value}})]
+        return Q('bool',should=queries)
     elif filter_logic == 'Lesser than':
-        return Q('bool', filter=[Q('range',**{field_name: {'lte': field_value, 'format':'dd-mm-yy'}})])
+        queries=[Q('range', **{field_name: {'gt': field_value}})]
+        return Q('bool',should=queries)
     else:
         return Q()
 
@@ -1848,41 +1863,47 @@ def handle_filter_str(field_name, filter_logic, field_value):
 ##only provide field name,logic,value in the parameter ,this func is for array search
 def handle_filter_list(field_name, filter_logic, field_value):
     if filter_logic == 'Includes':
-        # return Q("terms", field=field_name, value=field_value)
-        return Q('bool', filter=[Q('terms', **{field_name: field_value})])
+        return Q('match', **{field_name: {'query': ' '.join(field_value), 'operator': 'or'}})
     elif filter_logic == 'Exclude':
-        return Q('bool', must_not=[Q('terms',**{field_name: field_value})])
+        return Q('bool', must_not=[Q('query_string', query=' OR '.join(f'"{value}"' for value in field_value), fields=[field_name])])
     elif filter_logic == 'Contains':
         match_phrase_queries = [Q('match_phrase', **{field_name: value}) for value in field_value]
         return Q('bool', should=match_phrase_queries)
     elif filter_logic == 'Equal':
-        return Q('terms',**{field_name:field_value})
+        term_queries = [Q('match_phrase', **{field_name: value}) for value in field_value]
+        return Q('bool', should=term_queries)
     elif filter_logic == 'Not Equal':
-        return Q('bool', must_not=[Q('terms',**{field_name: field_value})])
+        queries = [Q('match_phrase', **{field_name: value}) for value in field_value]
+        return Q('bool', must_not=queries)
     elif filter_logic == 'Greater than':
-        return Q('bool', filter=[Q('range',**{field_name: {'gte': field_value, 'format':'dd-mm-yy'}})])
+        queries=[Q('range', **{field_name: {'gt': value} for value in field_value})]
+        return Q('bool',should=queries)
     elif filter_logic == 'Lesser than':
-        return Q('bool', filter=[Q('range',**{field_name: {'lte': field_value, 'format':'dd-mm-yy'}})])
+        queries=[Q('range', **{field_name: {'lt': value} for value in field_value})]
+        return Q('bool',should=queries)
     else:
         return Q()
-    
+        
 def handle_filter_contain(field_name, filter_logic, field_value):
     if filter_logic == 'Includes':
-        # return Q("terms", field=field_name, value=field_value)
-        return Q('bool', filter=[Q('terms', **{field_name: field_value})])
+        return Q('match', **{field_name: {'query': ' '.join(field_value), 'operator': 'or'}})
     elif filter_logic == 'Exclude':
-        return Q('bool', must_not=[Q('terms',**{field_name: field_value})])
+        return Q('bool', must_not=[Q('query_string', query=' OR '.join(f'"{value}"' for value in field_value), fields=[field_name])])
     elif filter_logic == 'Contains':
         match_phrase_queries = [Q('match_phrase', **{field_name: value}) for value in field_value]
         return Q('bool', should=match_phrase_queries)
     elif filter_logic == 'Equal':
-        return Q('terms',**{field_name:field_value})
+        term_queries = [Q('match_phrase', **{field_name: value}) for value in field_value]
+        return Q('bool', should=term_queries)
     elif filter_logic == 'Not Equal':
-        return Q('bool', must_not=[Q('terms',**{field_name: field_value})])
+        queries = [Q('match_phrase', **{field_name: value}) for value in field_value]
+        return Q('bool', must_not=queries)
     elif filter_logic == 'Greater than':
-        return Q('bool', filter=[Q('range',**{field_name: {'gte': field_value, 'format':'dd-mm-yy'}})])
+        queries=[Q('range', **{field_name: {'gt': value} for value in field_value})]
+        return Q('bool',should=queries)
     elif filter_logic == 'Lesser than':
-        return Q('bool', filter=[Q('range',**{field_name: {'lte': field_value, 'format':'dd-mm-yy'}})])
+        queries=[Q('range', **{field_name: {'lt': value} for value in field_value})]
+        return Q('bool',should=queries)
     else:
         return Q()
 ##this function is used for search opportunity and return query 
@@ -1890,7 +1911,7 @@ def handle_filter_contain(field_name, filter_logic, field_value):
 def opportunity_search(field_name,logic,values):
     query_list=[] 
     getaccount_id=[]  
-    print('opportunity------',field_name,logic,values) 
+    # print('opportunity------',field_name,logic,values) 
     if type(values) == list:
         querys=handle_filter_contain(field_name,logic,values)
     else:
@@ -1899,7 +1920,7 @@ def opportunity_search(field_name,logic,values):
     opportunity_search=OpportunityDocument.search().query(querys)
     serializers=OpportunitySerializersPost(opportunity_search,many=True)
     for y in serializers.data:
-           print(y)
+        #    print(y)
            od2 = json.loads(json.dumps(y))
            dictaccount=(od2['AccountId'])
            getaccount=(dictaccount['Accountid'])
