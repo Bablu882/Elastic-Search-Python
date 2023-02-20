@@ -1755,12 +1755,12 @@ def get_tokens(expression):
     return tokens
 
 
-###------------------------FIND CLIENT V2 API CURRENTLY WORKING-----------------------------###
+###------------------------FIND CLIENT V2 START API CURRENTLY WORKING-----------------------------###
 
 from django.http import JsonResponse
 from elasticsearch_dsl import Q,Search
 from elasticsearch_dsl.connections import connections
-
+import math
 
 ##This is main class for v2 findclient we get json from here and call the filter data 
 ##and pass the array and formula
@@ -1770,13 +1770,31 @@ class FindClientApiView(APIView):
         serializers=InterestJunctionFindClientSerializers(interestjunction,many=True)
         return Response(serializers.data)
 
-    def post(self,request):
-        conditions=[]
-        filters=request.data.get('filters')
-        formula=request.data.get('formula')
-        filterdata=filter_data(filters,formula)
+    def post(self, request):
+        conditions = []
+        filters = request.data.get('filters')
+        formula = request.data.get('formula')
+        filterdata = filter_data(filters, formula)
         results = [hit.to_dict() for hit in filterdata]
-        return JsonResponse(results, safe=False)
+
+        # Pagination
+        limit = 100
+        page = int(request.query_params.get('page', 1))
+        start_index = (page - 1) * limit
+        end_index = start_index + limit
+        total_hits = len(results)
+        total_pages = math.ceil(total_hits / limit)
+        next_url = None
+        if page < total_pages:
+            next_url = request.build_absolute_uri() + f'?page={page+1}'
+
+        paginated_results = results[start_index:end_index]
+        response = {
+            'results': paginated_results,
+            'total_page': total_hits,
+            'next': next_url,
+        }
+        return JsonResponse(response, safe=False)
 
 
 ##this function makes query and manage all fields concatination according to formula 
@@ -1784,8 +1802,6 @@ class FindClientApiView(APIView):
 def filter_data(filters, formula):
     search = Search()
     query_list = []
-    limit = 20
-    page = 1
     for i, filter in enumerate(filters):
         for key in filter:
             # print('key------',key)
@@ -1808,13 +1824,48 @@ def filter_data(filters, formula):
     print(expression,"\n")
     combined_query = (eval(expression))
     s = s.query(combined_query)
-    s = s[(page - 1) * limit:page * limit]  # Implement pagination
     query_dict = s.to_dict()
     print('\combined_query---->',combined_query)
     # print('\nquery_dict---->',query_dict)
     response = s.execute()
     # print(response)
     return response
+
+
+# def filter_data(filters, formula):
+#     search = Search()
+#     query_list = []
+#     limit = 10000
+#     page = 1
+#     for i, filter in enumerate(filters):
+#         for key in filter:
+#             # print('key------',key)
+#             field_name = filter[key]['fieldName']
+#             logic = filter[key]['logic']
+#             values = filter[key]['value']
+#             if not key == 'Opportunity':
+#                 if isinstance(values, list):
+#                     query = handle_filter_list(field_name, logic, values)  
+#                 else:
+#                     query = handle_filter_str(field_name, logic, values)
+#             else:
+#                 query=opportunity_search(field_name,logic,values)
+#             query_list.append(query)
+#     client = Elasticsearch()
+#     s = Search(using=client, index='interest_junction_cs')
+
+#     expression = create_query_string(formula,query_list)
+#     # print("start--> \n")
+#     print(expression,"\n")
+#     combined_query = (eval(expression))
+#     s = s.query(combined_query)
+#     s = s[(page - 1) * limit:page * limit]  # Implement pagination
+#     query_dict = s.to_dict()
+#     print('\combined_query---->',combined_query)
+#     # print('\nquery_dict---->',query_dict)
+#     response = s.execute()
+#     # print(response)
+#     return response
 
 
 ##this function used for replace &,| on the place of AND,OR
@@ -1928,9 +1979,8 @@ def opportunity_search(field_name,logic,values):
     # query1=Q('terms',**{"Account.Accountid":getaccount_id})
     match_phrase_queries = [Q('match_phrase', **{"Account.Accountid": value}) for value in getaccount_id]
     return Q('bool', should=match_phrase_queries)
-    # print('query---->',query1)       
-    # return query1
-
+    
+####--------------------------------FIND CLIENT END HERE--------------------------------------#####
            
 ######-------------------------------BACKUP CODE-----------------------------------------#####
 ##this code is currently not working but keep as a backup may be used for future
@@ -2434,3 +2484,23 @@ def convert_query(query):
 
 #     return final_stack[0]
 #####----------------------------------------------------------------------------------#######
+
+
+import subprocess
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def rebuild_search_index(request):
+    if request.method == 'POST':
+        # Only allow POST requests to trigger the command
+        process = subprocess.Popen(['python3', 'manage.py', 'search_index', '--rebuild'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+        stdout, stderr = process.communicate(input=b'y\n')
+        if stderr:
+            print(stderr.decode())
+            return HttpResponse(stderr, status=500)
+        else:
+            print(stdout.decode())
+            return HttpResponse('Search index rebuilt')
+    else:
+        return HttpResponse('Method not allowed', status=405)
