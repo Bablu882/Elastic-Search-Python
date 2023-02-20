@@ -1,5 +1,6 @@
 from django.urls import path,include,re_path
 from .views import *
+from . import views
 
 
 # from rest_framework import routers
@@ -41,9 +42,12 @@ urlpatterns=[
     path('api/get-delete-bulk-account/',AccountBulkDelete.as_view()),
     path('api/find/',ClientFind.as_view()),
     path('api/v-2/find_client/',FindClientNewVersionApi.as_view()),
+    path('api/v2/find_client',FindClientApiView.as_view()),
     path('api/v2/find_client/',FindClientApiView.as_view()),
     path('api/v4/find_client/',FindClientNew.as_view()),
     # path('api/find',FindClientV.as_view()),
+    path('api/rebuild_search_index/', views.rebuild_search_index, name='rebuild_search_index'),
+
 ])),
 
 
