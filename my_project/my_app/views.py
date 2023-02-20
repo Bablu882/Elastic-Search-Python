@@ -1791,7 +1791,7 @@ class FindClientApiView(APIView):
         paginated_results = results[start_index:end_index]
         response = {
             'results': paginated_results,
-            'total_page': total_hits,
+            'total_page': total_pages,
             'next': next_url,
         }
         return JsonResponse(response, safe=False)
