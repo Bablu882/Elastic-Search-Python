@@ -86,7 +86,7 @@ class Opportunity(models.Model):
     AccountId=models.ForeignKey(Account,to_field='Accountid',on_delete=models.SET_NULL,null=True)
     StageName=models.CharField(max_length=100,null=False,blank=False)
     Billing_City=models.CharField(max_length=100,null=False,blank=False)
-    AverageitemSold=models.CharField(max_length=100,null=False,blank=False)
+    AverageitemSold=models.DecimalField(max_digits=10, decimal_places=2)
 
 
 

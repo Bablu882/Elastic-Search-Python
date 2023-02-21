@@ -1509,11 +1509,11 @@ def handle_filter_term(field_name, filter_logic, field_value):
     elif filter_logic == 'Not Equal':
         return Q('bool', must_not=[Q('match_phrase', **{field_name:field_value})])
     elif filter_logic == 'Greater than':
-        queries=[Q('constant_score', filter=Q('range', **{field_name: {'gte': field_value}}))]
+        queries=[Q('range', **{field_name: {'gt': field_value}})]
         return Q('bool',should=queries)
     elif filter_logic == 'Lesser than':
-        queries=[Q('constant_score', filter=Q('range', **{field_name: {'lte': field_value}}))]
-        return Q('bool',should=queries)
+        queries=[Q('range', **{field_name: {'lt': field_value}})]
+        return Q('bool', must=queries)
     else:
         return Q()           
 #find Client back version        
@@ -1774,7 +1774,7 @@ class FindClientApiView(APIView):
         filters = request.data.get('filters')
         formula = request.data.get('formula')
         filterdata = filter_data(filters, formula)
-        print(filterdata)
+        # print(filterdata)
         results = [hit.to_dict() for hit in filterdata]
 
         # Pagination
@@ -1906,7 +1906,7 @@ def handle_filter_str(field_name, filter_logic, field_value):
         queries=[Q('range', **{field_name: {'gt': field_value}})]
         return Q('bool',should=queries)
     elif filter_logic == 'Lesser than':
-        queries=[Q('range', **{field_name: {'gt': field_value}})]
+        queries=[Q('range', **{field_name: {'lt': field_value}})]
         return Q('bool',should=queries)
     else:
         return Q()
@@ -1969,6 +1969,7 @@ def opportunity_search(field_name,logic,values):
     else:
         querys=handle_filter_term(field_name,logic,values)    
     # qzx=Q('bool', should=[Q('term', **{field_name:'Noida'})])
+    print('qu00000---',querys)
     opportunity_search=OpportunityDocument.search().query(querys)
     serializers=OpportunitySerializersPost(opportunity_search,many=True)
     for y in serializers.data:
