@@ -1771,72 +1771,38 @@ class FindClientApiView(APIView):
         return Response(serializers.data)
 
     def post(self, request):
-        conditions = []
         filters = request.data.get('filters')
         formula = request.data.get('formula')
         filterdata = filter_data(filters, formula)
+        print(filterdata)
         results = [hit.to_dict() for hit in filterdata]
 
         # Pagination
-        limit = 100
         page = int(request.query_params.get('page', 1))
-        start_index = (page - 1) * limit
-        end_index = start_index + limit
+        page_size = int(request.query_params.get('page_size', 100))
+        start_index = (page - 1) * page_size
+        end_index = start_index + page_size
         total_hits = len(results)
-        total_pages = math.ceil(total_hits / limit)
+        total_pages = math.ceil(total_hits / page_size)
         next_url = None
         if page < total_pages:
-            next_url = request.build_absolute_uri() + f'?page={page+1}'
+            next_url = f'https://elastic.demoserver.in/python/api/v2/find_client/?page={page+1}'
 
         paginated_results = results[start_index:end_index]
         response = {
             'results': paginated_results,
-            'total_page': total_pages,
+            'total_pages': total_pages,
             'next': next_url,
+            'count': total_hits
         }
-        return JsonResponse(response, safe=False)
+        return Response(response)
 
 
 ##this function makes query and manage all fields concatination according to formula 
 ##to provide to parameters array of fields and formula
-def filter_data(filters, formula):
-    search = Search()
-    query_list = []
-    for i, filter in enumerate(filters):
-        for key in filter:
-            # print('key------',key)
-            field_name = filter[key]['fieldName']
-            logic = filter[key]['logic']
-            values = filter[key]['value']
-            if not key == 'Opportunity':
-                if isinstance(values, list):
-                    query = handle_filter_list(field_name, logic, values)  
-                else:
-                    query = handle_filter_str(field_name, logic, values)
-            else:
-                query=opportunity_search(field_name,logic,values)
-            query_list.append(query)
-    client = Elasticsearch()
-    s = Search(using=client, index='interest_junction_cs')
-
-    expression = create_query_string(formula,query_list)
-    # print("start--> \n")
-    print(expression,"\n")
-    combined_query = (eval(expression))
-    s = s.query(combined_query)
-    query_dict = s.to_dict()
-    print('\combined_query---->',combined_query)
-    # print('\nquery_dict---->',query_dict)
-    response = s.execute()
-    # print(response)
-    return response
-
-
 # def filter_data(filters, formula):
 #     search = Search()
 #     query_list = []
-#     limit = 10000
-#     page = 1
 #     for i, filter in enumerate(filters):
 #         for key in filter:
 #             # print('key------',key)
@@ -1859,13 +1825,48 @@ def filter_data(filters, formula):
 #     print(expression,"\n")
 #     combined_query = (eval(expression))
 #     s = s.query(combined_query)
-#     s = s[(page - 1) * limit:page * limit]  # Implement pagination
 #     query_dict = s.to_dict()
 #     print('\combined_query---->',combined_query)
 #     # print('\nquery_dict---->',query_dict)
 #     response = s.execute()
 #     # print(response)
 #     return response
+
+
+def filter_data(filters, formula):
+    search = Search()
+    query_list = []
+    limit = 10000
+    page = 1
+    for i, filter in enumerate(filters):
+        for key in filter:
+            # print('key------',key)
+            field_name = filter[key]['fieldName']
+            logic = filter[key]['logic']
+            values = filter[key]['value']
+            if not key == 'Opportunity':
+                if isinstance(values, list):
+                    query = handle_filter_list(field_name, logic, values)  
+                else:
+                    query = handle_filter_str(field_name, logic, values)
+            else:
+                query=opportunity_search(field_name,logic,values)
+            query_list.append(query)
+    client = Elasticsearch()
+    s = Search(using=client, index='interest_junction_cs')
+
+    expression = create_query_string(formula,query_list)
+    # print("start--> \n")
+    print(expression,"\n")
+    combined_query = (eval(expression))
+    s = s.query(combined_query)
+    s = s[(page - 1) * limit:page * limit]  # Implement pagination
+    query_dict = s.to_dict()
+    print('\combined_query---->',combined_query)
+    # print('\nquery_dict---->',query_dict)
+    response = s.execute()
+    # print(response)
+    return response
 
 
 ##this function used for replace &,| on the place of AND,OR
