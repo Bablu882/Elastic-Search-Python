@@ -1516,7 +1516,7 @@ def handle_filter_term(field_name, filter_logic, field_value):
         return Q('bool',should=queries)
     else:
         return Q()           
-        
+#find Client back version        
 class FindClientNewVersionApi(APIView):
     def get (self,request):
         interestjunction=Interest_Junction_c.objects.all()
