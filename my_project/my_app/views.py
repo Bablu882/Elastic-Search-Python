@@ -1509,10 +1509,10 @@ def handle_filter_term(field_name, filter_logic, field_value):
     elif filter_logic == 'Not Equal':
         return Q('bool', must_not=[Q('match_phrase', **{field_name:field_value})])
     elif filter_logic == 'Greater than':
-        queries=[Q('range', **{field_name: {'gt': field_value}})]
+        queries=[Q('range', **{field_name: {'gte': field_value}})]
         return Q('bool',should=queries)
     elif filter_logic == 'Lesser than':
-        queries=[Q('range', **{field_name: {'lt': field_value}})]
+        queries=Q('range', **{field_name: {'lte': field_value}})
         return Q('bool', must=queries)
     else:
         return Q()           
