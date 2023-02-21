@@ -1793,7 +1793,7 @@ class FindClientApiView(APIView):
             'results': paginated_results,
             'total_pages': total_pages,
             'next': next_url,
-            'count': total_hits
+            # 'count': total_hits
         }
         return Response(response)
 
