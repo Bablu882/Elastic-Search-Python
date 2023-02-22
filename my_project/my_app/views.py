@@ -534,10 +534,19 @@ class AccountApiVIew(APIView):
 ###-------------------------------------INTEREST BULK SAVE API--------------------------------###
 
 class InterestApiVIew(APIView):
-    def get(self,request,format=None):
-        interest=Interest.objects.all()
-        serializers=InterestSerializers(interest,many=True)
-        return Response(serializers.data)
+    PAGE_SIZE = 10
+
+    def get(self, request, format=None):
+        paginator = PageNumberPagination()
+        paginator.page_size = self.PAGE_SIZE
+        interests = paginator.paginate_queryset(Interest.objects.all(), request)
+        serializer = InterestSerializers(interests, many=True)
+        response_data = {'page': paginator.page.number, 'total_pages': paginator.page.paginator.num_pages, 'results': serializer.data}
+        # Add next page URL to response
+        if paginator.page.has_next():
+            base_url = request.build_absolute_uri().split('?')[0]
+            response_data['next'] = f"{base_url}?page={paginator.page.next_page_number()}"
+        return Response(response_data)
 
     def post(self,request,format=None):
         update=[]
@@ -567,10 +576,19 @@ class InterestApiVIew(APIView):
 ###--------------------------------------OPPORTUNITY BULK SAVE API-------------------------------###
 
 class OpportunityApiVIew(APIView):
-    def get(self,request,format=None):
-        opp=Opportunity.objects.all()
-        serializers=OpportunitySerializers(opp,many=True)
-        return Response(serializers.data)
+    PAGE_SIZE = 1000
+
+    def get(self, request, format=None):
+        paginator = PageNumberPagination()
+        paginator.page_size = self.PAGE_SIZE
+        opportunities = paginator.paginate_queryset(Opportunity.objects.all(), request)
+        serializer = OpportunitySerializers(opportunities, many=True)
+        response_data = {'page': paginator.page.number, 'total_pages': paginator.page.paginator.num_pages, 'results': serializer.data}
+        # Add next page URL to response
+        if paginator.page.has_next():
+            base_url = request.build_absolute_uri().split('?')[0]
+            response_data['next'] = f"{base_url}?page={paginator.page.next_page_number()}"
+        return Response(response_data)
 
     def post(self,request,format=None):
         update=[]
@@ -642,11 +660,19 @@ class OpportunityApiVIew(APIView):
 ###------------------------------INTEREST JUNCTION BULK SAVE API--------------------------------###
 
 class InterstJunctionApiVIew(APIView):
-    def get(self,request,format=None):
-        opp=Interest_Junction_c.objects.all()
-        serializers=InterestJunctionSerializers(opp,many=True)
-        return Response(serializers.data)
+    PAGE_SIZE = 10
 
+    def get(self, request, format=None):
+        paginator = PageNumberPagination()
+        paginator.page_size = self.PAGE_SIZE
+        interest_junctions = paginator.paginate_queryset(Interest_Junction_c.objects.all(), request)
+        serializer = InterestJunctionSerializers(interest_junctions, many=True)
+        response_data = {'page': paginator.page.number, 'total_pages': paginator.page.paginator.num_pages, 'results': serializer.data}
+        # Add next page URL to response
+        if paginator.page.has_next():
+            base_url = request.build_absolute_uri().split('?')[0]
+            response_data['next'] = f"{base_url}?page={paginator.page.next_page_number()}"
+        return Response(response_data)
     def post(self,request,format=None):
         update=[]
         create=[]
@@ -816,10 +842,10 @@ class InterstJunctionApiVIew(APIView):
 ###--------------------------------------ACCOUNT BULK DELETE API---------------------------------###
 
 class AccountDelete(APIView):
-    def get(self,request,format=None):
-        get=Account.objects.all()
-        serial=AccountSerializers(get,many=True)
-        return Response(serial.data)
+    # def get(self,request,format=None):
+    #     get=Account.objects.all()
+    #     serial=AccountSerializers(get,many=True)
+    #     return Response(serial.data)
 
     def post(self,request,format=None):
         failed=[]
@@ -839,10 +865,10 @@ class AccountDelete(APIView):
 ###-------------------------------------INTEREST BULK DELETE API----------------------------------###
 
 class InterestDelete(APIView):
-    def get(self,request,format=None):
-        get=Interest.objects.all()
-        serial=InterestSerializers(get,many=True)
-        return Response(serial.data)
+    # def get(self,request,format=None):
+    #     get=Interest.objects.all()
+    #     serial=InterestSerializers(get,many=True)
+    #     return Response(serial.data)
 
     def post(self,request,format=None):
         failed=[]
@@ -862,10 +888,10 @@ class InterestDelete(APIView):
 ###------------------------------------PRODUCT BULK DELETE API-----------------------------------###
 
 class ProductDelete(APIView):
-    def get(self,request,format=None):
-        get=Product.objects.all()
-        serial=ProductSerializers(get,many=True)
-        return Response(serial.data)
+    # def get(self,request,format=None):
+    #     get=Product.objects.all()
+    #     serial=ProductSerializers(get,many=True)
+    #     return Response(serial.data)
 
     def post(self,request,format=None):
         failed=[]
@@ -885,10 +911,10 @@ class ProductDelete(APIView):
 ###----------------------------------OPPORTUNITY BULK DELETE API---------------------------------###
 
 class OpportunityDelete(APIView):
-    def get(self,request,format=None):
-        get=Opportunity.objects.all()
-        serial=OpportunitySerializers(get,many=True)
-        return Response(serial.data)
+    # def get(self,request,format=None):
+    #     get=Opportunity.objects.all()
+    #     serial=OpportunitySerializers(get,many=True)
+    #     return Response(serial.data)
 
     def post(self,request,format=None):
         failed=[]
@@ -908,10 +934,10 @@ class OpportunityDelete(APIView):
 ###--------------------------------INTEREST JUNCTION BULK DELETE API----------------------------------###
 
 class InterestJunctionDelete(APIView):
-    def get(self,request,format=None):
-        get=Interest_Junction_c.objects.all()
-        serial=InterestJunctionSerializers(get,many=True)
-        return Response(serial.data)
+    # def get(self,request,format=None):
+    #     get=Interest_Junction_c.objects.all()
+    #     serial=InterestJunctionSerializers(get,many=True)
+    #     return Response(serial.data)
 
     def post(self,request,format=None):
         failed=[]
@@ -933,10 +959,10 @@ class InterestJunctionDelete(APIView):
 ###-------------------------------------ACCOUNT BULK DELETE API--------------------------------###
 ##currently this api is not working instead of it AccountDelete above is working 
 class AccountBulkDelete(APIView):
-    def get(self,request,format=None):
-        get=Account.objects.all()
-        serial=AccountSerializers(get,many=True)
-        return Response(serial.data)
+    # def get(self,request,format=None):
+    #     get=Account.objects.all()
+    #     serial=AccountSerializers(get,many=True)
+    #     return Response(serial.data)
 
     def post(self,request,format=None):
         data=request.data.get('data')
@@ -953,10 +979,10 @@ class AccountBulkDelete(APIView):
 ###---------------------------------------FIND CLIENT API------------------------------------------###
 ##this api is used for find client first version 
 class ClientFind(APIView):
-    def get(self,request,format=None):
-        data=Interest_Junction_c.objects.all()
-        serializers=InterestJunctionFindClientSerializers(data,many=True)
-        return Response(serializers.data)
+    # def get(self,request,format=None):
+    #     data=Interest_Junction_c.objects.all()
+    #     serializers=InterestJunctionFindClientSerializers(data,many=True)
+    #     return Response(serializers.data)
     def post(self,request,format=None):
         getaccountid=[]
         #difining globle variable for not getting error of local variable refrence
@@ -1532,10 +1558,10 @@ def handle_filter_term(field_name, filter_logic, field_value):
         return Q()           
 #find Client back version        
 class FindClientNewVersionApi(APIView):
-    def get (self,request):
-        interestjunction=Interest_Junction_c.objects.all()
-        serializers=InterestJunctionFindClientSerializers(interestjunction,many=True)
-        return Response(serializers.data)
+    # def get (self,request):
+    #     interestjunction=Interest_Junction_c.objects.all()
+    #     serializers=InterestJunctionFindClientSerializers(interestjunction,many=True)
+    #     return Response(serializers.data)
         
     def post(self,request):
         getaccountid=[]
@@ -1618,10 +1644,10 @@ class FindClientNewVersionApi(APIView):
 
 
 class FindClientNew(APIView):
-    def get (self,request):
-        interestjunction=Interest_Junction_c.objects.all()
-        serializers=InterestJunctionFindClientSerializers(interestjunction,many=True)
-        return Response(serializers.data)
+    # def get (self,request):
+    #     interestjunction=Interest_Junction_c.objects.all()
+    #     serializers=InterestJunctionFindClientSerializers(interestjunction,many=True)
+    #     return Response(serializers.data)
     
     def post(self,request):
         account_array=[]
@@ -1779,10 +1805,19 @@ import math
 ##This is main class for v2 findclient we get json from here and call the filter data 
 ##and pass the array and formula
 class FindClientApiView(APIView):
-    def get (self,request):
-        interestjunction=Interest_Junction_c.objects.all()
-        serializers=InterestJunctionFindClientSerializers(interestjunction,many=True)
-        return Response(serializers.data)
+    PAGE_SIZE = 1000
+
+    def get(self, request, format=None):
+        paginator = PageNumberPagination()
+        paginator.page_size = self.PAGE_SIZE
+        interest_junctions = paginator.paginate_queryset(Interest_Junction_c.objects.all(), request)
+        serializer = InterestJunctionFindClientSerializers(interest_junctions, many=True)
+        response_data = {'page': paginator.page.number, 'total_pages': paginator.page.paginator.num_pages, 'results': serializer.data}
+        # Add next page URL to response
+        if paginator.page.has_next():
+            base_url = request.build_absolute_uri().split('?')[0]
+            response_data['next'] = f"{base_url}?page={paginator.page.next_page_number()}"
+        return Response(response_data)
 
     def post(self, request):
         filters = request.data.get('filters')
@@ -1793,7 +1828,7 @@ class FindClientApiView(APIView):
 
         # Pagination
         page = int(request.query_params.get('page', 1))
-        page_size = int(request.query_params.get('page_size', 100))
+        page_size = int(request.query_params.get('page_size', 1000))
         start_index = (page - 1) * page_size
         end_index = start_index + page_size
         total_hits = len(results)
@@ -1806,8 +1841,8 @@ class FindClientApiView(APIView):
         response = {
             'results': paginated_results,
             'total_pages': total_pages,
-            'next': next_url,
-            # 'count': total_hits
+            'current_page': page,
+            'next': next_url
         }
         return Response(response)
 
@@ -2520,3 +2555,46 @@ def rebuild_search_index(request):
             return HttpResponse('Search index rebuilt')
     else:
         return HttpResponse('Method not allowed', status=405)
+
+
+# from django.utils.crypto import get_random_string
+# from my_app.models import Interest_Junction_c, Account, Interest, Product
+# import random
+
+# def create_interest_junctions(num_instances):
+#     # create a list of choices for InterestType
+#     choices_type = ['Type 1', 'Type 2', 'Type 3', 'Type 4']
+    
+#     # loop to create instances and save them to the database
+#     for i in range(num_instances):
+#         # generate random strings for InterestNameJunction and InterestJunctionID
+#         interest_name_junction = get_random_string(100)
+#         interest_junction_id = get_random_string(100)
+        
+#         # select random choices for InterestType and link_With
+#         interest_type = random.choice(choices_type)
+#         link_with = random.choice(['Account', 'Product'])
+        
+#         # select random instances for Account, Interest, and Product
+#         account = Account.objects.order_by('?').first()
+#         interest = Interest.objects.order_by('?').first()
+#         product = Product.objects.order_by('?').first()
+        
+#         # create an instance of Interest_Junction_c
+#         instance = Interest_Junction_c(
+#             InterestNameJunction=interest_name_junction,
+#             InterestName="Ring",
+#             InterestJunctionID=interest_junction_id,
+#             InterestType=interest_type,
+#             link_With=link_with,
+#             Account=account if link_with == 'Account' else None,
+#             Interest=interest,
+#             Product=product if link_with == 'Product' else None
+#         )
+        
+#         # save the instance to the database
+#         instance.save()
+
+# def my_view(request):
+#     create_interest_junctions(num_instances=2000)
+#     return Response({"msg":"success"})     
