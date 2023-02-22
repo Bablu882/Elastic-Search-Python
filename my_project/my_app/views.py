@@ -213,7 +213,7 @@ class SearchListOpportunity(APIView):
                     'OpportunityName',
                     'StageName',
                     'Billing_City',
-                    'AverageitemSold',
+                    # 'AverageitemSold',
                     'AccountId.Accountid',
                     'AccountId.AccountName',
                     'AccountId.State',
@@ -412,16 +412,21 @@ class OpportunityView(viewsets.ModelViewSet):
 
 ###---------------------------------PRODUCT BULK SAVE API-----------------------------------###
 from django.core.paginator import Paginator
+from rest_framework.pagination import PageNumberPagination
 
 class ProductApiVIew(APIView):
     PAGE_SIZE=1000
-    def get(self,request,format=None):
-        page_num=request.query_params.get('page',1)
-        product=Product.objects.all()
-        paginator=Paginator(product,self.PAGE_SIZE)
-        page=paginator.get_page(page_num)
-        serializers=ProductSerializers(page,many=True)
-        return Response(serializers.data)
+    def get(self, request, format=None):
+        paginator = PageNumberPagination()
+        paginator.page_size = self.PAGE_SIZE
+        products = paginator.paginate_queryset(Product.objects.all(), request)
+        serializer = ProductSerializers(products, many=True)
+        response_data = {'page': paginator.page.number, 'total_pages': paginator.page.paginator.num_pages, 'results': serializer.data}
+        # Add next page URL to response
+        if paginator.page.has_next():
+            base_url = request.build_absolute_uri().split('?')[0]
+            response_data['next'] = f"{base_url}?page={paginator.page.next_page_number()}"
+        return Response(response_data)
 
     def post(self,request,format=None):
         update=[]
@@ -447,10 +452,19 @@ class ProductApiVIew(APIView):
 ###----------------------------------------ACCOUNT BULK SAVE API-------------------------------###
 
 class AccountApiVIew(APIView):
-    def get(self,request,format=None):
-        product=Account.objects.all()
-        serializers=AccountSerializers(product,many=True)
-        return Response(serializers.data)
+    PAGE_SIZE = 1000
+
+    def get(self, request, format=None):
+        paginator = PageNumberPagination()
+        paginator.page_size = self.PAGE_SIZE
+        accounts = paginator.paginate_queryset(Account.objects.all(), request)
+        serializer = AccountSerializers(accounts, many=True)
+        response_data = {'page': paginator.page.number, 'total_pages': paginator.page.paginator.num_pages, 'results': serializer.data}
+        # Add next page URL to response
+        if paginator.page.has_next():
+            base_url = request.build_absolute_uri().split('?')[0]
+            response_data['next'] = f"{base_url}?page={paginator.page.next_page_number()}"
+        return Response(response_data)
 
     def post(self,request,format=None):
         update=[]
