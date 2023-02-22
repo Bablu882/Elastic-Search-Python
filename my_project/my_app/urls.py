@@ -47,6 +47,7 @@ urlpatterns=[
     path('api/v4/find_client/',FindClientNew.as_view()),
     # path('api/find',FindClientV.as_view()),
     path('api/rebuild_search_index/', views.rebuild_search_index, name='rebuild_search_index'),
+    # path('api/create_junction/',my_view,name='create'),
 
 ])),
 

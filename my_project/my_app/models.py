@@ -4,24 +4,24 @@ from django.db import models
 
 class Account(models.Model):
     Accountid=models.CharField(primary_key=True,max_length=100)
-    AccountName=models.CharField(max_length=100,null=False,blank=False)
-    State=models.CharField(max_length=100,null=False,blank=False)
+    AccountName=models.CharField(max_length=255,null=False,blank=False)
+    State=models.CharField(max_length=255,null=False,blank=False)
     LastPurchasedDate=models.CharField(max_length=50,null=False,blank=False)
     TotalPurchase=models.CharField(max_length=100,null=False,blank=False)
     choices_opt=(
         ('OptIn','OptIn'),
         ('OptOut','OptOut')
     )
-    PersonHasOptedOutOfEmail=models.CharField(max_length=20,choices=choices_opt)
-    CategoryOfInterest=models.CharField(max_length=100,null=False,blank=False)
-    PeriodOfInterest=models.CharField(max_length=100,null=False,blank=False)
-    TypeOfInterest=models.CharField(max_length=100,null=False,blank=False)
+    PersonHasOptedOutOfEmail=models.CharField(max_length=100,choices=choices_opt)
+    CategoryOfInterest=models.CharField(max_length=2500,null=False,blank=False)
+    PeriodOfInterest=models.CharField(max_length=2500,null=False,blank=False)
+    TypeOfInterest=models.CharField(max_length=2500,null=False,blank=False)
     YoungerAudience=models.CharField(max_length=100,null=False,blank=False)
     Star5=models.CharField(max_length=100,null=True,blank=True)
     AccountLastPurchaseDate=models.CharField(max_length=50,null=False,blank=False)
-    HolidayCelebrated=models.CharField(max_length=100,null=False,blank=False)
+    HolidayCelebrated=models.CharField(max_length=255,null=False,blank=False)
     Email=models.EmailField()
-    ShippingCity=models.CharField(max_length=100,null=False,blank=False)
+    ShippingCity=models.CharField(max_length=255,null=False,blank=False)
     FindClients_visible=models.CharField(max_length=100,null=False,blank=False)
 
 
@@ -48,7 +48,7 @@ class Interest(models.Model):
 
 class Product(models.Model):
     Productid=models.CharField(primary_key=True,max_length=100)
-    ProductName=models.CharField(max_length=100,null=False,blank=False)
+    ProductName=models.CharField(max_length=255,null=False,blank=False)
     
 
 # class InterestJunction(models.Model):
@@ -65,8 +65,8 @@ class Product(models.Model):
 
 
 class Interest_Junction_c(models.Model):
-    InterestNameJunction=models.CharField(max_length=100,null=False,blank=False)
-    InterestName=models.CharField(max_length=100,null=False,blank=False)
+    InterestNameJunction=models.CharField(max_length=255,null=False,blank=False)
+    InterestName=models.CharField(max_length=255,null=False,blank=False)
     InterestJunctionID=models.CharField(primary_key=True,max_length=100)
     InterestType=models.CharField(max_length=100,null=True,blank=True)
     choices_with=(
@@ -82,10 +82,10 @@ class Interest_Junction_c(models.Model):
 
 class Opportunity(models.Model):
     OpportunityId=models.CharField(primary_key=True,max_length=100)
-    OpportunityName=models.CharField(max_length=100,null=False,blank=False)
+    OpportunityName=models.CharField(max_length=255,null=False,blank=False)
     AccountId=models.ForeignKey(Account,to_field='Accountid',on_delete=models.SET_NULL,null=True)
     StageName=models.CharField(max_length=100,null=False,blank=False)
-    Billing_City=models.CharField(max_length=100,null=False,blank=False)
+    Billing_City=models.CharField(max_length=255,null=False,blank=False)
     AverageitemSold=models.DecimalField(max_digits=10, decimal_places=2)
 
 
