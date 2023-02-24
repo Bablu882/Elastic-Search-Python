@@ -22,7 +22,7 @@ class Account(models.Model):
     HolidayCelebrated=models.CharField(max_length=255,null=False,blank=False)
     Email=models.EmailField()
     ShippingCity=models.CharField(max_length=255,null=False,blank=False)
-    FindClients_visible=models.CharField(max_length=100,null=False,blank=False)
+    BouncedEmail=models.CharField(max_length=100,null=False,blank=False)
 
 
 
