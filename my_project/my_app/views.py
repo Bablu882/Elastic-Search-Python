@@ -153,7 +153,7 @@ class SearchListAccount(APIView):
                     'HolidayCelebrated',
                     'Email',
                     'ShippingCity',
-                    'FindClients_visible'
+                    'BouncedEmail'
                 ],
                 fuzziness='auto')
             #search above fields in account documents in elasticsearch
@@ -229,7 +229,7 @@ class SearchListOpportunity(APIView):
                     'AccountId.HolidayCelebrated',
                     'AccountId.Email',
                     'AccountId.ShippingCity',
-                    'AccountId.FindClients_visible'
+                    'AccountId.BouncedEmail'
                 ],
                 fuzziness='auto')
             #search above query in Opportunity documents in elasticsearch    
@@ -278,7 +278,7 @@ class SearchInterestJunction(APIView):
                         'Account.HolidayCelebrated',
                         'Account.Email',
                         'Account.ShippingCity',
-                        'Account.FindClients_visible',
+                        'Account.BouncedEmail',
                         'Product.ProductName',
                         'Product.Productid',
                         
@@ -316,7 +316,7 @@ class SearchInterestJunction(APIView):
                         'Account.HolidayCelebrated',
                         'Account.Email',
                         'Account.ShippingCity',
-                        'Account.FindClients_visible',
+                        'Account.BouncedEmail',
                         'Product.ProductName',
                         'Product.Productid',
                         
@@ -487,7 +487,7 @@ class AccountApiVIew(APIView):
             holidaycelebrated=dicts['HolidayCelebrated']
             email=dicts['Email']
             shippingcity=dicts['ShippingCity']
-            findclientvisible=dicts['FindClients_visible']
+            findclientvisible=dicts['BouncedEmail']
             #check if account is exists in database then update it 
             if Account.objects.filter(Accountid=accountid).exists():
                 gets=Account.objects.get(Accountid=accountid)
@@ -505,7 +505,7 @@ class AccountApiVIew(APIView):
                 gets.HolidayCelebrated=holidaycelebrated
                 gets.Email=email
                 gets.ShippingCity=shippingcity
-                gets.FindClients_visible=findclientvisible
+                gets.BouncedEmail=findclientvisible
                 gets.save()
                 update.append(str(gets))
             else:
@@ -525,7 +525,7 @@ class AccountApiVIew(APIView):
                     HolidayCelebrated=holidaycelebrated,
                     Email=email,
                     ShippingCity=shippingcity,
-                    FindClients_visible=findclientvisible
+                    BouncedEmail=findclientvisible
                 ) 
                 create.append(str(prod))
                 #if account is not exists in database then created new   
@@ -534,7 +534,7 @@ class AccountApiVIew(APIView):
 ###-------------------------------------INTEREST BULK SAVE API--------------------------------###
 
 class InterestApiVIew(APIView):
-    PAGE_SIZE = 10
+    PAGE_SIZE = 1000
 
     def get(self, request, format=None):
         paginator = PageNumberPagination()
