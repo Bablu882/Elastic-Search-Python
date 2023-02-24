@@ -45,7 +45,7 @@ class AccountDocument(Document):
              'HolidayCelebrated',
              'Email',
              'ShippingCity',
-             'FindClients_visible'
+             'BouncedEmail'
          ]         
 
 
@@ -83,7 +83,7 @@ class Interest_Junction_cDocument(Document):
         'HolidayCelebrated':fields.TextField(),
         'Email':fields.TextField(),
         'ShippingCity':fields.TextField(),
-        'FindClients_visible':fields.TextField()
+        'BouncedEmail':fields.TextField()
 
     })
     Product=fields.ObjectField(properties={
@@ -136,7 +136,7 @@ class OpportunityDocument(Document):
         'HolidayCelebrated':fields.TextField(),
         'Email':fields.TextField(),
         'ShippingCity':fields.TextField(),
-        'FindClients_visible':fields.TextField()
+        'BouncedEmail':fields.TextField()
 
     })
 
