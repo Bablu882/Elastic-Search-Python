@@ -2540,22 +2540,28 @@ def convert_query(query):
 import subprocess
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+import shlex
+import subprocess
+import warnings
+
+
 
 @csrf_exempt
 def rebuild_search_index(request):
     if request.method == 'POST':
         # Only allow POST requests to trigger the command
-        process = subprocess.Popen(['python3', 'manage.py', 'search_index', '--rebuild'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
-        stdout, stderr = process.communicate(input=b'y\n')
-        if stderr:
-            print(stderr.decode())
+        command = ['python3', 'manage.py', 'search_index', '--rebuild']
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            process = subprocess.run(command, input=b'y\n', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout = process.stdout.decode()
+        stderr = process.stderr.decode()
+        if process.returncode != 0:
+            print(stderr)
             return HttpResponse(stderr, status=500)
         else:
-            print(stdout.decode())
-            return HttpResponse('Search index rebuilt')
-    else:
-        return HttpResponse('Method not allowed', status=405)
-
+            print(stdout)
+            return HttpResponse('Rebuild search index done !')
 
 # from django.utils.crypto import get_random_string
 # from my_app.models import Interest_Junction_c, Account, Interest, Product
