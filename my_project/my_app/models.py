@@ -23,6 +23,7 @@ class Account(models.Model):
     Email=models.EmailField()
     ShippingCity=models.CharField(max_length=255,null=False,blank=False)
     BouncedEmail=models.CharField(max_length=100,null=False,blank=False)
+    OwnerId=models.CharField(max_length=255,null=True,blank=True)
 
 
 
