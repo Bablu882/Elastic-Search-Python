@@ -153,7 +153,8 @@ class SearchListAccount(APIView):
                     'HolidayCelebrated',
                     'Email',
                     'ShippingCity',
-                    'BouncedEmail'
+                    'BouncedEmail',
+                    'OwnerId'
                 ],
                 fuzziness='auto')
             #search above fields in account documents in elasticsearch
@@ -229,7 +230,8 @@ class SearchListOpportunity(APIView):
                     'AccountId.HolidayCelebrated',
                     'AccountId.Email',
                     'AccountId.ShippingCity',
-                    'AccountId.BouncedEmail'
+                    'AccountId.BouncedEmail',
+                    'AccountId.OwnerId'
                 ],
                 fuzziness='auto')
             #search above query in Opportunity documents in elasticsearch    
@@ -279,6 +281,7 @@ class SearchInterestJunction(APIView):
                         'Account.Email',
                         'Account.ShippingCity',
                         'Account.BouncedEmail',
+                        'Account.OwnerId',
                         'Product.ProductName',
                         'Product.Productid',
                         
@@ -317,6 +320,7 @@ class SearchInterestJunction(APIView):
                         'Account.Email',
                         'Account.ShippingCity',
                         'Account.BouncedEmail',
+                        'Account.OwnerId',
                         'Product.ProductName',
                         'Product.Productid',
                         
@@ -488,6 +492,7 @@ class AccountApiVIew(APIView):
             email=dicts['Email']
             shippingcity=dicts['ShippingCity']
             findclientvisible=dicts['BouncedEmail']
+            ownerid=dicts['OwnerId']
             #check if account is exists in database then update it 
             if Account.objects.filter(Accountid=accountid).exists():
                 gets=Account.objects.get(Accountid=accountid)
@@ -506,6 +511,7 @@ class AccountApiVIew(APIView):
                 gets.Email=email
                 gets.ShippingCity=shippingcity
                 gets.BouncedEmail=findclientvisible
+                gets.OwnerId=ownerid
                 gets.save()
                 update.append(str(gets))
             else:
@@ -525,7 +531,8 @@ class AccountApiVIew(APIView):
                     HolidayCelebrated=holidaycelebrated,
                     Email=email,
                     ShippingCity=shippingcity,
-                    BouncedEmail=findclientvisible
+                    BouncedEmail=findclientvisible,
+                    OwnerId=ownerid
                 ) 
                 create.append(str(prod))
                 #if account is not exists in database then created new   
