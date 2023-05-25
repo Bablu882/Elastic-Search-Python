@@ -1908,7 +1908,7 @@ def filter_data(filters, formula):
             else:
                 query=opportunity_search(field_name,logic,values)
             query_list.append(query)
-    client = Elasticsearch()
+    client = Elasticsearch(http_auth=('elastic', 'Kb@y&bnaAt0m'))
     s = Search(using=client, index='interest_junction_cs')
 
     expression = create_query_string(formula,query_list)

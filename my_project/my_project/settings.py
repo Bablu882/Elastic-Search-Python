@@ -49,7 +49,8 @@ INSTALLED_APPS = [
 
 ELASTICSEARCH_DSL={
     'default': {
-        'hosts': 'localhost:9200'
+        'hosts': 'localhost:9200',
+        'http_auth': ('elastic', 'Kb@y&bnaAt0m'),
     },
 }
 
@@ -97,9 +98,9 @@ WSGI_APPLICATION = 'my_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'elastic',
+        'NAME': 'salesforce',
         'USER': 'root',
-        'PASSWORD': 'XdQ6e2UIIxlzxhg',
+        'PASSWORD': 'oT7cZIleiRyhxkq',
         'HOST':'localhost',
         'PORT':'',
     }
