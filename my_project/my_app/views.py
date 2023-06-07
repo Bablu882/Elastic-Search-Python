@@ -1842,7 +1842,8 @@ class FindClientApiView(APIView):
         total_pages = math.ceil(total_hits / page_size)
         next_url = None
         if page < total_pages:
-            next_url = f'https://findclients.rauantiques.com/python/api/v2/find_client/?page={page+1}'
+                base_url = request.build_absolute_uri().split('?')[0]
+                next_url = f"{base_url}?page={page+1}"
 
         paginated_results = results[start_index:end_index]
         response = {
