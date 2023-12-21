@@ -1,15 +1,69 @@
 {
-    "InterestJunction":{
-        "JunctionCondition":"AND",
-        "InterestName":[
-            "ring",
-            "diamond"
+    "filters": [{
+            "Junction": {
+                "fieldName": "InterestName",
+                "logic": "Includes",       // Includes/Exclude/Contains/Equal/Not Equal
+                "value": ["Fine Art","glass","ring","diamond"]//for single search  use string without array "value":"fine art"
+            }
+        },
+        {
+            "Junction": {
+                "fieldName": "InterestType",
+                "logic": "Exclude",     //Includes/Exclude/Contains/Equal/Not Equal
+                "value": ["testtype1","testtype2","testtype3"]
+            }
+        },
+        {
+            "Account": {
+                "fieldName": "Account.CategoryOfInterest",
+                "logic": "Includes",       //Includes/Exclude/Contains/Equal/Not Equal
+                "value": ["jewelary","Glass","lightning"]
+            }
+        },
+        {
+            "Account": {
+                "fieldName": "Account.AccountName",
+                "logic": "Contains",       //Includes/Exclude/Contains/Equal/Not Equal
+                "value": ["testaccount","testaccount2","testaccount3"]
+            }
+        },
+         {
+            "Account": {
+                "fieldName": "Account.LastPurchasedDate",
+                "logic": "Includes",       //Includes/Exclude/Contains/Equal/Not Equal/Greater than/Lesser than
+                "value": ["12-03-2018","12-03-2019","12-03-2020"]
+            }
+        },
+        {
+            "Interest": {
+                "fieldName": "Interest.InterestID",
+                "logic": "Contains",        //Includes/Exclude/Contains/Equal/Not Equal/Greater than/Lesser than
+                "value": ["a01qwertrrywwuiopa2322","jaslfl9879797987","jlasj787987973"]
+            }
+        },
+         {
+            "Product": {
+                "fieldName": "Product.ProductName",
+                "logic": "Not Equal",         //Includes/Exclude/Contains/Equal/Not Equal
+                "value": ["Diamond Ringfasfasf","Fine Art","diamond ring"]
+            }
+        },
+        {
+            "Opportunity": {
+                "fieldName": "OpportunityName",
+                "logic": "Equal",         //Includes/Exclude/Contains/Equal/Not Equal
+                "value": ["findclient","findclienttest1","testname3"]
+            }
+        },
+         {
+            "Opportunity": {
+                "fieldName": "AverageitemSold",
+                "logic": "Greater than",       //Includes/Exclude/Contains/Equal/Not Equal/Greater than/Lesser than
+                "value": ["78","67","56"]
+            }
+        }
 
-        ]
-    },
-    "FilterFields":{
-        "FilterCondition":"AND"
 
-
-    }
+    ],
+    "formula":"(0 AND 1 OR 2 OR 3 OR 4 AND 5 AND 6 OR 7 AND 8)"
 }
